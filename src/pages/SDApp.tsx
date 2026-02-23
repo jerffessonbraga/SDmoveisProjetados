@@ -236,7 +236,7 @@ const App: React.FC = () => {
     setAiLoadingMessage("Gerando renderização fotorrealista com IA...");
     setIsAiLoading(true);
     
-    const result = await generateRealisticRender("Ambiente Projetado Premium");
+    const result = await generateRealisticRender({ room: "Ambiente Projetado", finish: "Premium", modules: [] });
     
     if (result) {
       setRenderResult(result);
