@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { supabase as supabaseClient } from '@/integrations/supabase/client';
 const db = supabaseClient as any;
 import { useToast } from '@/hooks/use-toast';
 import { MapPin, Navigation, Route, Clock, Users, Eye, Fuel } from 'lucide-react';
-
-const FleetMap = lazy(() => import('./FleetMap'));
-const FuelAdminPanel = lazy(() => import('./FuelAdminPanel'));
+import FleetMap from './FleetMap';
+import FuelAdminPanel from './FuelAdminPanel';
 
 interface Employee {
   id: string;
