@@ -11,6 +11,8 @@ export enum ViewMode {
   QUALITY_CHECK = 'QUALITY_CHECK',
   PROJECT_COSTS = 'PROJECT_COSTS',
   WARRANTY = 'WARRANTY',
+  PAYSLIP = 'PAYSLIP',
+  ADVANCE_REQUEST = 'ADVANCE_REQUEST',
 }
 
 export enum ToolMode {

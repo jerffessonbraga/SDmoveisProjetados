@@ -11,7 +11,8 @@ import {
   Clock,
   Navigation,
   BookOpen,
-  Shield
+  Shield,
+  DollarSign,
 } from "lucide-react";
 
 interface NavIconProps {
@@ -34,6 +35,7 @@ const iconMap: Record<string, React.ElementType> = {
   "navigation": Navigation,
   "book-open": BookOpen,
   "shield": Shield,
+  "dollar-sign": DollarSign,
 };
 
 export const NavIcon: React.FC<NavIconProps> = ({ icon, label, active, onClick, isFab }) => {
