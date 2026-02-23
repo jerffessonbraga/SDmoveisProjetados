@@ -1,7 +1,8 @@
-import React from "react";
-import { Card } from "@/components/ui/card";
+import { formatDate, formatCurrency } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Eye, Edit, MoreHorizontal } from "lucide-react";
+import kitchenRender from "@/assets/kitchen-render.jpg";
 
 export interface Project {
   id: string;
@@ -13,27 +14,77 @@ export interface Project {
   thumbnail?: string;
 }
 
-const statusLabels: Record<string, string> = {
-  draft: "Rascunho",
-  in_progress: "Em Andamento",
-  review: "Em Revisão",
-  completed: "Concluído",
+interface ProjectCardProps {
+  project: Project;
+}
+
+const statusConfig = {
+  draft: { label: "Rascunho", variant: "secondary" as const },
+  in_progress: { label: "Em Produção", variant: "default" as const },
+  review: { label: "Em Revisão", variant: "outline" as const },
+  completed: { label: "Concluído", variant: "default" as const },
 };
 
-export const ProjectCard: React.FC<{ project: Project }> = ({ project }) => (
-  <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-    {project.thumbnail && (
-      <div className="h-40 bg-muted overflow-hidden">
-        <img src={project.thumbnail} alt={project.name} className="w-full h-full object-cover" />
+export function ProjectCard({ project }: ProjectCardProps) {
+  const status = statusConfig[project.status];
+
+  return (
+    <div className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg transition-all duration-300 group">
+      {/* Thumbnail */}
+      <div className="aspect-video bg-muted relative overflow-hidden">
+        <img
+          src={project.thumbnail || kitchenRender}
+          alt={project.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+
+        {/* Overlay actions */}
+        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
+          <Button size="sm" variant="secondary" className="shadow-lg">
+            <Eye className="w-4 h-4 mr-1" />
+            Ver
+          </Button>
+          <Button size="sm" variant="secondary" className="shadow-lg">
+            <Edit className="w-4 h-4 mr-1" />
+            Editar
+          </Button>
+        </div>
       </div>
-    )}
-    <div className="p-4 space-y-2">
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold">{project.name}</h3>
-        <Badge variant="secondary">{statusLabels[project.status] || project.status}</Badge>
+
+      {/* Content */}
+      <div className="p-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="font-semibold text-card-foreground">{project.name}</h3>
+            <p className="text-sm text-muted-foreground">{project.client}</p>
+          </div>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <MoreHorizontal className="w-4 h-4" />
+          </Button>
+        </div>
+
+        <div className="flex items-center justify-between mt-4">
+          <Badge
+            variant={status.variant}
+            className={
+              project.status === "completed"
+                ? "bg-success text-success-foreground"
+                : project.status === "in_progress"
+                ? "bg-primary text-primary-foreground"
+                : ""
+            }
+          >
+            {status.label}
+          </Badge>
+          <span className="text-sm font-medium text-muted-foreground">
+            {formatCurrency(project.value)}
+          </span>
+        </div>
+
+        <p className="text-xs text-muted-foreground mt-3">
+          Criado em {formatDate(project.createdAt)}
+        </p>
       </div>
-      <p className="text-sm text-muted-foreground">{project.client}</p>
-      <p className="text-sm font-bold">{formatCurrency(project.value)}</p>
     </div>
-  </Card>
-);
+  );
+}
