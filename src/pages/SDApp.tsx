@@ -38,11 +38,9 @@ const LOUVORES = [
 ];
 
 const GALLERY_ITEMS = [
-  { title: 'Sala com Espelho', desc: 'Ambiente sofisticado com espelhamento', url: '/images/gallery/sala-espelho.jpeg' },
-  { title: 'Sala de Estar 1', desc: 'Design moderno e aconchegante', url: '/images/gallery/sala-estar-1.jpeg' },
-  { title: 'Sala de Estar 2', desc: 'Tons neutros elegantes', url: '/images/gallery/sala-estar-2.jpeg' },
-  { title: 'Sala de Estar 3', desc: 'Projeto exclusivo SD', url: '/images/gallery/sala-estar-3.jpeg' },
-  { title: 'Sala de Jantar', desc: 'Mobiliário premium planejado', url: '/images/gallery/sala-jantar.jpeg' },
+  { title: 'Cozinha Gourmet', desc: 'Projeto premium com ilha em mármore', url: '/images/gallery/kitchen-render.jpg' },
+  { title: 'Dormitório Master', desc: 'Closet planejado em madeira natural', url: '/images/gallery/bedroom-render.jpg' },
+  { title: 'Home Office', desc: 'Estação de trabalho completa', url: '/images/gallery/office-render.jpg' },
 ];
 
 const CLIENT_PRODUCTION_STEPS = [
