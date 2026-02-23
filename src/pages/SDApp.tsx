@@ -537,7 +537,7 @@ const App: React.FC = () => {
 
         {/* PROMOB 3D EDITOR */}
         {view === ViewMode.PROMOB && authState === 'ADMIN' && (
-          <PromobEditor />
+          <PromobEditor onRender={handleRender} isRendering={isAiLoading} />
         )}
 
         {/* CRM - WhatsApp Real */}
