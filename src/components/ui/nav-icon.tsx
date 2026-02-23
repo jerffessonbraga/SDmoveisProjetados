@@ -1,18 +1,17 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  Box,
-  FileText,
-  MessageSquare,
-  Home,
+import { 
+  LayoutDashboard, 
+  Box, 
+  FileText, 
+  MessageSquare, 
+  Home, 
   Image,
   Plus,
   Clock,
   Navigation,
   BookOpen,
-  Shield,
-  DollarSign,
+  Shield
 } from "lucide-react";
 
 interface NavIconProps {
@@ -35,30 +34,29 @@ const iconMap: Record<string, React.ElementType> = {
   "navigation": Navigation,
   "book-open": BookOpen,
   "shield": Shield,
-  "dollar-sign": DollarSign,
 };
 
 export const NavIcon: React.FC<NavIconProps> = ({ icon, label, active, onClick, isFab }) => {
   const IconComponent = iconMap[icon] || Box;
-
+  
   if (isFab) {
     return (
-      <button
-        onClick={onClick}
+      <button 
+        onClick={onClick} 
         className="w-14 h-14 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform"
       >
         <Plus className="w-6 h-6" />
       </button>
     );
   }
-
+  
   return (
-    <button
-      onClick={onClick}
+    <button 
+      onClick={onClick} 
       className={cn(
         "flex flex-col items-center gap-1 py-3 px-2 rounded-xl transition-all",
-        active
-          ? "bg-amber-500/20 text-amber-500"
+        active 
+          ? "bg-amber-500/20 text-amber-500" 
           : "text-gray-400 hover:text-white hover:bg-white/5"
       )}
     >
