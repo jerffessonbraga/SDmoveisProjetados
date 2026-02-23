@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { supabase as supabaseClient } from '@/integrations/supabase/client';
 const db = supabaseClient as any;
 import { useToast } from '@/hooks/use-toast';
