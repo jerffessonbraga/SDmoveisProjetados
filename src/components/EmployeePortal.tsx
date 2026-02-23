@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Clock, Play, Square, DollarSign, Calendar, User, Send, CheckCircle, XCircle, Loader2, Download, Fuel } from 'lucide-react';
+import { Clock, Play, Square, DollarSign, Calendar, User, Send, CheckCircle, XCircle, Loader2, Download, Fuel, Navigation, Wrench } from 'lucide-react';
 import jsPDF from 'jspdf';
+import DriverTripPanel from '@/components/fleet/DriverTripPanel';
+import FuelLogForm from '@/components/fleet/FuelLogForm';
+import ToolInventory from '@/components/employee/ToolInventory';
 
 interface Employee {
   id: string;
@@ -29,6 +32,7 @@ interface Adjustment {
 }
 
 type Period = 'week' | 'biweekly' | 'month';
+type Tab = 'ponto' | 'viagens' | 'combustivel' | 'ferramentas';
 
 interface EmployeePortalProps {
   employeeName: string;
@@ -40,6 +44,7 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [period, setPeriod] = useState<Period>('month');
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<Tab>('ponto');
 
   // Vale/Adiantamento
   const [showVale, setShowVale] = useState(false);
@@ -175,7 +180,6 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
     const margin = 15;
     const contentW = W - margin * 2;
 
-    // Load logo
     let logoData: string | null = null;
     try {
       const resp = await fetch('/images/logo-sd-payslip.jpeg');
@@ -187,20 +191,14 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
       });
     } catch { /* skip logo */ }
 
-    // ── HEADER ──
     const gold = [184, 151, 60] as const;
     const darkGray = [40, 40, 40] as const;
 
-    // Gold top bar
     doc.setFillColor(...gold);
     doc.rect(0, 0, W, 4, 'F');
 
-    // Logo
-    if (logoData) {
-      doc.addImage(logoData, 'JPEG', margin, 10, 22, 22);
-    }
+    if (logoData) doc.addImage(logoData, 'JPEG', margin, 10, 22, 22);
 
-    // Company info
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
     doc.setTextColor(...darkGray);
@@ -212,7 +210,6 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
     doc.text('CNPJ: 27.693.081/0001-09', logoData ? margin + 26 : margin, 25);
     doc.text('Rua Jorge Figueiredo, 740 • Caucaia - CE • CEP 61880-000', logoData ? margin + 26 : margin, 30);
 
-    // Title bar
     doc.setFillColor(...darkGray);
     doc.rect(margin, 38, contentW, 10, 'F');
     doc.setFont('helvetica', 'bold');
@@ -220,7 +217,6 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
     doc.setTextColor(255, 255, 255);
     doc.text(`CONTRACHEQUE — ${periodLabel.toUpperCase()}`, W / 2, 44.5, { align: 'center' });
 
-    // ── EMPLOYEE INFO ──
     let y = 56;
     doc.setFillColor(245, 245, 245);
     doc.rect(margin, y - 4, contentW, 18, 'F');
@@ -247,7 +243,6 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
     doc.setFont('helvetica', 'normal');
     doc.text(today, contentW / 2 + margin + 20, y + 7);
 
-    // ── TABLE: PROVENTOS ──
     y = 80;
     doc.setFillColor(...gold);
     doc.rect(margin, y, contentW, 8, 'F');
@@ -276,7 +271,6 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
     if (overtime > 0) drawRow('Horas Extra', `+ ${overtime.toFixed(2)}`, false);
     if (fuelAllowance > 0) drawRow('Vale Combustível', `+ ${fuelAllowance.toFixed(2)}`, overtime > 0 ? true : false);
 
-    // Subtotal proventos
     doc.setDrawColor(200, 200, 200);
     doc.line(margin, y, margin + contentW, y);
     doc.setFont('helvetica', 'bold');
@@ -287,7 +281,6 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
     doc.text(totalProventos.toFixed(2), margin + contentW - 3, y + 5, { align: 'right' });
     y += 9;
 
-    // ── TABLE: DESCONTOS ──
     doc.setFillColor(220, 38, 38);
     doc.rect(margin, y, contentW, 8, 'F');
     doc.setFont('helvetica', 'bold');
@@ -311,7 +304,6 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
     doc.text(deductions.toFixed(2), margin + contentW - 3, y + 5, { align: 'right' });
     y += 12;
 
-    // ── TOTAL LÍQUIDO ──
     doc.setFillColor(...darkGray);
     doc.rect(margin, y, contentW, 12, 'F');
     doc.setFont('helvetica', 'bold');
@@ -322,7 +314,6 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
     doc.setFontSize(14);
     doc.text(`R$ ${total.toFixed(2)}`, margin + contentW - 5, y + 8.5, { align: 'right' });
 
-    // ── FOOTER ──
     y += 25;
     doc.setDrawColor(200, 200, 200);
     doc.line(margin, y, margin + contentW / 2 - 10, y);
@@ -334,7 +325,6 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
     doc.text('Assinatura do Empregador', margin + contentW / 4, y + 5, { align: 'center' });
     doc.text('Assinatura do Funcionário', margin + contentW * 3 / 4, y + 5, { align: 'center' });
 
-    // Gold bottom bar
     doc.setFillColor(...gold);
     doc.rect(0, 293, W, 4, 'F');
 
@@ -370,207 +360,256 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
   const deductions = calcDeductions();
   const total = hours * employee.hourly_rate + overtime + fuelAllowance - deductions;
 
+  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
+    { key: 'ponto', label: 'Ponto', icon: <Clock className="w-4 h-4" /> },
+    { key: 'viagens', label: 'Viagens', icon: <Navigation className="w-4 h-4" /> },
+    { key: 'combustivel', label: 'Combustível', icon: <Fuel className="w-4 h-4" /> },
+    { key: 'ferramentas', label: 'Ferramentas', icon: <Wrench className="w-4 h-4" /> },
+  ];
+
   return (
     <div className="p-8 space-y-6 overflow-auto h-full bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
       <header>
         <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
           <Clock className="w-8 h-8 text-amber-500" />
-          Meu Ponto
+          Portal do Funcionário
         </h1>
         <p className="text-gray-500 mt-1">Olá, <span className="font-bold text-gray-700">{employee.name}</span> • {employee.role || 'Funcionário'}</p>
       </header>
 
-      {/* Clock In/Out Card */}
-      <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 max-w-lg">
-        <div className="flex items-center gap-3 mb-6">
-          <span className={`w-4 h-4 rounded-full ${openEntry ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`} />
-          <span className="font-bold text-gray-900 text-lg">
-            {openEntry ? 'Trabalhando agora' : 'Fora do expediente'}
-          </span>
-        </div>
-
-        {openEntry ? (
-          <div>
-            <p className="text-sm text-green-600 mb-4">⏱️ Entrada: {formatTime(openEntry.clock_in)}</p>
-            <button
-              onClick={() => clockOut(openEntry.id)}
-              className="w-full bg-red-500 hover:bg-red-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all text-lg"
-            >
-              <Square className="w-5 h-5" /> Registrar Saída
-            </button>
-          </div>
-        ) : (
+      {/* Tabs */}
+      <div className="flex gap-2 flex-wrap">
+        {tabs.map(tab => (
           <button
-            onClick={clockIn}
-            className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all text-lg"
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`px-4 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+              activeTab === tab.key
+                ? 'bg-amber-500 text-white shadow'
+                : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+            }`}
           >
-            <Play className="w-5 h-5" /> Registrar Entrada
+            {tab.icon}
+            {tab.label}
           </button>
-        )}
+        ))}
       </div>
 
-      {/* Payment Summary */}
-      <div className="bg-white rounded-2xl p-8 shadow-lg">
-        <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <DollarSign className="w-5 h-5 text-green-500" /> Resumo de Pagamento
-        </h3>
-
-        <div className="flex gap-3 mb-6">
-          {(['week', 'biweekly', 'month'] as Period[]).map(p => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${
-                period === p ? 'bg-amber-500 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {p === 'week' ? 'Semana' : p === 'biweekly' ? 'Quinzena' : 'Mês'}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <div className="bg-blue-50 rounded-xl p-5 text-center">
-            <p className="text-xs text-blue-600 font-bold uppercase mb-1">Horas</p>
-            <p className="text-2xl font-black text-blue-700">{hours.toFixed(1)}h</p>
-          </div>
-          <div className="bg-gray-50 rounded-xl p-5 text-center">
-            <p className="text-xs text-gray-500 font-bold uppercase mb-1">Valor/h</p>
-            <p className="text-2xl font-black text-gray-700">R$ {employee.hourly_rate.toFixed(2)}</p>
-          </div>
-          {overtime > 0 && (
-            <div className="bg-green-50 rounded-xl p-5 text-center">
-              <p className="text-xs text-green-600 font-bold uppercase mb-1">H. Extra</p>
-              <p className="text-2xl font-black text-green-700">+R$ {overtime.toFixed(2)}</p>
-            </div>
-          )}
-          {fuelAllowance > 0 && (
-            <div className="bg-orange-50 rounded-xl p-5 text-center">
-              <p className="text-xs text-orange-600 font-bold uppercase mb-1">⛽ V. Combust.</p>
-              <p className="text-2xl font-black text-orange-700">+R$ {fuelAllowance.toFixed(2)}</p>
-            </div>
-          )}
-          {deductions > 0 && (
-            <div className="bg-red-50 rounded-xl p-5 text-center">
-              <p className="text-xs text-red-600 font-bold uppercase mb-1">Adiantamentos</p>
-              <p className="text-2xl font-black text-red-700">-R$ {deductions.toFixed(2)}</p>
-            </div>
-          )}
-          <div className="bg-green-50 rounded-xl p-5 text-center col-span-full md:col-span-1">
-            <p className="text-xs text-green-600 font-bold uppercase mb-1">Total Líquido</p>
-            <p className="text-2xl font-black text-green-700">R$ {total.toFixed(2)}</p>
-          </div>
-        </div>
-
-        <button
-          onClick={downloadPayslip}
-          className="mt-4 w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all"
-        >
-          <Download className="w-5 h-5" /> Baixar Contracheque
-        </button>
-      </div>
-
-      {/* Recent Entries */}
-      <div className="bg-white rounded-2xl p-6 shadow-lg">
-        <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-amber-500" /> Meus Registros Recentes
-        </h3>
-        <div className="space-y-2 max-h-64 overflow-auto">
-          {entries.slice(0, 15).map(entry => (
-            <div key={entry.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl text-sm">
-              <div className="flex items-center gap-3">
-                <span className={`w-2 h-2 rounded-full ${entry.clock_out ? 'bg-gray-300' : 'bg-green-500 animate-pulse'}`} />
-                <span>🟢 {formatTime(entry.clock_in)}</span>
-              </div>
-              <div className="text-gray-500">
-                {entry.clock_out ? (
-                  <span>🔴 {formatTime(entry.clock_out)} — <span className="font-bold text-gray-700">
-                    {((new Date(entry.clock_out).getTime() - new Date(entry.clock_in).getTime()) / 3600000).toFixed(1)}h
-                  </span></span>
-                ) : (
-                  <span className="text-green-600 font-bold">Em andamento...</span>
-                )}
-              </div>
-            </div>
-          ))}
-          {entries.length === 0 && (
-            <p className="text-center text-gray-400 py-6">Nenhum registro ainda</p>
-          )}
-        </div>
-      </div>
-
-      {/* Vale/Adiantamento */}
-      <div className="bg-white rounded-2xl p-6 shadow-lg">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-gray-900 flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-amber-500" /> Solicitar Vale/Adiantamento
-          </h3>
-          <button
-            onClick={() => setShowVale(!showVale)}
-            className="px-4 py-2 bg-amber-500 text-white rounded-xl font-bold text-sm hover:bg-amber-600 transition-colors"
-          >
-            {showVale ? 'Cancelar' : 'Nova Solicitação'}
-          </button>
-        </div>
-
-        {showVale && (
-          <div className="bg-amber-50 rounded-xl p-4 space-y-3 border border-amber-200 mb-4">
-            <div>
-              <label className="text-xs font-bold text-gray-600 uppercase">Valor (R$)</label>
-              <input
-                type="number"
-                value={valeAmount}
-                onChange={e => setValeAmount(e.target.value)}
-                placeholder="Ex: 200"
-                className="w-full p-3 rounded-lg border border-amber-200 bg-white text-sm mt-1"
-                min="1"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-bold text-gray-600 uppercase">Motivo (opcional)</label>
-              <input
-                type="text"
-                value={valeReason}
-                onChange={e => setValeReason(e.target.value)}
-                placeholder="Ex: Combustível para entrega"
-                className="w-full p-3 rounded-lg border border-amber-200 bg-white text-sm mt-1"
-              />
-            </div>
-            <button
-              onClick={submitVale}
-              disabled={valeSending || !valeAmount}
-              className="w-full bg-amber-500 text-white py-3 rounded-xl font-bold text-sm hover:bg-amber-600 disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {valeSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              Enviar Solicitação
-            </button>
-          </div>
-        )}
-
-        <div className="space-y-2 max-h-48 overflow-auto">
-          {valeRequests.map(req => (
-            <div key={req.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl text-sm">
-              <div>
-                <span className="font-bold text-gray-900">R$ {Number(req.amount).toFixed(2)}</span>
-                {req.reason && <span className="text-gray-500 ml-2">— {req.reason}</span>}
-              </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                req.status === 'Aprovado' ? 'bg-green-100 text-green-700' :
-                req.status === 'Recusado' ? 'bg-red-100 text-red-700' :
-                'bg-amber-100 text-amber-700'
-              }`}>
-                {req.status === 'Aprovado' && <CheckCircle className="w-3 h-3 inline mr-1" />}
-                {req.status === 'Recusado' && <XCircle className="w-3 h-3 inline mr-1" />}
-                {req.status}
+      {/* Tab: Ponto */}
+      {activeTab === 'ponto' && (
+        <>
+          {/* Clock In/Out Card */}
+          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 max-w-lg">
+            <div className="flex items-center gap-3 mb-6">
+              <span className={`w-4 h-4 rounded-full ${openEntry ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`} />
+              <span className="font-bold text-gray-900 text-lg">
+                {openEntry ? 'Trabalhando agora' : 'Fora do expediente'}
               </span>
             </div>
-          ))}
-          {valeRequests.length === 0 && (
-            <p className="text-center text-gray-400 py-4 text-sm">Nenhuma solicitação ainda</p>
-          )}
+
+            {openEntry ? (
+              <div>
+                <p className="text-sm text-green-600 mb-4">⏱️ Entrada: {formatTime(openEntry.clock_in)}</p>
+                <button
+                  onClick={() => clockOut(openEntry.id)}
+                  className="w-full bg-red-500 hover:bg-red-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all text-lg"
+                >
+                  <Square className="w-5 h-5" /> Registrar Saída
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={clockIn}
+                className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all text-lg"
+              >
+                <Play className="w-5 h-5" /> Registrar Entrada
+              </button>
+            )}
+          </div>
+
+          {/* Payment Summary */}
+          <div className="bg-white rounded-2xl p-8 shadow-lg">
+            <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-green-500" /> Resumo de Pagamento
+            </h3>
+
+            <div className="flex gap-3 mb-6">
+              {(['week', 'biweekly', 'month'] as Period[]).map(p => (
+                <button
+                  key={p}
+                  onClick={() => setPeriod(p)}
+                  className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${
+                    period === p ? 'bg-amber-500 text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {p === 'week' ? 'Semana' : p === 'biweekly' ? 'Quinzena' : 'Mês'}
+                </button>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <div className="bg-blue-50 rounded-xl p-5 text-center">
+                <p className="text-xs text-blue-600 font-bold uppercase mb-1">Horas</p>
+                <p className="text-2xl font-black text-blue-700">{hours.toFixed(1)}h</p>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-5 text-center">
+                <p className="text-xs text-gray-500 font-bold uppercase mb-1">Valor/h</p>
+                <p className="text-2xl font-black text-gray-700">R$ {employee.hourly_rate.toFixed(2)}</p>
+              </div>
+              {overtime > 0 && (
+                <div className="bg-green-50 rounded-xl p-5 text-center">
+                  <p className="text-xs text-green-600 font-bold uppercase mb-1">H. Extra</p>
+                  <p className="text-2xl font-black text-green-700">+R$ {overtime.toFixed(2)}</p>
+                </div>
+              )}
+              {fuelAllowance > 0 && (
+                <div className="bg-orange-50 rounded-xl p-5 text-center">
+                  <p className="text-xs text-orange-600 font-bold uppercase mb-1">⛽ V. Combust.</p>
+                  <p className="text-2xl font-black text-orange-700">+R$ {fuelAllowance.toFixed(2)}</p>
+                </div>
+              )}
+              {deductions > 0 && (
+                <div className="bg-red-50 rounded-xl p-5 text-center">
+                  <p className="text-xs text-red-600 font-bold uppercase mb-1">Adiantamentos</p>
+                  <p className="text-2xl font-black text-red-700">-R$ {deductions.toFixed(2)}</p>
+                </div>
+              )}
+              <div className="bg-green-50 rounded-xl p-5 text-center col-span-full md:col-span-1">
+                <p className="text-xs text-green-600 font-bold uppercase mb-1">Total Líquido</p>
+                <p className="text-2xl font-black text-green-700">R$ {total.toFixed(2)}</p>
+              </div>
+            </div>
+
+            <button
+              onClick={downloadPayslip}
+              className="mt-4 w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all"
+            >
+              <Download className="w-5 h-5" /> Baixar Contracheque
+            </button>
+          </div>
+
+          {/* Recent Entries */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg">
+            <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-amber-500" /> Meus Registros Recentes
+            </h3>
+            <div className="space-y-2 max-h-64 overflow-auto">
+              {entries.slice(0, 15).map(entry => (
+                <div key={entry.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl text-sm">
+                  <div className="flex items-center gap-3">
+                    <span className={`w-2 h-2 rounded-full ${entry.clock_out ? 'bg-gray-300' : 'bg-green-500 animate-pulse'}`} />
+                    <span>🟢 {formatTime(entry.clock_in)}</span>
+                  </div>
+                  <div className="text-gray-500">
+                    {entry.clock_out ? (
+                      <span>🔴 {formatTime(entry.clock_out)} — <span className="font-bold text-gray-700">
+                        {((new Date(entry.clock_out).getTime() - new Date(entry.clock_in).getTime()) / 3600000).toFixed(1)}h
+                      </span></span>
+                    ) : (
+                      <span className="text-green-600 font-bold">Em andamento...</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {entries.length === 0 && (
+                <p className="text-center text-gray-400 py-6">Nenhum registro ainda</p>
+              )}
+            </div>
+          </div>
+
+          {/* Vale/Adiantamento */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-amber-500" /> Solicitar Vale/Adiantamento
+              </h3>
+              <button
+                onClick={() => setShowVale(!showVale)}
+                className="px-4 py-2 bg-amber-500 text-white rounded-xl font-bold text-sm hover:bg-amber-600 transition-colors"
+              >
+                {showVale ? 'Cancelar' : 'Nova Solicitação'}
+              </button>
+            </div>
+
+            {showVale && (
+              <div className="bg-amber-50 rounded-xl p-4 space-y-3 border border-amber-200 mb-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-600 uppercase">Valor (R$)</label>
+                  <input
+                    type="number"
+                    value={valeAmount}
+                    onChange={e => setValeAmount(e.target.value)}
+                    placeholder="Ex: 200"
+                    className="w-full p-3 rounded-lg border border-amber-200 bg-white text-sm mt-1"
+                    min="1"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-600 uppercase">Motivo (opcional)</label>
+                  <input
+                    type="text"
+                    value={valeReason}
+                    onChange={e => setValeReason(e.target.value)}
+                    placeholder="Ex: Combustível para entrega"
+                    className="w-full p-3 rounded-lg border border-amber-200 bg-white text-sm mt-1"
+                  />
+                </div>
+                <button
+                  onClick={submitVale}
+                  disabled={valeSending || !valeAmount}
+                  className="w-full bg-amber-500 text-white py-3 rounded-xl font-bold text-sm hover:bg-amber-600 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {valeSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  Enviar Solicitação
+                </button>
+              </div>
+            )}
+
+            <div className="space-y-2 max-h-48 overflow-auto">
+              {valeRequests.map(req => (
+                <div key={req.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl text-sm">
+                  <div>
+                    <span className="font-bold text-gray-900">R$ {Number(req.amount).toFixed(2)}</span>
+                    {req.reason && <span className="text-gray-500 ml-2">— {req.reason}</span>}
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    req.status === 'Aprovado' ? 'bg-green-100 text-green-700' :
+                    req.status === 'Recusado' ? 'bg-red-100 text-red-700' :
+                    'bg-amber-100 text-amber-700'
+                  }`}>
+                    {req.status === 'Aprovado' && <CheckCircle className="w-3 h-3 inline mr-1" />}
+                    {req.status === 'Recusado' && <XCircle className="w-3 h-3 inline mr-1" />}
+                    {req.status}
+                  </span>
+                </div>
+              ))}
+              {valeRequests.length === 0 && (
+                <p className="text-center text-gray-400 py-4 text-sm">Nenhuma solicitação ainda</p>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Tab: Viagens */}
+      {activeTab === 'viagens' && employee && (
+        <DriverTripPanel employeeId={employee.id} employeeName={employee.name} />
+      )}
+
+      {/* Tab: Combustível */}
+      {activeTab === 'combustivel' && employee && (
+        <div className="bg-white rounded-2xl p-6 shadow-lg">
+          <FuelLogForm employeeId={employee.id} />
         </div>
-      </div>
+      )}
+
+      {/* Tab: Ferramentas */}
+      {activeTab === 'ferramentas' && employee && (
+        <div className="bg-white rounded-2xl p-6 shadow-lg">
+          <ToolInventory employeeId={employee.id} />
+        </div>
+      )}
     </div>
   );
 }

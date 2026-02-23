@@ -212,6 +212,67 @@ export type Database = {
         }
         Relationships: []
       }
+      fuel_logs: {
+        Row: {
+          created_at: string
+          employee_id: string
+          id: string
+          liters: number
+          notes: string | null
+          odometer: number | null
+          price_per_liter: number
+          total_cost: number
+          trip_id: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          id?: string
+          liters: number
+          notes?: string | null
+          odometer?: number | null
+          price_per_liter?: number
+          total_cost?: number
+          trip_id?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          id?: string
+          liters?: number
+          notes?: string | null
+          odometer?: number | null
+          price_per_liter?: number
+          total_cost?: number
+          trip_id?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fuel_logs_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fuel_logs_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fuel_logs_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -533,6 +594,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "time_entries_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tool_inventory: {
+        Row: {
+          condition: string
+          created_at: string
+          employee_id: string
+          id: string
+          name: string
+          notes: string | null
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          condition?: string
+          created_at?: string
+          employee_id: string
+          id?: string
+          name: string
+          notes?: string | null
+          quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          condition?: string
+          created_at?: string
+          employee_id?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tool_inventory_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
