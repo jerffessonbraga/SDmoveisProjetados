@@ -23,6 +23,9 @@ export interface WhatsAppMessage {
   created_at: string;
 }
 
+// Use `any` cast on supabase client for tables not yet in the generated types
+const db = supabase as any;
+
 export function useWhatsApp() {
   const [conversations, setConversations] = useState<WhatsAppConversation[]>([]);
   const [messages, setMessages] = useState<WhatsAppMessage[]>([]);
@@ -33,8 +36,7 @@ export function useWhatsApp() {
   const fetchConversations = useCallback(async () => {
     setLoading(true);
     try {
-      // Direct Supabase query instead of edge function
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('whatsapp_conversations')
         .select(`
           *,
@@ -87,7 +89,7 @@ export function useWhatsApp() {
 
   const fetchMessages = useCallback(async (conversationId: string) => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('whatsapp_messages')
         .select('*')
         .eq('conversation_id', conversationId)
@@ -109,7 +111,7 @@ export function useWhatsApp() {
   const sendMessage = useCallback(async (conversationId: string, message: string) => {
     setSendingMessage(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('whatsapp_messages')
         .insert({
           conversation_id: conversationId,
@@ -127,7 +129,6 @@ export function useWhatsApp() {
         description: 'Mensagem salva com sucesso.',
       });
 
-      // Refresh messages
       await fetchMessages(conversationId);
       await fetchConversations();
 
@@ -145,7 +146,6 @@ export function useWhatsApp() {
     }
   }, [fetchMessages, fetchConversations, toast]);
 
-  // Set up realtime subscription
   useEffect(() => {
     const channel = supabase
       .channel('whatsapp-messages')
