@@ -10,18 +10,18 @@ export interface DashboardStatProps {
   trend?: string;
 }
 
-export const DashboardStat: React.FC<DashboardStatProps> = ({
-  title,
-  value,
-  icon,
-  dark,
+export const DashboardStat: React.FC<DashboardStatProps> = ({ 
+  title, 
+  value, 
+  icon, 
+  dark, 
   color,
   trend
 }) => (
   <div className={cn(
     "p-6 rounded-[24px] transition-all hover:scale-[1.02]",
-    dark
-      ? "bg-gray-900 text-white"
+    dark 
+      ? "bg-gray-900 text-white" 
       : "bg-white shadow-lg border border-gray-100",
     color
   )}>
