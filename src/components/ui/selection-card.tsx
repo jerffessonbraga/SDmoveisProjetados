@@ -10,12 +10,12 @@ interface SelectionCardProps {
 }
 
 export const SelectionCard: React.FC<SelectionCardProps> = ({ title, desc, icon, gold, onClick }) => (
-  <button
-    onClick={onClick}
+  <button 
+    onClick={onClick} 
     className={cn(
       "w-72 p-10 rounded-[40px] text-center transition-all duration-300 hover:scale-105 shadow-2xl",
-      gold
-        ? "bg-gradient-to-br from-amber-500 to-amber-700 text-white"
+      gold 
+        ? "bg-gradient-to-br from-amber-500 to-amber-700 text-white" 
         : "bg-white text-gray-800 hover:shadow-amber-200/50"
     )}
   >
