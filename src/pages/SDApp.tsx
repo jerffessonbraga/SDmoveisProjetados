@@ -6,7 +6,7 @@ import WarrantyCertificate from '@/components/client/WarrantyCertificate';
 import ProjectCostPanel from '@/components/admin/ProjectCostPanel';
 import QualityCheckPanel from '@/components/admin/QualityCheckPanel';
 import TimeTrackingPanel from '@/components/timetracking/TimeTrackingPanel';
-import EmployeePortal from '@/components/timetracking/EmployeePortal';
+import EmployeePortal from '@/components/EmployeePortal';
 import DriverTripPanel from '@/components/fleet/DriverTripPanel';
 import FleetAdminPanel from '@/components/fleet/FleetAdminPanel';
 import { SelectionCard } from '@/components/ui/selection-card';
