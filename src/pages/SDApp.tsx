@@ -5,6 +5,10 @@ import { DashboardStat } from '@/components/ui/dashboard-stat';
 import { useToast } from '@/hooks/use-toast';
 import logoSD from '@/assets/logo-sd.jpeg';
 import { WorshipPlayer } from '@/components/WorshipPlayer';
+import CRMWhatsApp from '@/components/CRMWhatsApp';
+import TimeTracking from '@/components/TimeTracking';
+import FleetManagement from '@/components/FleetManagement';
+import AfterSales from '@/components/AfterSales';
 import {
   LogOut, Download, Share2, X, Eye, Edit, Loader2, Heart, Star,
   Calendar, Clock, FileText, CheckCircle, Phone, Mail, Camera,
@@ -340,19 +344,9 @@ const SDApp: React.FC = () => {
           </div>
         )}
 
-        {/* CRM Placeholder */}
+        {/* CRM WhatsApp */}
         {view === ViewMode.CRM && (
-          <div className="h-full p-6 overflow-auto bg-gradient-to-br from-gray-50 to-gray-100">
-            <header className="mb-6">
-              <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3"><MessageCircle className="w-8 h-8 text-green-500" /> CRM WhatsApp</h1>
-              <p className="text-gray-500 mt-1">Gerencie suas conversas e leads</p>
-            </header>
-            <div className="bg-white rounded-3xl p-8 shadow-xl text-center">
-              <MessageCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-black text-gray-900 mb-2">CRM WhatsApp</h3>
-              <p className="text-gray-500">Módulo de CRM será habilitado com o Lovable Cloud</p>
-            </div>
-          </div>
+          <CRMWhatsApp isClient={authState === 'CLIENT'} />
         )}
 
         {/* CONTRACTS */}
@@ -584,12 +578,7 @@ const SDApp: React.FC = () => {
 
         {/* AFTER SALES */}
         {view === ViewMode.AFTER_SALES && authState === 'CLIENT' && (
-          <div className="h-full p-6 overflow-auto bg-gradient-to-br from-gray-50 to-gray-100">
-            <h1 className="text-3xl font-black text-gray-900 mb-6">Pós-Venda SD</h1>
-            <div className="bg-white rounded-3xl p-8 shadow-xl text-center">
-              <p className="text-gray-500">Módulo de pós-venda será habilitado em breve</p>
-            </div>
-          </div>
+          <AfterSales />
         )}
 
         {/* WARRANTY */}
@@ -609,28 +598,14 @@ const SDApp: React.FC = () => {
           </div>
         )}
 
-        {/* TIME TRACKING placeholder */}
+        {/* TIME TRACKING */}
         {view === ViewMode.TIME_TRACKING && (
-          <div className="h-full p-6 overflow-auto bg-gradient-to-br from-gray-50 to-gray-100">
-            <h1 className="text-3xl font-black text-gray-900 mb-6 flex items-center gap-3"><Clock className="w-8 h-8 text-amber-500" /> {authState === 'EMPLOYEE' ? 'Meu Ponto' : 'Controle de Ponto'}</h1>
-            <div className="bg-white rounded-3xl p-8 shadow-xl text-center">
-              <Clock className="w-16 h-16 text-amber-500 mx-auto mb-4" />
-              <h3 className="text-xl font-black text-gray-900 mb-2">Controle de Ponto</h3>
-              <p className="text-gray-500">Módulo de ponto será habilitado com o Lovable Cloud</p>
-            </div>
-          </div>
+          <TimeTracking isEmployee={authState === 'EMPLOYEE'} employeeName={employeeName} />
         )}
 
-        {/* FLEET placeholder */}
+        {/* FLEET */}
         {view === ViewMode.FLEET && (
-          <div className="h-full p-6 overflow-auto bg-gradient-to-br from-gray-50 to-gray-100">
-            <h1 className="text-3xl font-black text-gray-900 mb-6 flex items-center gap-3"><Truck className="w-8 h-8 text-amber-500" /> {authState === 'EMPLOYEE' ? 'Minhas Viagens' : 'Gestão de Frota'}</h1>
-            <div className="bg-white rounded-3xl p-8 shadow-xl text-center">
-              <Truck className="w-16 h-16 text-amber-500 mx-auto mb-4" />
-              <h3 className="text-xl font-black text-gray-900 mb-2">Gestão de Frota</h3>
-              <p className="text-gray-500">Módulo de frota será habilitado com o Lovable Cloud</p>
-            </div>
-          </div>
+          <FleetManagement isEmployee={authState === 'EMPLOYEE'} />
         )}
       </main>
 
