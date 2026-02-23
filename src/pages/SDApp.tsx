@@ -9,6 +9,8 @@ import CRMWhatsApp from '@/components/CRMWhatsApp';
 import TimeTracking from '@/components/TimeTracking';
 import FleetManagement from '@/components/FleetManagement';
 import AfterSales from '@/components/AfterSales';
+import EmployeePayslip from '@/components/EmployeePayslip';
+import AdvanceRequest from '@/components/AdvanceRequest';
 import {
   LogOut, Download, Share2, X, Eye, Edit, Loader2, Heart, Star,
   Calendar, Clock, FileText, CheckCircle, Phone, Mail, Camera,
@@ -178,6 +180,8 @@ const SDApp: React.FC = () => {
             ) : authState === 'EMPLOYEE' ? (
               <>
                 <NavIcon icon="clock" label="Meu Ponto" active={view === ViewMode.TIME_TRACKING} onClick={() => setView(ViewMode.TIME_TRACKING)} />
+                <NavIcon icon="file-text" label="Contracheque" active={view === ViewMode.PAYSLIP} onClick={() => setView(ViewMode.PAYSLIP)} />
+                <NavIcon icon="dollar-sign" label="Vale" active={view === ViewMode.ADVANCE_REQUEST} onClick={() => setView(ViewMode.ADVANCE_REQUEST)} />
                 <NavIcon icon="navigation" label="Viagens" active={view === ViewMode.FLEET} onClick={() => setView(ViewMode.FLEET)} />
               </>
             ) : (
@@ -601,6 +605,16 @@ const SDApp: React.FC = () => {
         {/* TIME TRACKING */}
         {view === ViewMode.TIME_TRACKING && (
           <TimeTracking isEmployee={authState === 'EMPLOYEE'} employeeName={employeeName} />
+        )}
+
+        {/* PAYSLIP */}
+        {view === ViewMode.PAYSLIP && authState === 'EMPLOYEE' && (
+          <EmployeePayslip employeeName={employeeName} />
+        )}
+
+        {/* ADVANCE REQUEST */}
+        {view === ViewMode.ADVANCE_REQUEST && authState === 'EMPLOYEE' && (
+          <AdvanceRequest employeeName={employeeName} />
         )}
 
         {/* FLEET */}
