@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+// Leaflet CSS loaded via CDN in index.html
 
 // Fix default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
