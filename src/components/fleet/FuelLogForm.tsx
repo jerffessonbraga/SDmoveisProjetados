@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Fuel, Send, Loader2 } from 'lucide-react';
+import { Fuel, Send, Loader2, Camera } from 'lucide-react';
 
 const db = supabase as any;
 
@@ -22,21 +22,28 @@ interface FuelLog {
   vehicle_id: string;
 }
 
-export default function FuelLogForm({ employeeId, onClose }: { employeeId: string; onClose?: () => void }) {
+export default function FuelLogForm({ employeeId, tripId, vehicleId: defaultVehicleId, onClose }: { employeeId: string; tripId?: string; vehicleId?: string; onClose?: () => void }) {
   const { toast } = useToast();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [logs, setLogs] = useState<FuelLog[]>([]);
-  const [vehicleId, setVehicleId] = useState('');
-  const [liters, setLiters] = useState('');
+  const [vehicleId, setVehicleId] = useState(defaultVehicleId || '');
+  const [totalCostInput, setTotalCostInput] = useState('');
   const [pricePerLiter, setPricePerLiter] = useState('');
   const [odometer, setOdometer] = useState('');
   const [notes, setNotes] = useState('');
   const [sending, setSending] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchVehicles();
     fetchLogs();
   }, [employeeId]);
+
+  useEffect(() => {
+    if (defaultVehicleId) setVehicleId(defaultVehicleId);
+  }, [defaultVehicleId]);
 
   const fetchVehicles = async () => {
     const { data } = await db.from('vehicles').select('id, plate, model').eq('active', true);
@@ -53,16 +60,40 @@ export default function FuelLogForm({ employeeId, onClose }: { employeeId: strin
     if (data) setLogs(data);
   };
 
-  const totalCost = (parseFloat(liters) || 0) * (parseFloat(pricePerLiter) || 0);
+  const totalCost = parseFloat(totalCostInput) || 0;
+  const price = parseFloat(pricePerLiter) || 0;
+  const autoLiters = price > 0 ? totalCost / price : 0;
+
+  const uploadReceipt = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    setUploading(true);
+    const file = e.target.files[0];
+    const ext = file.name.split('.').pop();
+    const path = `fuel-receipts/${employeeId}/${Date.now()}.${ext}`;
+
+    const { error: uploadErr } = await db.storage.from('trip-photos').upload(path, file);
+    if (uploadErr) {
+      toast({ title: '❌ Erro no upload', description: uploadErr.message, variant: 'destructive' });
+      setUploading(false);
+      return;
+    }
+
+    const { data: urlData } = db.storage.from('trip-photos').getPublicUrl(path);
+    setReceiptUrl(urlData.publicUrl);
+    setUploading(false);
+    toast({ title: '📸 Foto do comprovante salva!' });
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const submit = async () => {
-    if (!vehicleId || !liters || !pricePerLiter) return;
+    if (!vehicleId || !totalCostInput || !pricePerLiter) return;
     setSending(true);
     const { error } = await db.from('fuel_logs').insert({
       employee_id: employeeId,
       vehicle_id: vehicleId,
-      liters: parseFloat(liters),
-      price_per_liter: parseFloat(pricePerLiter),
+      trip_id: tripId || null,
+      liters: autoLiters,
+      price_per_liter: price,
       total_cost: totalCost,
       odometer: odometer ? parseFloat(odometer) : null,
       notes: notes.trim() || null,
@@ -72,7 +103,7 @@ export default function FuelLogForm({ employeeId, onClose }: { employeeId: strin
       toast({ title: '❌ Erro', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: '⛽ Abastecimento registrado!' });
-      setLiters(''); setPricePerLiter(''); setOdometer(''); setNotes('');
+      setTotalCostInput(''); setPricePerLiter(''); setOdometer(''); setNotes(''); setReceiptUrl(null);
       fetchLogs();
       onClose?.();
     }
@@ -84,31 +115,36 @@ export default function FuelLogForm({ employeeId, onClose }: { employeeId: strin
         <p className="font-bold text-orange-800 text-sm flex items-center gap-2">
           <Fuel className="w-4 h-4" /> Registrar Abastecimento
         </p>
-        <select
-          value={vehicleId}
-          onChange={e => setVehicleId(e.target.value)}
-          className="w-full p-3 rounded-lg border border-orange-200 text-sm bg-white"
-        >
-          <option value="">Selecione o veículo...</option>
-          {vehicles.map(v => (
-            <option key={v.id} value={v.id}>{v.plate} — {v.model}</option>
-          ))}
-        </select>
+
+        {/* Veículo */}
+        <div>
+          <label className="text-xs font-bold text-gray-600 uppercase">Veículo *</label>
+          <select
+            value={vehicleId}
+            onChange={e => setVehicleId(e.target.value)}
+            className="w-full p-3 rounded-lg border border-orange-200 text-sm bg-white mt-1"
+          >
+            <option value="">Selecione o veículo...</option>
+            {vehicles.map(v => (
+              <option key={v.id} value={v.id}>{v.plate} — {v.model}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* KM e Valor/Litro */}
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-xs font-bold text-gray-600 uppercase">Litros</label>
+            <label className="text-xs font-bold text-gray-600 uppercase">KM Atual (Odômetro) *</label>
             <input
               type="number"
-              value={liters}
-              onChange={e => setLiters(e.target.value)}
-              placeholder="Ex: 45"
+              value={odometer}
+              onChange={e => setOdometer(e.target.value)}
+              placeholder="Ex: 45230"
               className="w-full p-3 rounded-lg border border-orange-200 bg-white text-sm mt-1"
-              min="0.1"
-              step="0.1"
             />
           </div>
           <div>
-            <label className="text-xs font-bold text-gray-600 uppercase">R$/Litro</label>
+            <label className="text-xs font-bold text-gray-600 uppercase">Valor/Litro (R$) *</label>
             <input
               type="number"
               value={pricePerLiter}
@@ -120,35 +156,63 @@ export default function FuelLogForm({ employeeId, onClose }: { employeeId: strin
             />
           </div>
         </div>
-        <div>
-          <label className="text-xs font-bold text-gray-600 uppercase">Km Odômetro (opcional)</label>
-          <input
-            type="number"
-            value={odometer}
-            onChange={e => setOdometer(e.target.value)}
-            placeholder="Ex: 85430"
-            className="w-full p-3 rounded-lg border border-orange-200 bg-white text-sm mt-1"
-          />
+
+        {/* Valor Total e Litros */}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="text-xs font-bold text-gray-600 uppercase">Valor Total (R$) *</label>
+            <input
+              type="number"
+              value={totalCostInput}
+              onChange={e => setTotalCostInput(e.target.value)}
+              placeholder="Ex: 200.00"
+              className="w-full p-3 rounded-lg border border-orange-200 bg-white text-sm mt-1"
+              min="0.01"
+              step="0.01"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-gray-600 uppercase">Litros (auto)</label>
+            <div className="w-full p-3 rounded-lg border border-orange-100 bg-orange-50 text-sm mt-1 font-bold text-orange-700 text-center">
+              {autoLiters > 0 ? `${autoLiters.toFixed(1)}L` : '—'}
+            </div>
+          </div>
         </div>
+
+        {/* Observações */}
         <div>
-          <label className="text-xs font-bold text-gray-600 uppercase">Observação (opcional)</label>
+          <label className="text-xs font-bold text-gray-600 uppercase">Observações</label>
           <input
             type="text"
             value={notes}
             onChange={e => setNotes(e.target.value)}
-            placeholder="Ex: Posto Shell BR-222"
+            placeholder="Posto, tipo de combustível.."
             className="w-full p-3 rounded-lg border border-orange-200 bg-white text-sm mt-1"
           />
         </div>
-        {totalCost > 0 && (
-          <div className="bg-orange-100 rounded-lg p-3 text-center">
-            <span className="text-sm text-orange-700">Total: </span>
-            <span className="font-black text-orange-800 text-lg">R$ {totalCost.toFixed(2)}</span>
-          </div>
-        )}
+
+        {/* Foto Comprovante */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={uploadReceipt}
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-orange-200 rounded-lg text-sm text-orange-700 font-bold hover:bg-orange-50 transition-colors"
+        >
+          <Camera className="w-4 h-4" />
+          {uploading ? 'Enviando...' : receiptUrl ? '✅ Comprovante anexado' : '📷 Foto Comprovante'}
+        </button>
+
+        {/* Submit */}
         <button
           onClick={submit}
-          disabled={sending || !vehicleId || !liters || !pricePerLiter}
+          disabled={sending || !vehicleId || !totalCostInput || !pricePerLiter}
           className="w-full bg-orange-500 text-white py-3 rounded-xl font-bold text-sm hover:bg-orange-600 disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
