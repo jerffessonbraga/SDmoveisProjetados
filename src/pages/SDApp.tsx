@@ -9,6 +9,8 @@ import TimeTrackingPanel from '@/components/timetracking/TimeTrackingPanel';
 import EmployeePortal from '@/components/EmployeePortal';
 import DriverTripPanel from '@/components/fleet/DriverTripPanel';
 import FleetAdminPanel from '@/components/fleet/FleetAdminPanel';
+import FuelLogForm from '@/components/fleet/FuelLogForm';
+import ToolInventory from '@/components/employee/ToolInventory';
 import { SelectionCard } from '@/components/ui/selection-card';
 import { NavIcon } from '@/components/ui/nav-icon';
 import { DashboardStat } from '@/components/ui/dashboard-stat';
@@ -67,6 +69,7 @@ import {
   ThumbsUp,
   Timer,
   Instagram,
+  Fuel,
 } from 'lucide-react';
 
 const INITIAL_CONTRACTS: Contract[] = [
@@ -292,6 +295,8 @@ const App: React.FC = () => {
               <>
                 <NavIcon icon="clock" label="Meu Ponto" active={view === ViewMode.TIME_TRACKING} onClick={() => setView(ViewMode.TIME_TRACKING)} />
                 <NavIcon icon="navigation" label="Viagens" active={view === ViewMode.FLEET} onClick={() => setView(ViewMode.FLEET)} />
+                <NavIcon icon="fuel" label="Combustível" active={view === ViewMode.FUEL} onClick={() => setView(ViewMode.FUEL)} />
+                <NavIcon icon="wrench" label="Ferramentas" active={view === ViewMode.TOOLS} onClick={() => setView(ViewMode.TOOLS)} />
               </>
             ) : (
               <>
@@ -1546,6 +1551,36 @@ const App: React.FC = () => {
         {view === ViewMode.FLEET && authState === 'EMPLOYEE' && (
           <div className="p-8 space-y-6 overflow-auto h-full bg-gradient-to-br from-gray-50 to-gray-100">
             <DriverTripPanel employeeId="" employeeName={employeeName} />
+          </div>
+        )}
+
+        {/* FUEL - EMPLOYEE */}
+        {view === ViewMode.FUEL && authState === 'EMPLOYEE' && (
+          <div className="p-8 space-y-6 overflow-auto h-full bg-gradient-to-br from-gray-50 to-gray-100">
+            <header>
+              <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
+                <Fuel className="w-8 h-8 text-orange-500" />
+                Combustível
+              </h1>
+              <p className="text-gray-500 mt-1">Registre seus abastecimentos</p>
+            </header>
+            <div className="max-w-lg">
+              <FuelLogForm employeeId="" tripId={undefined} vehicleId={undefined} />
+            </div>
+          </div>
+        )}
+
+        {/* TOOLS - EMPLOYEE */}
+        {view === ViewMode.TOOLS && authState === 'EMPLOYEE' && (
+          <div className="p-8 space-y-6 overflow-auto h-full bg-gradient-to-br from-gray-50 to-gray-100">
+            <header>
+              <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
+                <Wrench className="w-8 h-8 text-blue-500" />
+                Ferramentas
+              </h1>
+              <p className="text-gray-500 mt-1">Inventário de ferramentas</p>
+            </header>
+            <ToolInventory employeeId="" />
           </div>
         )}
     </div>

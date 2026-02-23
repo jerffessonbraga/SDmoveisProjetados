@@ -11,6 +11,8 @@ export enum ViewMode {
   QUALITY_CHECK = 'QUALITY_CHECK',
   PROJECT_COSTS = 'PROJECT_COSTS',
   WARRANTY = 'WARRANTY',
+  FUEL = 'FUEL',
+  TOOLS = 'TOOLS',
 }
 
 export enum ToolMode {
