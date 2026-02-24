@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { FileSignature, Plus, Search, Edit, Eye, Download } from 'lucide-react';
+import { FileSignature, Plus, Search, Edit, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
+import ContractGenerator from './ContractGenerator';
 
 const db = supabase as any;
 
@@ -15,12 +16,14 @@ const ContractsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ client_id: '', title: '', content: '', value: 0, status: 'rascunho', notes: '' });
+  const [showGenerator, setShowGenerator] = useState<'contrato_servico' | 'ordem_servico' | null>(null);
+  const [selectedClient, setSelectedClient] = useState<any>(null);
 
   const fetchData = async () => {
     setLoading(true);
     const [contRes, cliRes] = await Promise.all([
-      db.from('contracts').select('*, clients(name)').order('created_at', { ascending: false }),
-      db.from('clients').select('id, name').order('name'),
+      db.from('contracts').select('*, clients(name, phone, email, address)').order('created_at', { ascending: false }),
+      db.from('clients').select('id, name, phone, email, address').order('name'),
     ]);
     setContracts(contRes.data || []);
     setClients(cliRes.data || []);
@@ -54,6 +57,10 @@ const ContractsPage: React.FC = () => {
 
   const filtered = contracts.filter(c => c.title.toLowerCase().includes(search.toLowerCase()) || (c.clients?.name || '').toLowerCase().includes(search.toLowerCase()));
 
+  const openGenerator = (type: 'contrato_servico' | 'ordem_servico') => {
+    setShowGenerator(type);
+  };
+
   return (
     <div className="p-8 space-y-6 overflow-auto h-full bg-gradient-to-br from-gray-50 to-gray-100">
       <header className="flex justify-between items-center">
@@ -62,12 +69,47 @@ const ContractsPage: React.FC = () => {
             <FileSignature className="w-8 h-8 text-amber-500" />
             Contratos
           </h1>
-          <p className="text-gray-500 mt-1">Gestão de contratos</p>
+          <p className="text-gray-500 mt-1">Gestão de contratos e ordens de serviço</p>
         </div>
-        <button onClick={() => { setShowForm(true); setEditingId(null); setForm({ client_id: '', title: '', content: '', value: 0, status: 'rascunho', notes: '' }); }} className="bg-amber-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-amber-700 flex items-center gap-2 shadow-lg">
-          <Plus className="w-5 h-5" /> Novo Contrato
-        </button>
+        <div className="flex gap-3">
+          <button onClick={() => openGenerator('contrato_servico')} className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-5 py-3 rounded-2xl font-bold hover:from-amber-600 hover:to-amber-700 flex items-center gap-2 shadow-lg">
+            <Sparkles className="w-5 h-5" /> Gerar Contrato (IA)
+          </button>
+          <button onClick={() => openGenerator('ordem_servico')} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-3 rounded-2xl font-bold hover:from-blue-600 hover:to-blue-700 flex items-center gap-2 shadow-lg">
+            <Sparkles className="w-5 h-5" /> Gerar OS (IA)
+          </button>
+          <button onClick={() => { setShowForm(true); setEditingId(null); setForm({ client_id: '', title: '', content: '', value: 0, status: 'rascunho', notes: '' }); }} className="bg-gray-800 text-white px-5 py-3 rounded-2xl font-bold hover:bg-gray-900 flex items-center gap-2 shadow-lg">
+            <Plus className="w-5 h-5" /> Manual
+          </button>
+        </div>
       </header>
+
+      {/* Generator */}
+      {showGenerator && (
+        <ContractGenerator
+          templateType={showGenerator}
+          client={selectedClient || undefined}
+          onClose={() => setShowGenerator(null)}
+        />
+      )}
+
+      {/* Client selector for generator */}
+      {showGenerator && !selectedClient && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+          <p className="text-sm font-bold text-amber-700 mb-2">Selecione um cliente para o contrato:</p>
+          <div className="flex flex-wrap gap-2">
+            {clients.map(c => (
+              <button
+                key={c.id}
+                onClick={() => setSelectedClient(c)}
+                className="bg-white px-3 py-2 rounded-xl text-sm font-medium border border-amber-200 hover:bg-amber-100 hover:border-amber-400 transition-colors"
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-4 gap-4">
         {['rascunho', 'ativo', 'assinado', 'finalizado'].map(st => (
