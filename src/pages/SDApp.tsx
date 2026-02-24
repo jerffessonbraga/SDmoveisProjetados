@@ -16,6 +16,12 @@ import { NavIcon } from '@/components/ui/nav-icon';
 import { DashboardStat } from '@/components/ui/dashboard-stat';
 import { WhatsAppCRMReal } from '@/components/crm/WhatsAppCRMReal';
 import PromobEditor from '@/components/promob/PromobEditor';
+import SuppliersPage from '@/components/modules/SuppliersPage';
+import ProductsPage from '@/components/modules/ProductsPage';
+import ServiceOrdersPage from '@/components/modules/ServiceOrdersPage';
+import CashRegisterPage from '@/components/modules/CashRegisterPage';
+import AccountsPage from '@/components/modules/AccountsPage';
+import ContractsPage from '@/components/modules/ContractsPage';
 import { useToast } from '@/hooks/use-toast';
 import logoSD from '@/assets/logo-sd.jpeg';
 import { WorshipPlayer } from '@/components/WorshipPlayer';
@@ -303,6 +309,13 @@ const App: React.FC = () => {
                   toast({ title: "Abrindo Promob Plus...", description: "Se não abrir automaticamente, abra o Promob Plus diretamente no notebook." });
                 }} />
                 <NavIcon icon="file-text" label="Vendas" active={view === ViewMode.CONTRACTS} onClick={() => setView(ViewMode.CONTRACTS)} />
+                <NavIcon icon="building" label="Fornecedores" active={view === ViewMode.SUPPLIERS} onClick={() => setView(ViewMode.SUPPLIERS)} />
+                <NavIcon icon="package" label="Estoque" active={view === ViewMode.PRODUCTS} onClick={() => setView(ViewMode.PRODUCTS)} />
+                <NavIcon icon="clipboard-list" label="OS" active={view === ViewMode.SERVICE_ORDERS} onClick={() => setView(ViewMode.SERVICE_ORDERS)} />
+                <NavIcon icon="banknote" label="Caixa" active={view === ViewMode.CASH_REGISTER} onClick={() => setView(ViewMode.CASH_REGISTER)} />
+                <NavIcon icon="trending-down" label="A Pagar" active={view === ViewMode.ACCOUNTS_PAYABLE} onClick={() => setView(ViewMode.ACCOUNTS_PAYABLE)} />
+                <NavIcon icon="trending-up" label="A Receber" active={view === ViewMode.ACCOUNTS_RECEIVABLE} onClick={() => setView(ViewMode.ACCOUNTS_RECEIVABLE)} />
+                <NavIcon icon="file-signature" label="Contratos" active={view === ViewMode.CONTRACTS_MGMT} onClick={() => setView(ViewMode.CONTRACTS_MGMT)} />
                 <NavIcon icon="clock" label="Ponto" active={view === ViewMode.TIME_TRACKING} onClick={() => setView(ViewMode.TIME_TRACKING)} />
                 <NavIcon icon="navigation" label="Frota" active={view === ViewMode.FLEET} onClick={() => setView(ViewMode.FLEET)} />
                 <NavIcon icon="message-square" label="CRM" active={view === ViewMode.CRM} onClick={() => setView(ViewMode.CRM)} isFab />
@@ -559,7 +572,15 @@ const App: React.FC = () => {
           <PromobEditor onRender={handleRender} isRendering={isAiLoading} />
         )}
 
-        {/* CRM - WhatsApp Real */}
+        {/* NEW MODULES */}
+        {view === ViewMode.SUPPLIERS && authState === 'ADMIN' && <SuppliersPage />}
+        {view === ViewMode.PRODUCTS && authState === 'ADMIN' && <ProductsPage />}
+        {view === ViewMode.SERVICE_ORDERS && authState === 'ADMIN' && <ServiceOrdersPage />}
+        {view === ViewMode.CASH_REGISTER && authState === 'ADMIN' && <CashRegisterPage />}
+        {view === ViewMode.ACCOUNTS_PAYABLE && authState === 'ADMIN' && <AccountsPage type="payable" />}
+        {view === ViewMode.ACCOUNTS_RECEIVABLE && authState === 'ADMIN' && <AccountsPage type="receivable" />}
+        {view === ViewMode.CONTRACTS_MGMT && authState === 'ADMIN' && <ContractsPage />}
+
         {view === ViewMode.CRM && (
           <div className="h-full p-6 overflow-auto bg-gradient-to-br from-gray-50 to-gray-100">
             <header className="mb-6">

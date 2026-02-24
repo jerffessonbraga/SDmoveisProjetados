@@ -13,7 +13,14 @@ import {
   BookOpen,
   Shield,
   Fuel,
-  Wrench
+  Wrench,
+  Building,
+  Package,
+  ClipboardList,
+  Banknote,
+  TrendingDown,
+  TrendingUp,
+  FileSignature,
 } from "lucide-react";
 
 interface NavIconProps {
@@ -38,6 +45,13 @@ const iconMap: Record<string, React.ElementType> = {
   "shield": Shield,
   "fuel": Fuel,
   "wrench": Wrench,
+  "building": Building,
+  "package": Package,
+  "clipboard-list": ClipboardList,
+  "banknote": Banknote,
+  "trending-down": TrendingDown,
+  "trending-up": TrendingUp,
+  "file-signature": FileSignature,
 };
 
 export const NavIcon: React.FC<NavIconProps> = ({ icon, label, active, onClick, isFab }) => {
