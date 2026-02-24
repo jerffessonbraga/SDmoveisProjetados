@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
 import {
   MessageSquare,
   Send,
@@ -15,6 +16,7 @@ import {
   Loader2,
   WifiOff,
   RefreshCw,
+  Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useWhatsApp, WhatsAppConversation, WhatsAppMessage } from "@/hooks/useWhatsApp";
@@ -43,6 +45,7 @@ export function WhatsAppCRMReal() {
   const [messageInput, setMessageInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [aiAutoReply, setAiAutoReply] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -80,23 +83,27 @@ export function WhatsAppCRMReal() {
     
     setIsGeneratingAI(true);
     try {
-      const lastMessages = messages.slice(-5).map(m => ({
-        role: m.direction === 'inbound' ? 'user' as const : 'assistant' as const,
-        content: m.content,
-      }));
-
-      const { data, error } = await supabase.functions.invoke('ai-chat', {
+      const { data, error } = await supabase.functions.invoke('whatsapp-ai', {
         body: { 
-          messages: [
-            ...lastMessages,
-            { role: 'user', content: 'Gere uma resposta profissional e amigável para o cliente. Considere o contexto da conversa anterior.' }
-          ],
-          type: 'whatsapp'
+          conversationId: selectedConversation.id,
+          contactName: selectedConversation.contact_name,
+          messageHistory: messages.map((m) => ({
+            direction: m.direction,
+            content: m.content,
+          })),
         }
       });
 
       if (error) throw error;
-      setMessageInput(data?.content || 'Olá! Como posso ajudá-lo?');
+
+      if (data?.content) {
+        toast({
+          title: "IA respondeu",
+          description: "Resposta gerada e enviada com sucesso!",
+        });
+        await fetchMessages(selectedConversation.id);
+        await fetchConversations();
+      }
     } catch (error) {
       console.error('AI generation error:', error);
       toast({
@@ -108,6 +115,15 @@ export function WhatsAppCRMReal() {
       setIsGeneratingAI(false);
     }
   };
+
+  // Auto-reply with AI when new inbound message arrives
+  useEffect(() => {
+    if (!aiAutoReply || !selectedConversation || messages.length === 0) return;
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg.direction === "inbound" && lastMsg.message_type !== "ai") {
+      generateAIResponse();
+    }
+  }, [messages.length, aiAutoReply]);
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -236,9 +252,16 @@ export function WhatsAppCRMReal() {
                 </p>
               </div>
             </div>
-            <Button variant="ghost" size="icon">
-              <MoreVertical className="w-5 h-5" />
-            </Button>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Bot className="w-4 h-4 text-primary" />
+                <span className="text-xs text-muted-foreground">IA Auto</span>
+                <Switch checked={aiAutoReply} onCheckedChange={setAiAutoReply} />
+              </div>
+              <Button variant="ghost" size="icon">
+                <MoreVertical className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
 
           {/* Messages */}
@@ -256,11 +279,19 @@ export function WhatsAppCRMReal() {
                     className={cn(
                       "max-w-[70%] rounded-2xl px-4 py-2",
                       msg.direction === "outbound"
-                        ? "bg-success text-success-foreground rounded-br-sm"
+                        ? msg.message_type === "ai"
+                          ? "bg-primary text-primary-foreground rounded-br-sm"
+                          : "bg-success text-success-foreground rounded-br-sm"
                         : "bg-card border border-border rounded-bl-sm"
                     )}
                   >
-                    <p className="text-sm">{msg.content}</p>
+                    {msg.message_type === "ai" && (
+                      <div className="flex items-center gap-1 mb-1 opacity-80">
+                        <Bot className="w-3 h-3" />
+                        <span className="text-xs font-medium">IA</span>
+                      </div>
+                    )}
+                    <p className="text-sm whitespace-pre-line">{msg.content}</p>
                     <div className="flex items-center justify-end gap-1 mt-1">
                       <span className="text-xs opacity-70">
                         {formatTime(msg.created_at)}
