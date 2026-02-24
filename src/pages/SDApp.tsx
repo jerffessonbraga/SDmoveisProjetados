@@ -15,6 +15,8 @@ import { SelectionCard } from '@/components/ui/selection-card';
 import { NavIcon } from '@/components/ui/nav-icon';
 import { DashboardStat } from '@/components/ui/dashboard-stat';
 import { WhatsAppCRMReal } from '@/components/crm/WhatsAppCRMReal';
+import { ChatFlowPanel } from '@/components/crm/ChatFlowPanel';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PromobEditor from '@/components/promob/PromobEditor';
 import SuppliersPage from '@/components/modules/SuppliersPage';
 import ProductsPage from '@/components/modules/ProductsPage';
@@ -77,6 +79,7 @@ import {
   Timer,
   Instagram,
   Fuel,
+  GitBranch,
 } from 'lucide-react';
 
 // Dashboard data is now fetched from DB
@@ -594,7 +597,24 @@ const App: React.FC = () => {
               </h1>
               <p className="text-gray-500 mt-1">Gerencie suas conversas e leads</p>
             </header>
-            <WhatsAppCRMReal />
+            <Tabs defaultValue="crm" className="w-full">
+              <TabsList className="mb-4">
+                <TabsTrigger value="crm" className="gap-2">
+                  <MessageCircle className="w-4 h-4" />
+                  Conversas
+                </TabsTrigger>
+                <TabsTrigger value="flow" className="gap-2">
+                  <GitBranch className="w-4 h-4" />
+                  Fluxo de Atendimento
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="crm">
+                <WhatsAppCRMReal />
+              </TabsContent>
+              <TabsContent value="flow">
+                <ChatFlowPanel />
+              </TabsContent>
+            </Tabs>
           </div>
         )}
 
