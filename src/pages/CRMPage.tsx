@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { WhatsAppCRM } from "@/components/crm/WhatsAppCRM";
+import { ChatFlowPanel } from "@/components/crm/ChatFlowPanel";
 import { Card } from "@/components/ui/card";
-import { MessageSquare, Users, TrendingUp, Clock } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MessageSquare, Users, TrendingUp, Clock, GitBranch } from "lucide-react";
 
 const stats = [
   { icon: MessageSquare, label: "Conversas Ativas", value: "23" },
@@ -38,8 +41,25 @@ export default function CRMPage() {
           ))}
         </div>
 
-        {/* CRM Interface */}
-        <WhatsAppCRM />
+        {/* Tabs: CRM + Flow */}
+        <Tabs defaultValue="crm" className="w-full">
+          <TabsList>
+            <TabsTrigger value="crm" className="gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Conversas
+            </TabsTrigger>
+            <TabsTrigger value="flow" className="gap-2">
+              <GitBranch className="w-4 h-4" />
+              Fluxo de Atendimento
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="crm">
+            <WhatsAppCRM />
+          </TabsContent>
+          <TabsContent value="flow">
+            <ChatFlowPanel />
+          </TabsContent>
+        </Tabs>
       </div>
     </MainLayout>
   );
