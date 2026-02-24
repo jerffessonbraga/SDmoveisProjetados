@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sparkles, Send, User, Bot, Lightbulb } from "lucide-react";
+import { Sparkles, Send, User, Bot, Lightbulb, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Message {
   id: string;
@@ -18,6 +19,8 @@ const suggestions = [
   "Monte um orçamento para cozinha planejada",
 ];
 
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
+
 export function AIAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -31,6 +34,7 @@ export function AIAssistant() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -49,41 +53,116 @@ export function AIAssistant() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const currentInput = input;
     setInput("");
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: getAIResponse(input),
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMessage]);
-      setIsLoading(false);
-    }, 1500);
-  };
+    let assistantSoFar = "";
 
-  const getAIResponse = (question: string): string => {
-    const responses: Record<string, string> = {
-      cozinha:
-        "Para otimizar uma cozinha pequena, recomendo:\n\n1. **Armários até o teto** - Aproveite todo espaço vertical\n2. **Gavetas profundas** - Mais práticas que prateleiras\n3. **Ilha multifuncional** - Serve como bancada e mesa\n4. **Cores claras** - Ampliam visualmente o ambiente\n\nPosso criar um projeto personalizado para você!",
-      guarda:
-        "Para um guarda-roupa funcional, sugiro:\n\n• **Cabideiros duplos** para camisas e blusas\n• **Prateleiras ajustáveis** para maior flexibilidade\n• **Gavetas internas** para roupas íntimas\n• **Espelho integrado** na porta\n• **Iluminação LED** automática\n\nQual o tamanho disponível?",
-      cores:
-        "Para um escritório moderno, indico:\n\n🎨 **Paleta sugerida:**\n- Cinza grafite (paredes)\n- Madeira clara (móveis)\n- Verde musgo ou azul petróleo (detalhes)\n- Branco (elementos de apoio)\n\nEssa combinação transmite profissionalismo e criatividade!",
-      orçamento:
-        "Para uma cozinha planejada completa:\n\n📊 **Estimativa base:**\n- Armários inferiores: R$ 4.500 - R$ 8.000\n- Armários superiores: R$ 3.000 - R$ 5.500\n- Bancada (granito): R$ 2.000 - R$ 4.000\n- Ferragens e acessórios: R$ 1.500 - R$ 3.000\n\n**Total estimado: R$ 11.000 - R$ 20.500**\n\nPosso detalhar mais?",
+    const upsertAssistant = (chunk: string) => {
+      assistantSoFar += chunk;
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "assistant" && last.id === "streaming") {
+          return prev.map((m, i) =>
+            i === prev.length - 1 ? { ...m, content: assistantSoFar } : m
+          );
+        }
+        return [
+          ...prev,
+          { id: "streaming", role: "assistant" as const, content: assistantSoFar, timestamp: new Date() },
+        ];
+      });
     };
 
-    const key = Object.keys(responses).find((k) =>
-      question.toLowerCase().includes(k)
-    );
-    return (
-      responses[key || ""] ||
-      "Entendi sua pergunta! Para fornecer a melhor sugestão, preciso de mais detalhes:\n\n• Quais são as medidas do ambiente?\n• Qual o estilo desejado (moderno, rústico, clássico)?\n• Qual a faixa de investimento?\n\nCom essas informações, posso criar uma proposta personalizada!"
-    );
+    try {
+      const apiMessages = messages
+        .filter((m) => m.id !== "1")
+        .map((m) => ({ role: m.role, content: m.content }));
+      apiMessages.push({ role: "user", content: currentInput });
+
+      const resp = await fetch(CHAT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ messages: apiMessages }),
+      });
+
+      if (!resp.ok || !resp.body) {
+        const errorData = await resp.json().catch(() => ({}));
+        throw new Error(errorData.error || "Erro ao conectar com a IA");
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let streamDone = false;
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") {
+            streamDone = true;
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) upsertAssistant(content);
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+
+      // Final flush
+      if (textBuffer.trim()) {
+        for (let raw of textBuffer.split("\n")) {
+          if (!raw) continue;
+          if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+          if (raw.startsWith(":") || raw.trim() === "") continue;
+          if (!raw.startsWith("data: ")) continue;
+          const jsonStr = raw.slice(6).trim();
+          if (jsonStr === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) upsertAssistant(content);
+          } catch { /* ignore */ }
+        }
+      }
+
+      // Replace streaming id with final id
+      setMessages((prev) =>
+        prev.map((m) => (m.id === "streaming" ? { ...m, id: Date.now().toString() } : m))
+      );
+    } catch (error: any) {
+      console.error("AI error:", error);
+      toast({
+        title: "Erro",
+        description: error.message || "Não foi possível gerar resposta.",
+        variant: "destructive",
+      });
+      setMessages((prev) => prev.filter((m) => m.id !== "streaming"));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -95,9 +174,7 @@ export function AIAssistant() {
         </div>
         <div>
           <h3 className="font-semibold">Assistente IA</h3>
-          <p className="text-xs text-muted-foreground">
-            Powered by Lovable AI
-          </p>
+          <p className="text-xs text-muted-foreground">Powered by Lovable AI</p>
         </div>
       </div>
 
@@ -107,9 +184,7 @@ export function AIAssistant() {
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex gap-3 ${
-                message.role === "user" ? "flex-row-reverse" : ""
-              }`}
+              className={`flex gap-3 ${message.role === "user" ? "flex-row-reverse" : ""}`}
             >
               <div
                 className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
@@ -118,17 +193,11 @@ export function AIAssistant() {
                     : "bg-accent text-accent-foreground"
                 }`}
               >
-                {message.role === "user" ? (
-                  <User className="w-4 h-4" />
-                ) : (
-                  <Bot className="w-4 h-4" />
-                )}
+                {message.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
               </div>
               <div
                 className={`rounded-xl p-3 max-w-[80%] ${
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
+                  message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
                 }`}
               >
                 <p className="text-sm whitespace-pre-line">{message.content}</p>
@@ -136,7 +205,7 @@ export function AIAssistant() {
             </div>
           ))}
 
-          {isLoading && (
+          {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
             <div className="flex gap-3">
               <div className="w-8 h-8 rounded-lg bg-accent text-accent-foreground flex items-center justify-center">
                 <Bot className="w-4 h-4" />
@@ -187,7 +256,7 @@ export function AIAssistant() {
             disabled={isLoading}
           />
           <Button onClick={handleSend} disabled={isLoading || !input.trim()}>
-            <Send className="w-4 h-4" />
+            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </Button>
         </div>
       </div>
