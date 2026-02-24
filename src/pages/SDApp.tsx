@@ -22,6 +22,7 @@ import ServiceOrdersPage from '@/components/modules/ServiceOrdersPage';
 import CashRegisterPage from '@/components/modules/CashRegisterPage';
 import AccountsPage from '@/components/modules/AccountsPage';
 import ContractsPage from '@/components/modules/ContractsPage';
+import SalesPage from '@/components/modules/SalesPage';
 import { useToast } from '@/hooks/use-toast';
 import logoSD from '@/assets/logo-sd.jpeg';
 import { WorshipPlayer } from '@/components/WorshipPlayer';
@@ -78,13 +79,7 @@ import {
   Fuel,
 } from 'lucide-react';
 
-const INITIAL_CONTRACTS: Contract[] = [
-  { id: '1', clientName: 'Ricardo Almeida', document: '123.456.789-00', projectName: 'Cozinha Gourmet Lux', value: 45000, status: 'Produção', date: '10/02/2024', email: 'ricardo@email.com', phone: '(11) 98888-7777', paymentStatus: 'Parcial' },
-  { id: '2', clientName: 'Juliana Silva', document: '987.654.321-11', projectName: 'Apartamento Integrado', value: 82000, status: 'Assinado', date: '15/02/2024', email: 'juliana@email.com', phone: '(11) 97777-6666', paymentStatus: 'Pago' },
-  { id: '3', clientName: 'Marcos Oliveira', document: '444.555.666-22', projectName: 'Closet Master SD', value: 15200, status: 'Em Negociação', date: '20/02/2024', email: 'marcos@email.com', phone: '(11) 95555-4444', paymentStatus: 'Pendente' },
-  { id: '4', clientName: 'Ana Paula Costa', document: '777.888.999-33', projectName: 'Home Office Premium', value: 28500, status: 'Produção', date: '25/02/2024', email: 'ana@email.com', phone: '(11) 94444-3333', paymentStatus: 'Pago' },
-  { id: '5', clientName: 'Carlos Eduardo', document: '111.222.333-44', projectName: 'Dormitório Casal', value: 35000, status: 'Instalação', date: '01/03/2024', email: 'carlos@email.com', phone: '(11) 93333-2222', paymentStatus: 'Parcial' },
-];
+// Dashboard data is now fetched from DB
 
 // Louvor principal - Kemily Santos
 const LOUVORES = [
@@ -115,11 +110,11 @@ const App: React.FC = () => {
   const [employeeName, setEmployeeName] = useState('');
   const [password, setPassword] = useState("");
   const [view, setView] = useState(ViewMode.DASHBOARD);
-  const [contracts, setContracts] = useState(INITIAL_CONTRACTS);
+  const [contracts, setContracts] = useState<any[]>([]);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiLoadingMessage, setAiLoadingMessage] = useState("");
   const [renderResult, setRenderResult] = useState<string | null>(null);
-  const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
+  const [selectedContract, setSelectedContract] = useState<any | null>(null);
   const [showContractModal, setShowContractModal] = useState(false);
   const [currentLouvor, setCurrentLouvor] = useState(LOUVORES[Math.floor(Math.random() * LOUVORES.length)]);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -134,6 +129,17 @@ const App: React.FC = () => {
   const [clientProductionSteps, setClientProductionSteps] = useState<any[]>([]);
   const [clientTimeline, setClientTimeline] = useState<any[]>([]);
   const [clientName, setClientName] = useState('');
+
+  // Fetch dashboard data from DB when admin logs in
+  useEffect(() => {
+    if (authState === 'ADMIN') {
+      const fetchDashboardData = async () => {
+        const { data } = await db.from('client_projects').select('*, clients(name, phone, email)').order('created_at', { ascending: false });
+        if (data) setContracts(data);
+      };
+      fetchDashboardData();
+    }
+  }, [authState]);
 
   // Fetch all client data from database when client logs in
   useEffect(() => {
@@ -279,14 +285,10 @@ const App: React.FC = () => {
     setIsAiLoading(false);
   };
 
-  const updateContractStatus = (id: string, status: Contract['status']) => {
-    setContracts(prev => prev.map(c => c.id === id ? { ...c, status } : c));
-    toast({ title: "✅ Status atualizado", description: `Contrato movido para ${status}` });
-  };
 
-  const totalRevenue = contracts.reduce((sum, c) => sum + c.value, 0);
-  const paidContracts = contracts.filter(c => c.paymentStatus === 'Pago').length;
-  const inProduction = contracts.filter(c => c.status === 'Produção').length;
+  const totalRevenue = contracts.reduce((sum, c) => sum + (c.value || 0), 0);
+  const signedContracts = contracts.filter(c => ['assinado', 'producao', 'instalacao', 'concluido'].includes(c.status)).length;
+  const inProduction = contracts.filter(c => c.status === 'producao').length;
 
   return (
     <div className="h-screen w-screen flex bg-gray-100 overflow-hidden">
@@ -442,7 +444,7 @@ const App: React.FC = () => {
               />
               <DashboardStat 
                 title="Conversão" 
-                value={`${Math.round((paidContracts / contracts.length) * 100)}%`} 
+                value={`${contracts.length > 0 ? Math.round((signedContracts / contracts.length) * 100) : 0}%`} 
                 icon="📈" 
                 trend="Excelente!"
                 color="bg-purple-50" 
@@ -497,26 +499,28 @@ const App: React.FC = () => {
                   {contracts.slice(0, 3).map(c => (
                     <div 
                       key={c.id} 
-                      onClick={() => { setSelectedContract(c); setShowContractModal(true); }}
+                      onClick={() => setView(ViewMode.CONTRACTS)}
                       className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors cursor-pointer"
                     >
                       <div>
-                        <p className="font-bold text-gray-900">{c.clientName}</p>
-                        <p className="text-xs text-gray-500">{c.projectName}</p>
+                        <p className="font-bold text-gray-900">{c.clients?.name || 'Cliente'}</p>
+                        <p className="text-xs text-gray-500">{c.name}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-black text-amber-600">R$ {c.value.toLocaleString()}</p>
+                        <p className="font-black text-amber-600">R$ {(c.value || 0).toLocaleString('pt-BR')}</p>
                         <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          c.status === 'Produção' ? 'bg-blue-100 text-blue-700' :
-                          c.status === 'Assinado' ? 'bg-green-100 text-green-700' :
-                          c.status === 'Instalação' ? 'bg-purple-100 text-purple-700' :
+                          c.status === 'producao' ? 'bg-blue-100 text-blue-700' :
+                          c.status === 'assinado' ? 'bg-green-100 text-green-700' :
+                          c.status === 'instalacao' ? 'bg-purple-100 text-purple-700' :
+                          c.status === 'concluido' ? 'bg-emerald-100 text-emerald-700' :
                           'bg-amber-100 text-amber-700'
                         }`}>
-                          {c.status}
+                          {c.status === 'producao' ? 'Produção' : c.status === 'assinado' ? 'Assinado' : c.status === 'instalacao' ? 'Instalação' : c.status === 'concluido' ? 'Concluído' : c.status === 'em_negociacao' ? 'Em Negociação' : c.status}
                         </span>
                       </div>
                     </div>
                   ))}
+                  {contracts.length === 0 && <p className="text-sm text-gray-400 text-center py-4">Nenhum projeto ainda</p>}
                 </div>
               </div>
             </div>
@@ -595,133 +599,7 @@ const App: React.FC = () => {
         )}
 
         {/* CONTRACTS */}
-        {view === ViewMode.CONTRACTS && authState === 'ADMIN' && (
-          <div className="p-8 space-y-6 overflow-auto h-full bg-gradient-to-br from-gray-50 to-gray-100">
-            <header className="flex justify-between items-center">
-              <div>
-                <h1 className="text-4xl font-black text-gray-900 flex items-center gap-3">
-                  <FileText className="w-8 h-8 text-amber-500" />
-                  Negócios SD
-                </h1>
-                <p className="text-gray-500 mt-1">Acompanhamento de Vendas e Produção</p>
-              </div>
-              <button className="bg-amber-600 text-white px-8 py-4 rounded-2xl font-bold hover:bg-amber-700 transition-colors flex items-center gap-2 shadow-lg">
-                <FileText className="w-5 h-5" />
-                + Novo Contrato
-              </button>
-            </header>
-
-            {/* Stats */}
-            <div className="grid grid-cols-4 gap-4">
-              <div className="bg-white rounded-2xl p-4 shadow-lg">
-                <p className="text-xs text-gray-500 uppercase font-bold">Total em Contratos</p>
-                <p className="text-2xl font-black text-gray-900 mt-1">R$ {totalRevenue.toLocaleString()}</p>
-              </div>
-              <div className="bg-white rounded-2xl p-4 shadow-lg">
-                <p className="text-xs text-gray-500 uppercase font-bold">Pagos</p>
-                <p className="text-2xl font-black text-green-600 mt-1">{paidContracts} contratos</p>
-              </div>
-              <div className="bg-white rounded-2xl p-4 shadow-lg">
-                <p className="text-xs text-gray-500 uppercase font-bold">Em Produção</p>
-                <p className="text-2xl font-black text-blue-600 mt-1">{inProduction} projetos</p>
-              </div>
-              <div className="bg-white rounded-2xl p-4 shadow-lg">
-                <p className="text-xs text-gray-500 uppercase font-bold">Taxa de Conversão</p>
-                <p className="text-2xl font-black text-purple-600 mt-1">{Math.round((paidContracts / contracts.length) * 100)}%</p>
-              </div>
-            </div>
-
-            {/* Table */}
-            <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="text-left p-6 text-xs font-black text-gray-500 uppercase">Cliente / Projeto</th>
-                    <th className="text-left p-6 text-xs font-black text-gray-500 uppercase">Contato</th>
-                    <th className="text-left p-6 text-xs font-black text-gray-500 uppercase">Valor Total</th>
-                    <th className="text-left p-6 text-xs font-black text-gray-500 uppercase">Status</th>
-                    <th className="text-left p-6 text-xs font-black text-gray-500 uppercase">Pagamento</th>
-                    <th className="text-left p-6 text-xs font-black text-gray-500 uppercase">Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {contracts.map(contract => (
-                    <tr key={contract.id} className="border-t hover:bg-gray-50 transition-colors">
-                      <td className="p-6">
-                        <p className="font-bold text-gray-900">{contract.clientName}</p>
-                        <p className="text-sm text-gray-500">{contract.projectName}</p>
-                        <p className="text-xs text-gray-400 mt-1">{contract.date}</p>
-                      </td>
-                      <td className="p-6">
-                        <p className="text-sm text-gray-600 flex items-center gap-1"><Phone className="w-3 h-3" /> {contract.phone}</p>
-                        <p className="text-sm text-gray-600 flex items-center gap-1"><Mail className="w-3 h-3" /> {contract.email}</p>
-                      </td>
-                      <td className="p-6 font-bold text-gray-900 text-lg">R$ {contract.value.toLocaleString('pt-BR')}</td>
-                      <td className="p-6">
-                        <select
-                          value={contract.status}
-                          onChange={(e) => updateContractStatus(contract.id, e.target.value as Contract['status'])}
-                          className={`px-4 py-2 rounded-full text-xs font-bold border-0 cursor-pointer ${
-                            contract.status === 'Produção' ? 'bg-blue-100 text-blue-700' :
-                            contract.status === 'Assinado' ? 'bg-green-100 text-green-700' :
-                            contract.status === 'Instalação' ? 'bg-purple-100 text-purple-700' :
-                            contract.status === 'Concluído' ? 'bg-emerald-100 text-emerald-700' :
-                            'bg-amber-100 text-amber-700'
-                          }`}
-                        >
-                          <option value="Em Negociação">Em Negociação</option>
-                          <option value="Assinado">Assinado</option>
-                          <option value="Produção">Produção</option>
-                          <option value="Instalação">Instalação</option>
-                          <option value="Concluído">Concluído</option>
-                        </select>
-                      </td>
-                      <td className="p-6">
-                        <span className={`font-bold ${
-                          contract.paymentStatus === 'Pago' ? 'text-green-600' :
-                          contract.paymentStatus === 'Parcial' ? 'text-amber-600' :
-                          'text-red-600'
-                        }`}>
-                          {contract.paymentStatus}
-                        </span>
-                      </td>
-                      <td className="p-6">
-                        <div className="flex gap-2">
-                          <button 
-                            onClick={() => { setSelectedContract(contract); setShowContractModal(true); }}
-                            className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => { setSelectedContract(contract); setView(ViewMode.QUALITY_CHECK); }}
-                            className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors"
-                            title="Controle de Qualidade"
-                          >
-                            <CheckCircle className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => { setSelectedContract(contract); setView(ViewMode.PROJECT_COSTS); }}
-                            className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                            title="Custo Real da Obra"
-                          >
-                            <DollarSign className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => setView(ViewMode.CRM)}
-                            className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-500 hover:text-green-600 hover:bg-green-50 transition-colors"
-                          >
-                            <MessageCircle className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        {view === ViewMode.CONTRACTS && authState === 'ADMIN' && <SalesPage />}
 
         {/* CLIENT PORTAL */}
         {view === ViewMode.CLIENT_PORTAL && (
@@ -1028,14 +906,14 @@ const App: React.FC = () => {
         {/* QUALITY CHECK - Admin */}
         {view === ViewMode.QUALITY_CHECK && authState === 'ADMIN' && selectedContract && (
           <div className="p-8 overflow-auto h-full bg-gradient-to-br from-gray-50 to-gray-100">
-            <QualityCheckPanel projectId={selectedContract.id} projectName={selectedContract.projectName} />
+            <QualityCheckPanel projectId={selectedContract.id} projectName={selectedContract.name || selectedContract.projectName} />
           </div>
         )}
 
         {/* PROJECT COSTS - Admin */}
         {view === ViewMode.PROJECT_COSTS && authState === 'ADMIN' && selectedContract && (
           <div className="p-8 overflow-auto h-full bg-gradient-to-br from-gray-50 to-gray-100">
-            <ProjectCostPanel projectId={selectedContract.id} projectName={selectedContract.projectName} totalValue={selectedContract.value} />
+            <ProjectCostPanel projectId={selectedContract.id} projectName={selectedContract.name || selectedContract.projectName} totalValue={selectedContract.value} />
           </div>
         )}
       </main>
@@ -1356,49 +1234,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {showContractModal && selectedContract && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-10">
-          <div className="bg-white rounded-3xl w-[600px] max-h-[80vh] overflow-auto shadow-2xl">
-            <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white p-6 rounded-t-3xl flex justify-between items-center">
-              <div>
-                <h3 className="text-xl font-bold">{selectedContract.projectName}</h3>
-                <p className="text-gray-400 text-sm">{selectedContract.clientName}</p>
-              </div>
-              <button onClick={() => setShowContractModal(false)} className="text-white/60 hover:text-white">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 p-4 rounded-xl">
-                  <p className="text-xs text-gray-500 uppercase font-bold">Valor Total</p>
-                  <p className="text-2xl font-black text-amber-600">R$ {selectedContract.value.toLocaleString()}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-xl">
-                  <p className="text-xs text-gray-500 uppercase font-bold">Status</p>
-                  <p className="text-xl font-bold text-gray-900">{selectedContract.status}</p>
-                </div>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-xl space-y-2">
-                <p className="text-xs text-gray-500 uppercase font-bold mb-2">Contato</p>
-                <p className="flex items-center gap-2"><Phone className="w-4 h-4 text-gray-400" /> {selectedContract.phone}</p>
-                <p className="flex items-center gap-2"><Mail className="w-4 h-4 text-gray-400" /> {selectedContract.email}</p>
-                <p className="flex items-center gap-2"><FileText className="w-4 h-4 text-gray-400" /> {selectedContract.document}</p>
-              </div>
-              <div className="flex gap-3">
-                <button className="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
-                  <MessageCircle className="w-5 h-5" />
-                  WhatsApp
-                </button>
-                <button className="flex-1 bg-amber-600 text-white py-3 rounded-xl font-bold hover:bg-amber-700 transition-colors flex items-center justify-center gap-2">
-                  <Edit className="w-5 h-5" />
-                  Editar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* CLIENT CONTRACT MODAL */}
       {showClientContract && (
