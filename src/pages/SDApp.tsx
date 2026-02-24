@@ -94,6 +94,12 @@ const LOUVORES = [
     audioUrl: "/audio/bom-samaritano.mp3",
     verse: "Lucas 10:33 - Mas um samaritano, que ia de viagem, chegou ao pé dele e, vendo-o, moveu-se de íntima compaixão."
   },
+  { 
+    title: "Deus Está Te Ensinando", 
+    artist: "Nathália Braga", 
+    audioUrl: "/audio/deus-esta-te-ensinando.mp3",
+    verse: "Provérbios 3:5 - Confia no Senhor de todo o teu coração e não te estribes no teu próprio entendimento."
+  },
 ];
 
 const App: React.FC = () => {
