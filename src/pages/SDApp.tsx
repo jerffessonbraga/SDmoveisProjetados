@@ -84,9 +84,15 @@ const INITIAL_CONTRACTS: Contract[] = [
 const LOUVORES = [
   { 
     title: "Deus de Obras Completas", 
-    artist: "Kemily Santos", 
+    artist: "Kemilly Santos", 
     audioUrl: "/audio/deus-de-obras-completas.mp3",
     verse: "Colossenses 3:23 - E tudo quanto fizerdes, fazei-o de todo o coração, como ao Senhor."
+  },
+  { 
+    title: "Bom Samaritano (Ao Vivo)", 
+    artist: "Anderson Freire", 
+    audioUrl: "/audio/bom-samaritano.mp3",
+    verse: "Lucas 10:33 - Mas um samaritano, que ia de viagem, chegou ao pé dele e, vendo-o, moveu-se de íntima compaixão."
   },
 ];
 
