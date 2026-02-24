@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ViewMode, Contract } from '@/types';
 import { generateRealisticRender } from '@/services/geminiService';
 import AfterSalesPanel from '@/components/client/AfterSalesPanel';
@@ -117,7 +117,7 @@ const App: React.FC = () => {
   const [showContractModal, setShowContractModal] = useState(false);
   const [currentLouvor, setCurrentLouvor] = useState(LOUVORES[Math.floor(Math.random() * LOUVORES.length)]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [showClientContract, setShowClientContract] = useState(false);
   const [showClientFinanceiro, setShowClientFinanceiro] = useState(false);
   const [galleryFullscreen, setGalleryFullscreen] = useState<{title: string; url: string} | null>(null);
@@ -183,15 +183,20 @@ const App: React.FC = () => {
 
   // Função para tocar o louvor
   const playLouvor = () => {
-    // Criar o elemento de áudio dentro do clique do usuário (gesture)
+    // Parar áudio anterior se existir
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
     const audio = new Audio();
     audio.preload = "auto";
     audio.volume = 0.3;
     audio.src = currentLouvor.audioUrl;
+    audioRef.current = audio;
     
     audio.play().then(() => {
       setIsPlaying(true);
-      setAudioElement(audio);
       toast({ 
         title: "🎵 Tocando Louvor", 
         description: `${currentLouvor.title} - ${currentLouvor.artist}` 
@@ -207,16 +212,15 @@ const App: React.FC = () => {
 
     audio.onended = () => {
       setIsPlaying(false);
-      // Próxima música
       const nextIndex = (LOUVORES.findIndex(l => l.title === currentLouvor.title) + 1) % LOUVORES.length;
       setCurrentLouvor(LOUVORES[nextIndex]);
     };
   };
 
   const stopLouvor = () => {
-    if (audioElement) {
-      audioElement.pause();
-      audioElement.currentTime = 0;
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
       setIsPlaying(false);
     }
   };
