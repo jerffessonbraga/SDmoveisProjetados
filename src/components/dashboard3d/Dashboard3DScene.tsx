@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Environment, Float } from "@react-three/drei";
+import { OrbitControls, Text, RoundedBox } from "@react-three/drei";
 import { FloatingCard } from "./FloatingCard";
 import { ParticleField } from "./ParticleField";
 import { ProjectBar } from "./ProjectBar";
@@ -10,7 +10,7 @@ const statsCards = [
     position: [-3.5, 2.2, 0] as [number, number, number],
     title: "Total de Projetos",
     value: "47",
-    subtitle: "+12% este mês",
+    subtitle: "+12% este mes",
     color: "#6366f1",
     icon: "📊",
     delay: 0,
@@ -35,9 +35,9 @@ const statsCards = [
   },
   {
     position: [0.5, 0.2, 0] as [number, number, number],
-    title: "Taxa Conversão",
+    title: "Taxa Conversao",
     value: "68%",
-    subtitle: "+3% este mês",
+    subtitle: "+3% este mes",
     color: "#f59e0b",
     icon: "🎯",
     delay: 3,
@@ -55,19 +55,19 @@ const projectBars = [
 
 export function Dashboard3DScene() {
   return (
-    <div className="w-full h-[calc(100vh-4rem)] bg-[#0a0a14] rounded-xl overflow-hidden relative">
+    <div className="w-full h-full relative" style={{ minHeight: "500px" }}>
       {/* Overlay title */}
-      <div className="absolute top-6 left-8 z-10 pointer-events-none">
-        <h1 className="text-3xl font-bold text-white/90 tracking-tight">
+      <div className="absolute top-4 left-6 z-10 pointer-events-none">
+        <h1 className="text-2xl font-bold text-white/90 tracking-tight">
           Dashboard 3D
         </h1>
-        <p className="text-sm text-white/40 mt-1">
+        <p className="text-xs text-white/40 mt-1">
           Visão interativa dos indicadores — arraste para explorar
         </p>
       </div>
 
       {/* Legend */}
-      <div className="absolute bottom-6 right-8 z-10 flex gap-4 pointer-events-none">
+      <div className="absolute bottom-4 right-6 z-10 flex gap-4 pointer-events-none">
         {[
           { color: "#6366f1", label: "Projetos" },
           { color: "#22d3ee", label: "Clientes" },
@@ -85,18 +85,16 @@ export function Dashboard3DScene() {
       </div>
 
       <Canvas
-        camera={{ position: [0, 1.5, 8], fov: 50 }}
+        camera={{ position: [0, 2, 10], fov: 50 }}
         dpr={[1, 2]}
-        gl={{ antialias: true, alpha: false }}
+        style={{ background: "#0a0a14" }}
       >
-        <color attach="background" args={["#0a0a14"]} />
-        <fog attach="fog" args={["#0a0a14", 10, 25]} />
-
-        {/* Lighting */}
-        <ambientLight intensity={0.3} />
-        <directionalLight position={[5, 5, 5]} intensity={0.6} color="#c4b5fd" />
-        <directionalLight position={[-5, 3, -2]} intensity={0.3} color="#22d3ee" />
-        <pointLight position={[0, 4, 2]} intensity={0.5} color="#6366f1" />
+        {/* Lighting - brighter */}
+        <ambientLight intensity={0.8} />
+        <directionalLight position={[5, 8, 5]} intensity={1.2} color="#ffffff" />
+        <directionalLight position={[-3, 4, -2]} intensity={0.5} color="#c4b5fd" />
+        <pointLight position={[0, 5, 3]} intensity={0.8} color="#6366f1" />
+        <pointLight position={[-4, 3, 2]} intensity={0.4} color="#22d3ee" />
 
         <Suspense fallback={null}>
           {/* Stats Cards */}
@@ -120,34 +118,22 @@ export function Dashboard3DScene() {
           </group>
 
           {/* Floor grid */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.5, 0]}>
-            <planeGeometry args={[30, 30]} />
-            <meshStandardMaterial
-              color="#0a0a14"
-              transparent
-              opacity={0.5}
-              metalness={0.8}
-              roughness={0.2}
-            />
-          </mesh>
           <gridHelper
             args={[30, 60, "#1a1a2e", "#1a1a2e"]}
-            position={[0, -2.49, 0]}
+            position={[0, -2.5, 0]}
           />
 
           {/* Particles */}
           <ParticleField count={300} />
-
-          <Environment preset="night" />
         </Suspense>
 
         <OrbitControls
           enablePan={false}
           enableZoom={true}
-          minDistance={4}
-          maxDistance={15}
+          minDistance={5}
+          maxDistance={18}
           autoRotate
-          autoRotateSpeed={0.3}
+          autoRotateSpeed={0.4}
           maxPolarAngle={Math.PI / 1.8}
           minPolarAngle={Math.PI / 4}
         />

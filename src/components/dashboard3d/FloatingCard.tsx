@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Text, RoundedBox } from "@react-three/drei";
+import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
 interface FloatingCardProps {
@@ -28,16 +28,11 @@ export function FloatingCard({
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime + delay;
-    
-    // Floating animation
     groupRef.current.position.y = position[1] + Math.sin(t * 0.8) * 0.15;
-    
-    // Subtle rotation
     groupRef.current.rotation.y = Math.sin(t * 0.3) * 0.05;
     groupRef.current.rotation.x = Math.sin(t * 0.5) * 0.02;
 
-    // Scale on hover
-    const targetScale = hovered ? 1.08 : 1;
+    const targetScale = hovered ? 1.05 : 1;
     groupRef.current.scale.lerp(
       new THREE.Vector3(targetScale, targetScale, targetScale),
       0.1
@@ -52,77 +47,54 @@ export function FloatingCard({
       onPointerOut={() => setHovered(false)}
     >
       {/* Card body */}
-      <RoundedBox args={[2.8, 1.6, 0.12]} radius={0.08} smoothness={4}>
+      <mesh>
+        <boxGeometry args={[2.8, 1.6, 0.1]} />
         <meshPhysicalMaterial
-          color={hovered ? "#2a2a3a" : "#1e1e2e"}
+          color={hovered ? "#2a2a3a" : "#1a1a2e"}
           metalness={0.1}
           roughness={0.4}
           transparent
-          opacity={0.92}
-          clearcoat={0.3}
-          clearcoatRoughness={0.2}
+          opacity={0.95}
         />
-      </RoundedBox>
-
-      {/* Glow edge */}
-      <RoundedBox args={[2.84, 1.64, 0.08]} radius={0.09} smoothness={4} position={[0, 0, -0.03]}>
-        <meshBasicMaterial color={color} transparent opacity={hovered ? 0.4 : 0.15} />
-      </RoundedBox>
-
-      {/* Icon circle */}
-      <mesh position={[-0.9, 0.25, 0.08]}>
-        <circleGeometry args={[0.22, 32]} />
-        <meshBasicMaterial color={color} transparent opacity={0.3} />
       </mesh>
-      <Text
-        position={[-0.9, 0.25, 0.1]}
-        fontSize={0.22}
-        anchorX="center"
-        anchorY="middle"
-      >
-        {icon}
-      </Text>
 
-      {/* Title */}
-      <Text
-        position={[-0.2, 0.35, 0.08]}
-        fontSize={0.13}
-        color="#a0a0b8"
-        anchorX="left"
-        anchorY="middle"
-        font="/fonts/Inter-Regular.woff"
-      >
-        {title}
-      </Text>
-
-      {/* Value */}
-      <Text
-        position={[-0.2, 0.0, 0.08]}
-        fontSize={0.28}
-        color="#ffffff"
-        anchorX="left"
-        anchorY="middle"
-        fontWeight="bold"
-      >
-        {value}
-      </Text>
-
-      {/* Subtitle */}
-      <Text
-        position={[-0.2, -0.35, 0.08]}
-        fontSize={0.11}
-        color={color}
-        anchorX="left"
-        anchorY="middle"
-      >
-        {subtitle}
-      </Text>
-
-      {/* Accent line */}
-      <mesh position={[0, -0.7, 0.07]}>
-        <planeGeometry args={[2.4, 0.025]} />
-        <meshBasicMaterial color={color} transparent opacity={0.5} />
+      {/* Glow border */}
+      <mesh position={[0, 0, -0.02]}>
+        <boxGeometry args={[2.86, 1.66, 0.06]} />
+        <meshBasicMaterial color={color} transparent opacity={hovered ? 0.35 : 0.12} />
       </mesh>
+
+      {/* Accent line bottom */}
+      <mesh position={[0, -0.72, 0.06]}>
+        <boxGeometry args={[2.5, 0.03, 0.01]} />
+        <meshBasicMaterial color={color} />
+      </mesh>
+
+      {/* HTML overlay for text content */}
+      <Html
+        center
+        transform
+        distanceFactor={5}
+        position={[0, 0, 0.07]}
+        style={{
+          width: "240px",
+          pointerEvents: "none",
+          userSelect: "none",
+        }}
+      >
+        <div style={{
+          color: "white",
+          fontFamily: "system-ui, sans-serif",
+          padding: "12px 16px",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+            <span style={{ fontSize: "20px" }}>{icon}</span>
+            <span style={{ fontSize: "11px", color: "#a0a0b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>{title}</span>
+          </div>
+          <div style={{ fontSize: "28px", fontWeight: 800, lineHeight: 1.1 }}>{value}</div>
+          <div style={{ fontSize: "11px", color, marginTop: "6px", fontWeight: 600 }}>{subtitle}</div>
+        </div>
+      </Html>
     </group>
   );
 }
