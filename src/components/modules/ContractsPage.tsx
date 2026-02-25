@@ -15,7 +15,7 @@ const ContractsPage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [search, setSearch] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ client_id: '', title: '', content: '', value: 0, status: 'rascunho', notes: '' });
+  const [form, setForm] = useState({ client_id: '', client_name: '', title: '', content: '', value: 0, status: 'rascunho', notes: '' });
   const [showGenerator, setShowGenerator] = useState<'contrato_servico' | 'ordem_servico' | null>(null);
   const [selectedClient, setSelectedClient] = useState<any>(null);
 
@@ -34,7 +34,21 @@ const ContractsPage: React.FC = () => {
 
   const handleSave = async () => {
     if (!form.title.trim()) { toast({ title: '⚠️ Título obrigatório', variant: 'destructive' }); return; }
-    const payload = { ...form, client_id: form.client_id || null };
+    
+    let clientId = form.client_id || null;
+    
+    // Se digitou nome manual e não selecionou cliente existente, cria um novo
+    if (!clientId && form.client_name.trim()) {
+      const { data: newClient, error: clientErr } = await db.from('clients').insert({ name: form.client_name.trim() }).select('id').single();
+      if (clientErr) {
+        toast({ title: '❌ Erro ao criar cliente', description: clientErr.message, variant: 'destructive' });
+        return;
+      }
+      clientId = newClient.id;
+      fetchData(); // refresh clients list
+    }
+    
+    const payload = { client_id: clientId, title: form.title, content: form.content, value: form.value, status: form.status, notes: form.notes };
     let result;
     if (editingId) {
       result = await db.from('contracts').update(payload).eq('id', editingId);
@@ -49,7 +63,7 @@ const ContractsPage: React.FC = () => {
     toast({ title: editingId ? '✅ Contrato atualizado' : '✅ Contrato criado' });
     setShowForm(false);
     setEditingId(null);
-    setForm({ client_id: '', title: '', content: '', value: 0, status: 'rascunho', notes: '' });
+    setForm({ client_id: '', client_name: '', title: '', content: '', value: 0, status: 'rascunho', notes: '' });
     fetchData();
   };
 
@@ -84,7 +98,7 @@ const ContractsPage: React.FC = () => {
           <button onClick={() => openGenerator('ordem_servico')} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-3 rounded-2xl font-bold hover:from-blue-600 hover:to-blue-700 flex items-center gap-2 shadow-lg">
             <Sparkles className="w-5 h-5" /> Gerar OS (IA)
           </button>
-          <button onClick={() => { setShowForm(true); setEditingId(null); setForm({ client_id: '', title: '', content: '', value: 0, status: 'rascunho', notes: '' }); }} className="bg-gray-800 text-white px-5 py-3 rounded-2xl font-bold hover:bg-gray-900 flex items-center gap-2 shadow-lg">
+          <button onClick={() => { setShowForm(true); setEditingId(null); setForm({ client_id: '', client_name: '', title: '', content: '', value: 0, status: 'rascunho', notes: '' }); }} className="bg-gray-800 text-white px-5 py-3 rounded-2xl font-bold hover:bg-gray-900 flex items-center gap-2 shadow-lg">
             <Plus className="w-5 h-5" /> Manual
           </button>
         </div>
@@ -140,6 +154,7 @@ const ContractsPage: React.FC = () => {
               <option value="">Selecionar Cliente</option>
               {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
+            <input value={form.client_name} onChange={e => setForm({...form, client_name: e.target.value})} placeholder="Nome do cliente (manual)" className="p-3 rounded-xl border border-gray-200" />
             <input type="number" value={form.value} onChange={e => setForm({...form, value: +e.target.value})} placeholder="Valor (R$)" className="p-3 rounded-xl border border-gray-200" />
             <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="p-3 rounded-xl border border-gray-200">
               <option value="rascunho">Rascunho</option><option value="ativo">Ativo</option><option value="assinado">Assinado</option><option value="cancelado">Cancelado</option><option value="finalizado">Finalizado</option>
@@ -177,7 +192,7 @@ const ContractsPage: React.FC = () => {
                 <td className="p-4"><span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColors[c.status] || ''}`}>{c.status}</span></td>
                 <td className="p-4 text-sm text-gray-600">{format(new Date(c.created_at), 'dd/MM/yyyy')}</td>
                 <td className="p-4 flex gap-2">
-                  <button onClick={() => { setEditingId(c.id); setForm({ client_id: c.client_id || '', title: c.title, content: c.content || '', value: c.value || 0, status: c.status, notes: c.notes || '' }); setShowForm(true); }} className="w-9 h-9 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-blue-50 hover:text-blue-600"><Edit className="w-4 h-4" /></button>
+                  <button onClick={() => { setEditingId(c.id); setForm({ client_id: c.client_id || '', client_name: '', title: c.title, content: c.content || '', value: c.value || 0, status: c.status, notes: c.notes || '' }); setShowForm(true); }} className="w-9 h-9 bg-gray-100 rounded-xl flex items-center justify-center hover:bg-blue-50 hover:text-blue-600"><Edit className="w-4 h-4" /></button>
                 </td>
               </tr>
             ))}
