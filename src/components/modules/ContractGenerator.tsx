@@ -1,45 +1,104 @@
 import React, { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { FileSignature, Download, Sparkles, Loader2, Eye, X } from 'lucide-react';
+import { FileSignature, Download, Sparkles, Loader2, Eye, X, Plus, Trash2, Save } from 'lucide-react';
 import jsPDF from 'jspdf';
 import logoSrc from '@/assets/logo-sd.jpeg';
 
 interface ContractGeneratorProps {
   templateType: 'contrato_servico' | 'ordem_servico';
-  client?: { name: string; phone?: string; email?: string; address?: string };
-  project?: { name?: string; value?: number; description?: string; deadline?: string };
+  clients: Array<{ id: string; name: string; phone?: string; email?: string; address?: string }>;
   onClose: () => void;
+  onSaved?: () => void;
 }
 
-const ContractGenerator: React.FC<ContractGeneratorProps> = ({ templateType, client, project, onClose }) => {
+const db = supabase as any;
+
+const ContractGenerator: React.FC<ContractGeneratorProps> = ({ templateType, clients, onClose, onSaved }) => {
   const { toast } = useToast();
   const [generatedContent, setGeneratedContent] = useState('');
   const [loading, setLoading] = useState(false);
-  const [customInstructions, setCustomInstructions] = useState('');
+  const [saving, setSaving] = useState(false);
   const [editableContent, setEditableContent] = useState('');
   const previewRef = useRef<HTMLDivElement>(null);
 
+  // Form fields
+  const [clientId, setClientId] = useState('');
+  const [clientName, setClientName] = useState('');
+  const [clientPhone, setClientPhone] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
+  const [clientAddress, setClientAddress] = useState('');
+  const [clientBairro, setClientBairro] = useState('');
+  const [clientCity, setClientCity] = useState('');
+  const [clientCep, setClientCep] = useState('');
+  const [clientCpf, setClientCpf] = useState('');
+
+  const [valorTotal, setValorTotal] = useState('');
+  const [ambientes, setAmbientes] = useState<string[]>(['']);
+  const [formaPagamento, setFormaPagamento] = useState('');
+  const [prazoEntrega, setPrazoEntrega] = useState('');
+  const [observacoes, setObservacoes] = useState('');
+  const [customInstructions, setCustomInstructions] = useState('');
+
+  // OS specific
+  const [valorMaterial, setValorMaterial] = useState('');
+  const [valorServico, setValorServico] = useState('');
+  const [valorFrete, setValorFrete] = useState('');
+  const [valorDesconto, setValorDesconto] = useState('');
+
+  const selectedClient = clients.find(c => c.id === clientId);
+
+  const handleClientSelect = (id: string) => {
+    setClientId(id);
+    const c = clients.find(cl => cl.id === id);
+    if (c) {
+      setClientName(c.name || '');
+      setClientPhone(c.phone || '');
+      setClientEmail(c.email || '');
+      setClientAddress(c.address || '');
+    }
+  };
+
+  const addAmbiente = () => setAmbientes(prev => [...prev, '']);
+  const removeAmbiente = (i: number) => setAmbientes(prev => prev.filter((_, idx) => idx !== i));
+  const updateAmbiente = (i: number, val: string) => setAmbientes(prev => prev.map((a, idx) => idx === i ? val : a));
+
   const generateContract = async () => {
+    if (!clientName.trim()) {
+      toast({ title: '⚠️ Informe o nome do cliente', variant: 'destructive' });
+      return;
+    }
     setLoading(true);
     try {
+      const clientData: Record<string, string> = {
+        nome_cliente: clientName,
+        telefone_cliente: clientPhone,
+        email_cliente: clientEmail,
+        endereco_cliente: clientAddress,
+        bairro_cliente: clientBairro,
+        cidade_cliente: clientCity || 'Fortaleza',
+        cep_cliente: clientCep,
+        cpf_cliente: clientCpf,
+      };
+
+      const projectData: Record<string, any> = {
+        valor_total: valorTotal,
+        ambientes: ambientes.filter(a => a.trim()).join(', '),
+        forma_pagamento: formaPagamento,
+        prazo_entrega: prazoEntrega,
+        observacoes,
+        data_contrato: new Date().toLocaleDateString('pt-BR'),
+      };
+
+      if (templateType === 'ordem_servico') {
+        projectData.valor_material = valorMaterial;
+        projectData.valor_servico = valorServico;
+        projectData.valor_frete = valorFrete;
+        projectData.valor_desconto = valorDesconto;
+      }
+
       const { data, error } = await supabase.functions.invoke('generate-contract', {
-        body: {
-          templateType,
-          clientData: {
-            nome_cliente: client?.name || '',
-            telefone_cliente: client?.phone || '',
-            email_cliente: client?.email || '',
-            endereco_cliente: client?.address || '',
-          },
-          projectData: {
-            nome_projeto: project?.name || '',
-            valor_total: project?.value || 0,
-            descricao: project?.description || '',
-            prazo_entrega: project?.deadline || '',
-          },
-          customInstructions,
-        },
+        body: { templateType, clientData, projectData, customInstructions },
       });
 
       if (error) throw error;
@@ -56,6 +115,48 @@ const ContractGenerator: React.FC<ContractGeneratorProps> = ({ templateType, cli
     }
   };
 
+  const saveContract = async () => {
+    if (!editableContent.trim()) return;
+    setSaving(true);
+    try {
+      let finalClientId = clientId || null;
+
+      // Create client if needed
+      if (!finalClientId && clientName.trim()) {
+        const { data: newClient, error: clientErr } = await db.from('clients').insert({
+          name: clientName.trim(),
+          phone: clientPhone || null,
+          email: clientEmail || null,
+          address: clientAddress || null,
+        }).select('id').single();
+        if (clientErr) throw clientErr;
+        finalClientId = newClient.id;
+      }
+
+      const title = templateType === 'ordem_servico'
+        ? `OS - ${clientName}`
+        : `Contrato - ${clientName}`;
+
+      const { error } = await db.from('contracts').insert({
+        client_id: finalClientId,
+        title,
+        content: editableContent,
+        value: parseFloat(valorTotal.replace(/\D/g, '')) / 100 || 0,
+        status: 'rascunho',
+        notes: observacoes,
+      });
+
+      if (error) throw error;
+      toast({ title: '✅ Contrato salvo no sistema!' });
+      onSaved?.();
+      onClose();
+    } catch (err: any) {
+      toast({ title: '❌ Erro ao salvar', description: err.message, variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const downloadPDF = () => {
     const doc = new jsPDF('p', 'mm', 'a4');
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -63,14 +164,8 @@ const ContractGenerator: React.FC<ContractGeneratorProps> = ({ templateType, cli
     const margin = 20;
     const contentWidth = pageWidth - margin * 2;
 
-    // Add logo
-    try {
-      doc.addImage(logoSrc, 'JPEG', margin, 10, 30, 30);
-    } catch (e) {
-      // fallback if logo fails
-    }
+    try { doc.addImage(logoSrc, 'JPEG', margin, 10, 30, 30); } catch {}
 
-    // Header
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.text('SD MÓVEIS', margin + 35, 22);
@@ -79,52 +174,36 @@ const ContractGenerator: React.FC<ContractGeneratorProps> = ({ templateType, cli
     doc.text('RUA JORGE FIGUEREDO 740 - BARROCÃO - ITAITINGA-CE', margin + 35, 28);
     doc.text('(85) 98574-9686 | (85) 99760-2237 | CNPJ: 49.228.811/0001-33', margin + 35, 33);
 
-    // Line separator
     doc.setDrawColor(200, 150, 50);
     doc.setLineWidth(0.8);
     doc.line(margin, 42, pageWidth - margin, 42);
 
-    // Title
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     const title = templateType === 'ordem_servico' ? 'ORDEM DE SERVIÇO' : 'CONTRATO DE PRESTAÇÃO DE SERVIÇO';
     doc.text(title, pageWidth / 2, 52, { align: 'center' });
 
-    // Content
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     const lines = doc.splitTextToSize(editableContent || generatedContent, contentWidth);
     let y = 62;
-    
+
     for (const line of lines) {
       if (y > pageHeight - 30) {
         doc.addPage();
         y = 20;
-        // Add logo on new pages too
-        try {
-          doc.addImage(logoSrc, 'JPEG', pageWidth - margin - 20, 5, 15, 15);
-        } catch (e) {}
+        try { doc.addImage(logoSrc, 'JPEG', pageWidth - margin - 20, 5, 15, 15); } catch {}
       }
-      
-      // Bold for section headers (lines starting with numbers or all caps short lines)
       if (/^\d+\./.test(line.trim()) || (line.trim().length < 60 && line.trim() === line.trim().toUpperCase() && line.trim().length > 3)) {
         doc.setFont('helvetica', 'bold');
       } else {
         doc.setFont('helvetica', 'normal');
       }
-      
       doc.text(line, margin, y);
       y += 5;
     }
 
-    // Footer with signatures
-    if (y < pageHeight - 50) {
-      y = pageHeight - 45;
-    } else {
-      doc.addPage();
-      y = 40;
-    }
-
+    if (y < pageHeight - 50) { y = pageHeight - 45; } else { doc.addPage(); y = 40; }
     doc.setDrawColor(0);
     doc.setLineWidth(0.3);
     doc.line(margin, y, margin + 60, y);
@@ -135,61 +214,152 @@ const ContractGenerator: React.FC<ContractGeneratorProps> = ({ templateType, cli
     doc.text('CONTRATADO - SD MÓVEIS', pageWidth - margin - 50, y + 5);
 
     const fileName = templateType === 'ordem_servico'
-      ? `OS_${client?.name || 'cliente'}.pdf`
-      : `Contrato_${client?.name || 'cliente'}.pdf`;
+      ? `OS_${clientName || 'cliente'}.pdf`
+      : `Contrato_${clientName || 'cliente'}.pdf`;
     doc.save(fileName);
     toast({ title: '📄 PDF baixado com sucesso!' });
   };
+
+  const isOS = templateType === 'ordem_servico';
+  const inputClass = "w-full p-3 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent";
+  const labelClass = "text-xs font-bold text-gray-500 uppercase mb-1 block";
 
   return (
     <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
       <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-4 flex justify-between items-center">
         <h3 className="text-white font-bold text-lg flex items-center gap-2">
           <FileSignature className="w-5 h-5" />
-          {templateType === 'ordem_servico' ? 'Gerar Ordem de Serviço' : 'Gerar Contrato de Serviço'}
+          {isOS ? 'Gerar Ordem de Serviço' : 'Gerar Contrato de Serviço'}
         </h3>
         <button onClick={onClose} className="text-white/80 hover:text-white"><X className="w-5 h-5" /></button>
       </div>
 
-      <div className="p-6 space-y-4">
-        {/* Client/Project Info */}
-        <div className="grid grid-cols-2 gap-4 bg-gray-50 rounded-2xl p-4">
-          <div>
-            <p className="text-xs text-gray-500 font-bold uppercase">Cliente</p>
-            <p className="font-bold text-gray-900">{client?.name || 'Não selecionado'}</p>
-            <p className="text-sm text-gray-500">{client?.phone || ''}</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500 font-bold uppercase">Projeto</p>
-            <p className="font-bold text-gray-900">{project?.name || 'Não definido'}</p>
-            <p className="text-sm text-amber-600 font-bold">
-              {project?.value ? `R$ ${project.value.toLocaleString('pt-BR')}` : ''}
-            </p>
+      <div className="p-6 space-y-5 max-h-[80vh] overflow-auto">
+        {/* ── Cliente ── */}
+        <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
+          <p className="text-sm font-black text-gray-700">📋 Dados do Cliente</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2">
+              <label className={labelClass}>Cliente cadastrado</label>
+              <select value={clientId} onChange={e => handleClientSelect(e.target.value)} className={inputClass}>
+                <option value="">— Selecionar ou preencher abaixo —</option>
+                {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={labelClass}>Nome *</label>
+              <input value={clientName} onChange={e => setClientName(e.target.value)} placeholder="Nome completo" className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>CPF / CNPJ</label>
+              <input value={clientCpf} onChange={e => setClientCpf(e.target.value)} placeholder="000.000.000-00" className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Telefone</label>
+              <input value={clientPhone} onChange={e => setClientPhone(e.target.value)} placeholder="(85) 99999-9999" className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Email</label>
+              <input value={clientEmail} onChange={e => setClientEmail(e.target.value)} placeholder="email@email.com" className={inputClass} />
+            </div>
+            <div className="col-span-2">
+              <label className={labelClass}>Endereço completo</label>
+              <input value={clientAddress} onChange={e => setClientAddress(e.target.value)} placeholder="Rua, número, complemento" className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Bairro</label>
+              <input value={clientBairro} onChange={e => setClientBairro(e.target.value)} placeholder="Bairro" className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Cidade</label>
+              <input value={clientCity} onChange={e => setClientCity(e.target.value)} placeholder="Fortaleza" className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>CEP</label>
+              <input value={clientCep} onChange={e => setClientCep(e.target.value)} placeholder="00000-000" className={inputClass} />
+            </div>
           </div>
         </div>
 
-        {/* Custom Instructions */}
-        <div>
-          <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">
-            Instruções adicionais para a IA (opcional)
-          </label>
-          <textarea
-            value={customInstructions}
-            onChange={e => setCustomInstructions(e.target.value)}
-            placeholder="Ex: Incluir ambientes: Suite Casal, Closet e Cozinha. Prazo de 60 dias. Entrada de 50%..."
-            className="w-full p-3 rounded-xl border border-gray-200 text-sm"
-            rows={3}
-          />
+        {/* ── Ambientes ── */}
+        <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
+          <div className="flex justify-between items-center">
+            <p className="text-sm font-black text-gray-700">🏠 Ambientes</p>
+            <button onClick={addAmbiente} className="text-amber-600 text-xs font-bold flex items-center gap-1 hover:text-amber-700">
+              <Plus className="w-3 h-3" /> Adicionar
+            </button>
+          </div>
+          {ambientes.map((amb, i) => (
+            <div key={i} className="flex gap-2">
+              <input
+                value={amb}
+                onChange={e => updateAmbiente(i, e.target.value)}
+                placeholder={`Ex: Suite Casal, Closet, Cozinha Planejada...`}
+                className={inputClass}
+              />
+              {ambientes.length > 1 && (
+                <button onClick={() => removeAmbiente(i)} className="text-red-400 hover:text-red-600">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* ── Valores ── */}
+        <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
+          <p className="text-sm font-black text-gray-700">💰 Valores e Pagamento</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Valor Total (R$)</label>
+              <input value={valorTotal} onChange={e => setValorTotal(e.target.value)} placeholder="15.000,00" className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Prazo de Entrega</label>
+              <input value={prazoEntrega} onChange={e => setPrazoEntrega(e.target.value)} placeholder="60 dias" className={inputClass} />
+            </div>
+            {isOS && (
+              <>
+                <div>
+                  <label className={labelClass}>Valor Material (R$)</label>
+                  <input value={valorMaterial} onChange={e => setValorMaterial(e.target.value)} placeholder="8.000,00" className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Valor Serviço (R$)</label>
+                  <input value={valorServico} onChange={e => setValorServico(e.target.value)} placeholder="5.000,00" className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Frete (R$)</label>
+                  <input value={valorFrete} onChange={e => setValorFrete(e.target.value)} placeholder="500,00" className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Desconto (R$)</label>
+                  <input value={valorDesconto} onChange={e => setValorDesconto(e.target.value)} placeholder="0,00" className={inputClass} />
+                </div>
+              </>
+            )}
+            <div className="col-span-2">
+              <label className={labelClass}>Forma de Pagamento</label>
+              <input value={formaPagamento} onChange={e => setFormaPagamento(e.target.value)} placeholder="Ex: 50% entrada + 50% na entrega" className={inputClass} />
+            </div>
+          </div>
+        </div>
+
+        {/* ── Observações ── */}
+        <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
+          <p className="text-sm font-black text-gray-700">📝 Observações e Instruções</p>
+          <textarea value={observacoes} onChange={e => setObservacoes(e.target.value)} placeholder="Observações gerais do contrato..." className={inputClass} rows={2} />
+          <textarea value={customInstructions} onChange={e => setCustomInstructions(e.target.value)} placeholder="Instruções adicionais para a IA (opcional)..." className={inputClass} rows={2} />
         </div>
 
         {/* Generate Button */}
         <button
           onClick={generateContract}
           disabled={loading}
-          className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 rounded-xl font-bold hover:from-amber-600 hover:to-amber-700 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
+          className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-4 rounded-xl font-bold hover:from-amber-600 hover:to-amber-700 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg text-lg"
         >
           {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-          {loading ? 'Gerando com IA...' : 'Gerar Contrato com IA'}
+          {loading ? 'Gerando com IA...' : '✨ Gerar Contrato Preenchido com IA'}
         </button>
 
         {/* Preview */}
@@ -199,15 +369,16 @@ const ContractGenerator: React.FC<ContractGeneratorProps> = ({ templateType, cli
               <p className="text-xs font-bold text-gray-500 uppercase flex items-center gap-2">
                 <Eye className="w-4 h-4" /> Pré-visualização (editável)
               </p>
-              <button
-                onClick={downloadPDF}
-                className="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-green-700 flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" /> Baixar PDF
-              </button>
+              <div className="flex gap-2">
+                <button onClick={saveContract} disabled={saving} className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50">
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Salvar no Sistema
+                </button>
+                <button onClick={downloadPDF} className="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-green-700 flex items-center gap-2">
+                  <Download className="w-4 h-4" /> Baixar PDF
+                </button>
+              </div>
             </div>
 
-            {/* Preview with logo */}
             <div ref={previewRef} className="border border-gray-200 rounded-2xl p-6 bg-white max-h-[500px] overflow-auto shadow-inner">
               <div className="flex items-center gap-4 mb-4 pb-4 border-b-2 border-amber-400">
                 <img src={logoSrc} alt="SD Móveis" className="w-16 h-16 object-contain rounded-lg" />
