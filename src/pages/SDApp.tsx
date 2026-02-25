@@ -431,152 +431,172 @@ const App: React.FC = () => {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-4 gap-4">
-              <DashboardStat 
-                title="Projetos Ativos" 
-                value={contracts.length.toString()} 
-                icon="📁" 
-                trend="+2 este mês"
-                color="bg-blue-50"
-              />
-              <DashboardStat 
-                title="Faturamento Total" 
-                value={`R$ ${(totalRevenue / 1000).toFixed(0)}K`} 
-                icon="💰" 
-                trend="+15% vs mês anterior"
-                color="bg-green-50" 
-              />
-              <DashboardStat 
-                title="Em Produção" 
-                value={inProduction.toString()} 
-                icon="🏭" 
-                trend="Meta: 10"
-                color="bg-amber-50" 
-              />
-              <DashboardStat 
-                title="Conversão" 
-                value={`${contracts.length > 0 ? Math.round((signedContracts / contracts.length) * 100) : 0}%`} 
-                icon="📈" 
-                trend="Excelente!"
-                color="bg-purple-50" 
-              />
+              <Card3D intensity={8} className="rounded-2xl">
+                <DashboardStat 
+                  title="Projetos Ativos" 
+                  value={contracts.length.toString()} 
+                  icon="📁" 
+                  trend="+2 este mês"
+                  color="bg-blue-50"
+                />
+              </Card3D>
+              <Card3D intensity={8} className="rounded-2xl">
+                <DashboardStat 
+                  title="Faturamento Total" 
+                  value={`R$ ${(totalRevenue / 1000).toFixed(0)}K`} 
+                  icon="💰" 
+                  trend="+15% vs mês anterior"
+                  color="bg-green-50" 
+                />
+              </Card3D>
+              <Card3D intensity={8} className="rounded-2xl">
+                <DashboardStat 
+                  title="Em Produção" 
+                  value={inProduction.toString()} 
+                  icon="🏭" 
+                  trend="Meta: 10"
+                  color="bg-amber-50" 
+                />
+              </Card3D>
+              <Card3D intensity={8} className="rounded-2xl">
+                <DashboardStat 
+                  title="Conversão" 
+                  value={`${contracts.length > 0 ? Math.round((signedContracts / contracts.length) * 100) : 0}%`} 
+                  icon="📈" 
+                  trend="Excelente!"
+                  color="bg-purple-50" 
+                />
+              </Card3D>
             </div>
 
             {/* Main Content Grid */}
             <div className="grid grid-cols-3 gap-6">
               {/* Sabedoria do Dia */}
-              <div className="col-span-2 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-[32px] p-8 text-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl" />
-                <div className="relative z-10">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Star className="w-5 h-5 text-amber-400" />
-                    <span className="text-amber-400 text-sm font-bold uppercase tracking-wider">Sabedoria do Dia</span>
-                  </div>
-                  <p className="text-gray-300 text-lg mb-8 italic leading-relaxed">
-                    "Consagre ao Senhor tudo o que você faz, e os seus planos serão bem-sucedidos." 
-                    <span className="block text-amber-400 text-sm mt-2 not-italic">(Provérbios 16:3)</span>
-                  </p>
-                  <div className="flex gap-4">
-                    <button 
-                      onClick={() => setView(ViewMode.PROMOB)} 
-                      className="bg-amber-600 px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-amber-500 transition-all hover:scale-105 flex items-center gap-2 shadow-lg"
-                    >
-                      <Layers className="w-4 h-4" />
-                      Novo Projeto 3D
-                    </button>
-                    <button 
-                      onClick={() => setView(ViewMode.CONTRACTS)} 
-                      className="bg-white/10 px-8 py-4 rounded-2xl font-bold uppercase text-xs tracking-widest hover:bg-white/20 transition-all flex items-center gap-2"
-                    >
-                      <FileText className="w-4 h-4" />
-                      Ver Contratos
-                    </button>
+              <Card3D intensity={5} className="col-span-2 rounded-[32px]">
+                <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-[32px] p-8 text-white relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl" />
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Star className="w-5 h-5 text-amber-400" />
+                      <span className="text-amber-400 text-sm font-bold uppercase tracking-wider">Sabedoria do Dia</span>
+                    </div>
+                    <p className="text-gray-300 text-lg mb-8 italic leading-relaxed">
+                      "Consagre ao Senhor tudo o que você faz, e os seus planos serão bem-sucedidos." 
+                      <span className="block text-amber-400 text-sm mt-2 not-italic">(Provérbios 16:3)</span>
+                    </p>
+                    <div className="flex gap-4">
+                      <button 
+                        onClick={() => setView(ViewMode.PROMOB)} 
+                        className="bg-amber-600 px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-amber-500 transition-all hover:scale-105 flex items-center gap-2 shadow-lg"
+                      >
+                        <Layers className="w-4 h-4" />
+                        Novo Projeto 3D
+                      </button>
+                      <button 
+                        onClick={() => setView(ViewMode.CONTRACTS)} 
+                        className="bg-white/10 px-8 py-4 rounded-2xl font-bold uppercase text-xs tracking-widest hover:bg-white/20 transition-all flex items-center gap-2"
+                      >
+                        <FileText className="w-4 h-4" />
+                        Ver Contratos
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Card3D>
 
               {/* Contratos Recentes */}
-              <div className="bg-white rounded-[32px] p-6 shadow-xl">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-black text-gray-900 flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-amber-500" />
-                    Últimos Contratos
-                  </h3>
-                  <button onClick={() => setView(ViewMode.CONTRACTS)} className="text-xs text-amber-600 font-bold hover:underline flex items-center gap-1">
-                    Ver todos <ChevronRight className="w-3 h-3" />
-                  </button>
-                </div>
-                <div className="space-y-3">
-                  {contracts.slice(0, 3).map(c => (
-                    <div 
-                      key={c.id} 
-                      onClick={() => setView(ViewMode.CONTRACTS)}
-                      className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors cursor-pointer"
-                    >
-                      <div>
-                        <p className="font-bold text-gray-900">{c.clients?.name || 'Cliente'}</p>
-                        <p className="text-xs text-gray-500">{c.name}</p>
+              <Card3D intensity={6} className="rounded-[32px]">
+                <div className="bg-white rounded-[32px] p-6 shadow-xl h-full">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-black text-gray-900 flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-amber-500" />
+                      Últimos Contratos
+                    </h3>
+                    <button onClick={() => setView(ViewMode.CONTRACTS)} className="text-xs text-amber-600 font-bold hover:underline flex items-center gap-1">
+                      Ver todos <ChevronRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <div className="space-y-3">
+                    {contracts.slice(0, 3).map(c => (
+                      <div 
+                        key={c.id} 
+                        onClick={() => setView(ViewMode.CONTRACTS)}
+                        className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors cursor-pointer"
+                      >
+                        <div>
+                          <p className="font-bold text-gray-900">{c.clients?.name || 'Cliente'}</p>
+                          <p className="text-xs text-gray-500">{c.name}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-black text-amber-600">R$ {(c.value || 0).toLocaleString('pt-BR')}</p>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                            c.status === 'producao' ? 'bg-blue-100 text-blue-700' :
+                            c.status === 'assinado' ? 'bg-green-100 text-green-700' :
+                            c.status === 'instalacao' ? 'bg-purple-100 text-purple-700' :
+                            c.status === 'concluido' ? 'bg-emerald-100 text-emerald-700' :
+                            'bg-amber-100 text-amber-700'
+                          }`}>
+                            {c.status === 'producao' ? 'Produção' : c.status === 'assinado' ? 'Assinado' : c.status === 'instalacao' ? 'Instalação' : c.status === 'concluido' ? 'Concluído' : c.status === 'em_negociacao' ? 'Em Negociação' : c.status}
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-black text-amber-600">R$ {(c.value || 0).toLocaleString('pt-BR')}</p>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          c.status === 'producao' ? 'bg-blue-100 text-blue-700' :
-                          c.status === 'assinado' ? 'bg-green-100 text-green-700' :
-                          c.status === 'instalacao' ? 'bg-purple-100 text-purple-700' :
-                          c.status === 'concluido' ? 'bg-emerald-100 text-emerald-700' :
-                          'bg-amber-100 text-amber-700'
-                        }`}>
-                          {c.status === 'producao' ? 'Produção' : c.status === 'assinado' ? 'Assinado' : c.status === 'instalacao' ? 'Instalação' : c.status === 'concluido' ? 'Concluído' : c.status === 'em_negociacao' ? 'Em Negociação' : c.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  {contracts.length === 0 && <p className="text-sm text-gray-400 text-center py-4">Nenhum projeto ainda</p>}
+                    ))}
+                    {contracts.length === 0 && <p className="text-sm text-gray-400 text-center py-4">Nenhum projeto ainda</p>}
+                  </div>
                 </div>
-              </div>
+              </Card3D>
             </div>
 
             {/* Quick Actions */}
             <div className="grid grid-cols-4 gap-4">
-              <button 
-                onClick={() => setView(ViewMode.PROMOB)}
-                className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 text-left group"
-              >
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Layers className="w-6 h-6 text-blue-600" />
-                </div>
-                <h4 className="font-bold text-gray-900">Editor 3D</h4>
-                <p className="text-xs text-gray-500 mt-1">Criar projetos profissionais</p>
-              </button>
-              <button 
-                onClick={() => setView(ViewMode.CRM)}
-                className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 text-left group"
-              >
-                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <MessageCircle className="w-6 h-6 text-green-600" />
-                </div>
-                <h4 className="font-bold text-gray-900">CRM WhatsApp</h4>
-                <p className="text-xs text-gray-500 mt-1">Atender clientes</p>
-              </button>
-              <button 
-                onClick={() => setView(ViewMode.CONTRACTS)}
-                className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 text-left group"
-              >
-                <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <FileText className="w-6 h-6 text-amber-600" />
-                </div>
-                <h4 className="font-bold text-gray-900">Contratos</h4>
-                <p className="text-xs text-gray-500 mt-1">Gerenciar vendas</p>
-              </button>
-              <button 
-                onClick={handleRender}
-                className="bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 text-left group text-white"
-              >
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
-                <h4 className="font-bold">Render IA</h4>
-                <p className="text-xs text-white/80 mt-1">Imagens fotorrealistas</p>
-              </button>
+              <Card3D intensity={10} className="rounded-2xl">
+                <button 
+                  onClick={() => setView(ViewMode.PROMOB)}
+                  className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all text-left group w-full"
+                >
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <Layers className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h4 className="font-bold text-gray-900">Editor 3D</h4>
+                  <p className="text-xs text-gray-500 mt-1">Criar projetos profissionais</p>
+                </button>
+              </Card3D>
+              <Card3D intensity={10} className="rounded-2xl">
+                <button 
+                  onClick={() => setView(ViewMode.CRM)}
+                  className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all text-left group w-full"
+                >
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <MessageCircle className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h4 className="font-bold text-gray-900">CRM WhatsApp</h4>
+                  <p className="text-xs text-gray-500 mt-1">Atender clientes</p>
+                </button>
+              </Card3D>
+              <Card3D intensity={10} className="rounded-2xl">
+                <button 
+                  onClick={() => setView(ViewMode.CONTRACTS)}
+                  className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all text-left group w-full"
+                >
+                  <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <FileText className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <h4 className="font-bold text-gray-900">Contratos</h4>
+                  <p className="text-xs text-gray-500 mt-1">Gerenciar vendas</p>
+                </button>
+              </Card3D>
+              <Card3D intensity={10} className="rounded-2xl">
+                <button 
+                  onClick={handleRender}
+                  className="bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all text-left group text-white w-full"
+                >
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="font-bold">Render IA</h4>
+                  <p className="text-xs text-white/80 mt-1">Imagens fotorrealistas</p>
+                </button>
+              </Card3D>
             </div>
           </div>
         )}
