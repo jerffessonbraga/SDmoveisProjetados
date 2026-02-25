@@ -56,11 +56,16 @@ const recentProjects: Project[] = [
 ];
 
 export default function Dashboard() {
+  const staggerDelay = (index: number) => ({
+    opacity: 0,
+    animation: `fade-in 0.5s ease-out ${index * 0.1}s forwards`,
+  });
+
   return (
     <MainLayout>
       <div className="space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div style={staggerDelay(0)} className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-display font-bold">Dashboard</h1>
             <p className="text-muted-foreground mt-1">
@@ -77,40 +82,28 @@ export default function Dashboard() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCard
-            title="Total de Projetos"
-            value={47}
-            change="+12% este mês"
-            changeType="positive"
-            icon={FolderKanban}
-          />
-          <StatsCard
-            title="Clientes Ativos"
-            value={23}
-            change="+5 novos"
-            changeType="positive"
-            icon={Users}
-          />
-          <StatsCard
-            title="Faturamento Mensal"
-            value="R$ 89.500"
-            change="+18% vs anterior"
-            changeType="positive"
-            icon={DollarSign}
-          />
-          <StatsCard
-            title="Taxa de Conversão"
-            value="68%"
-            change="+3% este mês"
-            changeType="positive"
-            icon={TrendingUp}
-          />
+          {[
+            { title: "Total de Projetos", value: 47, change: "+12% este mês", icon: FolderKanban },
+            { title: "Clientes Ativos", value: 23, change: "+5 novos", icon: Users },
+            { title: "Faturamento Mensal", value: "R$ 89.500", change: "+18% vs anterior", icon: DollarSign },
+            { title: "Taxa de Conversão", value: "68%", change: "+3% este mês", icon: TrendingUp },
+          ].map((stat, i) => (
+            <div key={stat.title} style={staggerDelay(i + 1)}>
+              <StatsCard
+                title={stat.title}
+                value={stat.value}
+                change={stat.change}
+                changeType="positive"
+                icon={stat.icon}
+              />
+            </div>
+          ))}
         </div>
 
         {/* Main content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent Projects */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2" style={staggerDelay(5)}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Projetos Recentes</h2>
               <Link to="/projects">
@@ -121,14 +114,16 @@ export default function Dashboard() {
               </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {recentProjects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
+              {recentProjects.map((project, i) => (
+                <div key={project.id} style={staggerDelay(6 + i)}>
+                  <ProjectCard project={project} />
+                </div>
               ))}
             </div>
           </div>
 
           {/* AI Assistant */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1" style={staggerDelay(10)}>
             <h2 className="text-xl font-semibold mb-4">Assistente IA</h2>
             <AIAssistant />
           </div>
