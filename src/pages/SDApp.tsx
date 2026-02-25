@@ -25,6 +25,7 @@ import CashRegisterPage from '@/components/modules/CashRegisterPage';
 import AccountsPage from '@/components/modules/AccountsPage';
 import ContractsPage from '@/components/modules/ContractsPage';
 import SalesPage from '@/components/modules/SalesPage';
+import { Dashboard3DScene } from '@/components/dashboard3d/Dashboard3DScene';
 import { useToast } from '@/hooks/use-toast';
 import logoSD from '@/assets/logo-sd.jpeg';
 import { WorshipPlayer } from '@/components/WorshipPlayer';
@@ -309,6 +310,7 @@ const App: React.FC = () => {
             {authState === 'ADMIN' ? (
               <>
                 <NavIcon icon="layout-dashboard" label="Início" active={view === ViewMode.DASHBOARD} onClick={() => setView(ViewMode.DASHBOARD)} />
+                <NavIcon icon="cube" label="3D" active={view === ViewMode.DASHBOARD_3D} onClick={() => setView(ViewMode.DASHBOARD_3D)} />
                 <NavIcon icon="box" label="Promob SD" active={view === ViewMode.PROMOB} onClick={() => setView(ViewMode.PROMOB)} />
                 <NavIcon icon="file-text" label="Vendas" active={view === ViewMode.CONTRACTS} onClick={() => setView(ViewMode.CONTRACTS)} />
                 <NavIcon icon="building" label="Fornecedores" active={view === ViewMode.SUPPLIERS} onClick={() => setView(ViewMode.SUPPLIERS)} />
@@ -568,6 +570,13 @@ const App: React.FC = () => {
                 <p className="text-xs text-white/80 mt-1">Imagens fotorrealistas</p>
               </button>
             </div>
+          </div>
+        )}
+
+        {/* DASHBOARD 3D */}
+        {view === ViewMode.DASHBOARD_3D && authState === 'ADMIN' && (
+          <div className="h-full p-4">
+            <Dashboard3DScene />
           </div>
         )}
 
