@@ -26,6 +26,9 @@ import AccountsPage from '@/components/modules/AccountsPage';
 import ContractsPage from '@/components/modules/ContractsPage';
 import SalesPage from '@/components/modules/SalesPage';
 import { Dashboard3DScene } from '@/components/dashboard3d/Dashboard3DScene';
+import { AnimatedBackground } from '@/components/animations/AnimatedBackground';
+import { ViewTransition } from '@/components/animations/ViewTransition';
+import { Card3D } from '@/components/animations/Card3D';
 import { useToast } from '@/hooks/use-toast';
 import logoSD from '@/assets/logo-sd.jpeg';
 import { WorshipPlayer } from '@/components/WorshipPlayer';
@@ -295,10 +298,10 @@ const App: React.FC = () => {
   const inProduction = contracts.filter(c => c.status === 'producao').length;
 
   return (
-    <div className="h-screen w-screen flex bg-gray-100 overflow-hidden">
+    <div className="h-screen w-screen flex bg-background overflow-hidden relative">
       {/* SIDEBAR */}
       {(authState === 'ADMIN' || authState === 'CLIENT' || authState === 'EMPLOYEE') && (
-        <aside className="w-24 bg-gradient-to-b from-gray-900 to-gray-950 flex flex-col items-center py-4 gap-2 shadow-xl min-h-0 overflow-y-auto">
+        <aside className="w-24 bg-gradient-to-b from-gray-900 to-gray-950 flex flex-col items-center py-4 gap-2 shadow-xl min-h-0 overflow-y-auto sidebar-3d relative z-10">
           <button 
             onClick={() => setView(authState === 'ADMIN' ? ViewMode.DASHBOARD : authState === 'EMPLOYEE' ? ViewMode.TIME_TRACKING : ViewMode.CLIENT_PORTAL)}
             className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-amber-500 shadow-lg hover:scale-105 transition-transform"
@@ -393,10 +396,15 @@ const App: React.FC = () => {
         />
       )}
 
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-hidden relative">
+        {/* Animated particle background */}
+        {(authState === 'ADMIN' || authState === 'CLIENT' || authState === 'EMPLOYEE') && (
+          <AnimatedBackground />
+        )}
+        <ViewTransition viewKey={view}>
         {/* DASHBOARD ADMIN */}
         {view === ViewMode.DASHBOARD && authState === 'ADMIN' && (
-          <div className="p-8 space-y-6 overflow-auto h-full bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="p-8 space-y-6 overflow-auto h-full bg-orbs relative" style={{ background: 'linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)))' }}>
             <header className="flex justify-between items-start">
               <div>
                 <h1 className="text-4xl font-black text-gray-900 flex items-center gap-3">
@@ -942,11 +950,14 @@ const App: React.FC = () => {
             <ProjectCostPanel projectId={selectedContract.id} projectName={selectedContract.name || selectedContract.projectName} totalValue={selectedContract.value} />
           </div>
         )}
+        </ViewTransition>
       </main>
 
       {/* LOGIN SCREENS */}
       {authState === 'SELECT' && (
         <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center justify-center overflow-hidden">
+          {/* Animated particle background */}
+          <AnimatedBackground />
           {/* Efeitos de fundo - Dark Premium */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-amber-500/8 rounded-full blur-[150px]" />
@@ -984,10 +995,11 @@ const App: React.FC = () => {
 
             {/* Cards de seleção */}
             <div className="flex gap-8 relative">
+              <Card3D intensity={10}>
               {/* Card Administrador - Preto com borda dourada */}
               <button 
                 onClick={() => { setSelectedRole('ADMIN'); setAuthState('LOGIN'); }}
-                className="group relative w-72 h-72 rounded-[32px] p-6 flex flex-col items-center justify-center transition-all duration-500 hover:scale-105 hover:-translate-y-3 overflow-hidden"
+                className="group relative w-72 h-72 rounded-[32px] p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden"
               >
                 {/* Fundo preto elegante */}
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-950 to-black rounded-[32px]" />
@@ -1018,11 +1030,13 @@ const App: React.FC = () => {
                   </div>
                 </div>
               </button>
+              </Card3D>
 
+              <Card3D intensity={10}>
               {/* Card Cliente - Dourado/Branco Elegante */}
-              <button 
+              <button
                 onClick={() => { setSelectedRole('CLIENT'); setAuthState('LOGIN'); }}
-                className="group relative w-72 h-72 rounded-[32px] p-6 flex flex-col items-center justify-center transition-all duration-500 hover:scale-105 hover:-translate-y-3 overflow-hidden"
+                className="group relative w-72 h-72 rounded-[32px] p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden"
               >
                 {/* Fundo com gradiente dourado sutil */}
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950 rounded-[32px]" />
@@ -1055,11 +1069,13 @@ const App: React.FC = () => {
                   </div>
                 </div>
               </button>
+              </Card3D>
 
+              <Card3D intensity={10}>
               {/* Card Funcionário */}
               <button 
                 onClick={() => { setSelectedRole('EMPLOYEE'); setAuthState('LOGIN'); }}
-                className="group relative w-72 h-72 rounded-[32px] p-6 flex flex-col items-center justify-center transition-all duration-500 hover:scale-105 hover:-translate-y-3 overflow-hidden"
+                className="group relative w-72 h-72 rounded-[32px] p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950 rounded-[32px]" />
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-green-600/5 rounded-[32px]" />
@@ -1082,6 +1098,7 @@ const App: React.FC = () => {
                   </div>
                 </div>
               </button>
+              </Card3D>
             </div>
           </div>
 
