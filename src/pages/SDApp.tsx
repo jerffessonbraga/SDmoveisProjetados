@@ -576,7 +576,7 @@ const App: React.FC = () => {
 
         {/* PROMOB 3D EDITOR */}
         {view === ViewMode.PROMOB && authState === 'ADMIN' && (
-          <PromobEditor onRender={handleRender} isRendering={isAiLoading} />
+          <PromobEditor />
         )}
 
         {/* NEW MODULES */}
