@@ -1,26 +1,9 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { 
-  LayoutDashboard, 
-  Box, 
-  FileText, 
-  MessageSquare, 
-  Home, 
-  Image,
-  Plus,
-  Clock,
-  Navigation,
-  BookOpen,
-  Shield,
-  Fuel,
-  Wrench,
-  Building,
-  Package,
-  ClipboardList,
-  Banknote,
-  TrendingDown,
-  TrendingUp,
-  FileSignature,
+  LayoutDashboard, Box, FileText, MessageSquare, Home, Image, Plus, Clock, 
+  Navigation, BookOpen, Shield, Fuel, Wrench, Building, Package, ClipboardList, 
+  Banknote, TrendingDown, TrendingUp, FileSignature,
 } from "lucide-react";
 
 interface NavIconProps {
@@ -33,6 +16,7 @@ interface NavIconProps {
 
 const iconMap: Record<string, React.ElementType> = {
   "layout-dashboard": LayoutDashboard,
+  "cube": Box,
   "box": Box,
   "file-text": FileText,
   "message-square": MessageSquare,
@@ -61,9 +45,10 @@ export const NavIcon: React.FC<NavIconProps> = ({ icon, label, active, onClick, 
     return (
       <button 
         onClick={onClick} 
-        className="w-14 h-14 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform"
+        className="group w-14 h-14 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center text-primary-foreground shadow-glow hover:scale-110 transition-all duration-300"
+        style={{ perspective: "600px" }}
       >
-        <Plus className="w-6 h-6" />
+        <Plus className="w-6 h-6 transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110" />
       </button>
     );
   }
@@ -72,19 +57,47 @@ export const NavIcon: React.FC<NavIconProps> = ({ icon, label, active, onClick, 
     <button 
       onClick={onClick} 
       className={cn(
-        "flex flex-col items-center gap-1 py-3 px-2 rounded-xl transition-all",
+        "group flex flex-col items-center gap-1 py-3 px-2 rounded-xl transition-all duration-300",
         active 
-          ? "bg-amber-500/20 text-amber-500" 
-          : "text-gray-400 hover:text-white hover:bg-white/5"
+          ? "text-primary" 
+          : "text-sidebar-foreground/50 hover:text-sidebar-foreground"
       )}
+      style={{ perspective: "600px" }}
     >
-      <div className={cn(
-        "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
-        active ? "bg-amber-500 text-white shadow-lg" : "bg-gray-800"
-      )}>
-        <IconComponent className="w-5 h-5" />
+      <div 
+        className={cn(
+          "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ease-out",
+          active 
+            ? "bg-primary text-primary-foreground shadow-glow" 
+            : "bg-sidebar-accent/40 backdrop-blur-sm border border-sidebar-border/30 group-hover:bg-sidebar-accent/70 group-hover:border-primary/30 group-hover:shadow-[0_0_15px_hsl(var(--primary)/0.2)]"
+        )}
+        style={{
+          transformStyle: "preserve-3d",
+          willChange: "transform",
+        }}
+      >
+        <IconComponent 
+          className={cn(
+            "w-5 h-5 transition-all duration-300 ease-out",
+            "group-hover:scale-110",
+            active && "drop-shadow-[0_0_6px_hsl(var(--primary-foreground)/0.5)]"
+          )}
+          style={{
+            transition: "transform 0.3s cubic-bezier(0.23, 1, 0.32, 1)",
+          }}
+        />
       </div>
-      <span className="text-[9px] font-bold uppercase tracking-wider">{label}</span>
+      <span className={cn(
+        "text-[9px] font-bold uppercase tracking-wider transition-all duration-300",
+        active ? "text-primary" : "group-hover:text-sidebar-foreground"
+      )}>
+        {label}
+      </span>
+
+      {/* Active indicator line */}
+      {active && (
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-8 rounded-r-full bg-primary shadow-glow" />
+      )}
     </button>
   );
 };

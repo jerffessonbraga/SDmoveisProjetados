@@ -301,10 +301,10 @@ const App: React.FC = () => {
     <div className="h-screen w-screen flex bg-background overflow-hidden relative">
       {/* SIDEBAR */}
       {(authState === 'ADMIN' || authState === 'CLIENT' || authState === 'EMPLOYEE') && (
-        <aside className="w-24 bg-gradient-to-b from-gray-900 to-gray-950 flex flex-col items-center py-4 gap-2 shadow-xl min-h-0 overflow-y-auto sidebar-3d relative z-10">
+        <aside className="w-24 flex flex-col items-center py-4 gap-2 min-h-0 overflow-y-auto relative z-10 backdrop-blur-xl border-r border-sidebar-border/30" style={{ background: 'linear-gradient(180deg, hsl(var(--sidebar-background) / 0.92) 0%, hsl(var(--sidebar-background) / 0.98) 100%)', boxShadow: '4px 0 30px hsl(var(--primary) / 0.08), inset -1px 0 0 hsl(var(--primary) / 0.06)' }}>
           <button 
             onClick={() => setView(authState === 'ADMIN' ? ViewMode.DASHBOARD : authState === 'EMPLOYEE' ? ViewMode.TIME_TRACKING : ViewMode.CLIENT_PORTAL)}
-            className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-amber-500 shadow-lg hover:scale-105 transition-transform"
+            className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary shadow-glow hover:scale-110 transition-all duration-300"
           >
             <img src={logoSD} alt="SD" className="w-full h-full object-cover" />
           </button>
@@ -363,21 +363,21 @@ const App: React.FC = () => {
           </nav>
 
           <div className="mt-auto space-y-2 flex flex-col items-center">
-            <button className="p-3 text-gray-400 hover:text-amber-500 transition-colors">
+            <button className="p-3 text-sidebar-foreground/50 hover:text-primary transition-all duration-300 hover:scale-110">
               <Bell className="w-5 h-5" />
             </button>
-            <button className="p-3 text-gray-400 hover:text-amber-500 transition-colors">
+            <button className="p-3 text-sidebar-foreground/50 hover:text-primary transition-all duration-300 hover:scale-110">
               <Settings className="w-5 h-5" />
             </button>
             <button 
               onClick={() => setAuthState('SELECT')} 
-              className="p-3 text-gray-400 hover:text-amber-400 transition-colors flex flex-col items-center gap-1"
+              className="p-3 text-sidebar-foreground/50 hover:text-primary transition-all duration-300 flex flex-col items-center gap-1 hover:scale-110"
               title="Voltar à seleção"
             >
               <ArrowRight className="w-5 h-5 rotate-180" />
               <span className="text-[10px] font-bold">Voltar</span>
             </button>
-            <button onClick={() => setAuthState('SELECT')} className="p-3 text-gray-400 hover:text-red-500 transition-colors flex flex-col items-center gap-1" title="Sair">
+            <button onClick={() => setAuthState('SELECT')} className="p-3 text-sidebar-foreground/50 hover:text-destructive transition-all duration-300 flex flex-col items-center gap-1 hover:scale-110" title="Sair">
               <LogOut className="w-5 h-5" />
               <span className="text-[10px] font-bold">Sair</span>
             </button>
