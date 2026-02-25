@@ -250,7 +250,7 @@ const App: React.FC = () => {
   const handleLogin = () => {
     if (selectedRole === 'ADMIN') {
       setAuthState('ADMIN');
-      setView(ViewMode.DASHBOARD);
+      setView(ViewMode.DASHBOARD_3D);
       toast({ title: "✅ Bem-vindo!", description: "Acesso administrativo liberado" });
     } else if (selectedRole === 'EMPLOYEE') {
       if (!employeeName.trim()) {
