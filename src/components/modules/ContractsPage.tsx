@@ -35,15 +35,21 @@ const ContractsPage: React.FC = () => {
   const handleSave = async () => {
     if (!form.title.trim()) { toast({ title: '⚠️ Título obrigatório', variant: 'destructive' }); return; }
     const payload = { ...form, client_id: form.client_id || null };
+    let result;
     if (editingId) {
-      await db.from('contracts').update(payload).eq('id', editingId);
-      toast({ title: '✅ Contrato atualizado' });
+      result = await db.from('contracts').update(payload).eq('id', editingId);
     } else {
-      await db.from('contracts').insert(payload);
-      toast({ title: '✅ Contrato criado' });
+      result = await db.from('contracts').insert(payload);
     }
+    if (result.error) {
+      console.error('Contract save error:', result.error);
+      toast({ title: '❌ Erro ao salvar contrato', description: result.error.message, variant: 'destructive' });
+      return;
+    }
+    toast({ title: editingId ? '✅ Contrato atualizado' : '✅ Contrato criado' });
     setShowForm(false);
     setEditingId(null);
+    setForm({ client_id: '', title: '', content: '', value: 0, status: 'rascunho', notes: '' });
     fetchData();
   };
 
