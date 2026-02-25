@@ -405,7 +405,7 @@ const App: React.FC = () => {
         {/* DASHBOARD ADMIN */}
         {view === ViewMode.DASHBOARD && authState === 'ADMIN' && (
           <div className="p-8 space-y-6 overflow-auto h-full bg-orbs relative" style={{ background: 'linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)))' }}>
-            <header className="flex justify-between items-start">
+            <header className="flex justify-between items-start" style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.05s forwards' }}>
               <div>
                 <h1 className="text-4xl font-black text-gray-900 flex items-center gap-3">
                   <Sparkles className="w-8 h-8 text-amber-500" />
@@ -431,48 +431,57 @@ const App: React.FC = () => {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-4 gap-4">
+              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.15s forwards' }}>
               <Card3D intensity={8} className="rounded-2xl">
                 <DashboardStat 
-                  title="Projetos Ativos" 
+                  title="Projetos Ativos"
                   value={contracts.length.toString()} 
                   icon="📁" 
                   trend="+2 este mês"
                   color="bg-blue-50"
                 />
               </Card3D>
+              </div>
+              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.25s forwards' }}>
               <Card3D intensity={8} className="rounded-2xl">
                 <DashboardStat 
-                  title="Faturamento Total" 
+                  title="Faturamento Total"
                   value={`R$ ${(totalRevenue / 1000).toFixed(0)}K`} 
                   icon="💰" 
                   trend="+15% vs mês anterior"
                   color="bg-green-50" 
                 />
               </Card3D>
+              </div>
+              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.35s forwards' }}>
               <Card3D intensity={8} className="rounded-2xl">
                 <DashboardStat 
-                  title="Em Produção" 
+                  title="Em Produção"
                   value={inProduction.toString()} 
                   icon="🏭" 
                   trend="Meta: 10"
                   color="bg-amber-50" 
                 />
               </Card3D>
+              </div>
+              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.45s forwards' }}>
               <Card3D intensity={8} className="rounded-2xl">
                 <DashboardStat 
-                  title="Conversão" 
+                  title="Conversão"
                   value={`${contracts.length > 0 ? Math.round((signedContracts / contracts.length) * 100) : 0}%`} 
                   icon="📈" 
                   trend="Excelente!"
                   color="bg-purple-50" 
                 />
               </Card3D>
+              </div>
             </div>
 
             {/* Main Content Grid */}
             <div className="grid grid-cols-3 gap-6">
               {/* Sabedoria do Dia */}
-              <Card3D intensity={5} className="col-span-2 rounded-[32px]">
+              <div style={{ opacity: 0, animation: 'fade-in 0.6s ease-out 0.55s forwards' }} className="col-span-2">
+              <Card3D intensity={5} className="rounded-[32px]">
                 <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-[32px] p-8 text-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl" />
                   <div className="relative z-10">
@@ -503,8 +512,10 @@ const App: React.FC = () => {
                   </div>
                 </div>
               </Card3D>
+              </div>
 
               {/* Contratos Recentes */}
+              <div style={{ opacity: 0, animation: 'fade-in 0.6s ease-out 0.65s forwards' }}>
               <Card3D intensity={6} className="rounded-[32px]">
                 <div className="bg-white rounded-[32px] p-6 shadow-xl h-full">
                   <div className="flex justify-between items-center mb-4">
@@ -545,10 +556,12 @@ const App: React.FC = () => {
                   </div>
                 </div>
               </Card3D>
+              </div>
             </div>
 
             {/* Quick Actions */}
             <div className="grid grid-cols-4 gap-4">
+              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.75s forwards' }}>
               <Card3D intensity={10} className="rounded-2xl">
                 <button 
                   onClick={() => setView(ViewMode.PROMOB)}
@@ -561,6 +574,8 @@ const App: React.FC = () => {
                   <p className="text-xs text-gray-500 mt-1 group-hover:text-gray-600 transition-colors">Criar projetos profissionais</p>
                 </button>
               </Card3D>
+              </div>
+              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.85s forwards' }}>
               <Card3D intensity={10} className="rounded-2xl">
                 <button 
                   onClick={() => setView(ViewMode.CRM)}
@@ -573,6 +588,8 @@ const App: React.FC = () => {
                   <p className="text-xs text-gray-500 mt-1 group-hover:text-gray-600 transition-colors">Atender clientes</p>
                 </button>
               </Card3D>
+              </div>
+              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.95s forwards' }}>
               <Card3D intensity={10} className="rounded-2xl">
                 <button 
                   onClick={() => setView(ViewMode.CONTRACTS)}
@@ -585,6 +602,8 @@ const App: React.FC = () => {
                   <p className="text-xs text-gray-500 mt-1 group-hover:text-gray-600 transition-colors">Gerenciar vendas</p>
                 </button>
               </Card3D>
+              </div>
+              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 1.05s forwards' }}>
               <Card3D intensity={10} className="rounded-2xl">
                 <button 
                   onClick={handleRender}
@@ -597,6 +616,7 @@ const App: React.FC = () => {
                   <p className="text-xs text-white/80 mt-1">Imagens fotorrealistas</p>
                 </button>
               </Card3D>
+              </div>
             </div>
           </div>
         )}
