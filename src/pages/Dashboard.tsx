@@ -2,6 +2,7 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ProjectCard, Project } from "@/components/projects/ProjectCard";
 import { AIAssistant } from "@/components/ai/AIAssistant";
+import { Card3D } from "@/components/animations/Card3D";
 import { Button } from "@/components/ui/button";
 import {
   FolderKanban,
@@ -89,13 +90,15 @@ export default function Dashboard() {
             { title: "Taxa de Conversão", value: "68%", change: "+3% este mês", icon: TrendingUp },
           ].map((stat, i) => (
             <div key={stat.title} style={staggerDelay(i + 1)}>
-              <StatsCard
-                title={stat.title}
-                value={stat.value}
-                change={stat.change}
-                changeType="positive"
-                icon={stat.icon}
-              />
+              <Card3D intensity={10} className="rounded-xl">
+                <StatsCard
+                  title={stat.title}
+                  value={stat.value}
+                  change={stat.change}
+                  changeType="positive"
+                  icon={stat.icon}
+                />
+              </Card3D>
             </div>
           ))}
         </div>
@@ -116,7 +119,9 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {recentProjects.map((project, i) => (
                 <div key={project.id} style={staggerDelay(6 + i)}>
-                  <ProjectCard project={project} />
+                  <Card3D intensity={6} className="rounded-xl">
+                    <ProjectCard project={project} />
+                  </Card3D>
                 </div>
               ))}
             </div>
