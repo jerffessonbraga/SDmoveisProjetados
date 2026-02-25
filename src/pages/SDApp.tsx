@@ -405,7 +405,7 @@ const App: React.FC = () => {
         {/* DASHBOARD ADMIN */}
         {view === ViewMode.DASHBOARD && authState === 'ADMIN' && (
           <div className="p-8 space-y-6 overflow-auto h-full bg-orbs relative" style={{ background: 'linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)))' }}>
-            <header className="flex justify-between items-start" style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.05s forwards' }}>
+            <header className="flex justify-between items-start" style={{ opacity: 0, animation: 'fadeIn 0.5s ease-out 0.05s forwards' }}>
               <div>
                 <h1 className="text-4xl font-black text-gray-900 flex items-center gap-3">
                   <Sparkles className="w-8 h-8 text-amber-500" />
@@ -431,7 +431,7 @@ const App: React.FC = () => {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-4 gap-4">
-              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.15s forwards' }}>
+              <div style={{ opacity: 0, animation: 'fadeIn 0.5s ease-out 0.15s forwards' }}>
               <Card3D intensity={8} className="rounded-2xl">
                 <DashboardStat 
                   title="Projetos Ativos"
@@ -442,7 +442,7 @@ const App: React.FC = () => {
                 />
               </Card3D>
               </div>
-              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.25s forwards' }}>
+              <div style={{ opacity: 0, animation: 'fadeIn 0.5s ease-out 0.25s forwards' }}>
               <Card3D intensity={8} className="rounded-2xl">
                 <DashboardStat 
                   title="Faturamento Total"
@@ -453,7 +453,7 @@ const App: React.FC = () => {
                 />
               </Card3D>
               </div>
-              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.35s forwards' }}>
+              <div style={{ opacity: 0, animation: 'fadeIn 0.5s ease-out 0.35s forwards' }}>
               <Card3D intensity={8} className="rounded-2xl">
                 <DashboardStat 
                   title="Em Produção"
@@ -464,7 +464,7 @@ const App: React.FC = () => {
                 />
               </Card3D>
               </div>
-              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.45s forwards' }}>
+              <div style={{ opacity: 0, animation: 'fadeIn 0.5s ease-out 0.45s forwards' }}>
               <Card3D intensity={8} className="rounded-2xl">
                 <DashboardStat 
                   title="Conversão"
@@ -480,7 +480,7 @@ const App: React.FC = () => {
             {/* Main Content Grid */}
             <div className="grid grid-cols-3 gap-6">
               {/* Sabedoria do Dia */}
-              <div style={{ opacity: 0, animation: 'fade-in 0.6s ease-out 0.55s forwards' }} className="col-span-2">
+              <div style={{ opacity: 0, animation: 'fadeIn 0.6s ease-out 0.55s forwards' }} className="col-span-2">
               <Card3D intensity={5} className="rounded-[32px]">
                 <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-[32px] p-8 text-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl" />
@@ -515,7 +515,7 @@ const App: React.FC = () => {
               </div>
 
               {/* Contratos Recentes */}
-              <div style={{ opacity: 0, animation: 'fade-in 0.6s ease-out 0.65s forwards' }}>
+              <div style={{ opacity: 0, animation: 'fadeIn 0.6s ease-out 0.65s forwards' }}>
               <Card3D intensity={6} className="rounded-[32px]">
                 <div className="bg-white rounded-[32px] p-6 shadow-xl h-full">
                   <div className="flex justify-between items-center mb-4">
@@ -561,7 +561,7 @@ const App: React.FC = () => {
 
             {/* Quick Actions */}
             <div className="grid grid-cols-4 gap-4">
-              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.75s forwards' }}>
+              <div style={{ opacity: 0, animation: 'fadeIn 0.5s ease-out 0.75s forwards' }}>
               <Card3D intensity={10} className="rounded-2xl">
                 <button 
                   onClick={() => setView(ViewMode.PROMOB)}
@@ -575,7 +575,7 @@ const App: React.FC = () => {
                 </button>
               </Card3D>
               </div>
-              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.85s forwards' }}>
+              <div style={{ opacity: 0, animation: 'fadeIn 0.5s ease-out 0.85s forwards' }}>
               <Card3D intensity={10} className="rounded-2xl">
                 <button 
                   onClick={() => setView(ViewMode.CRM)}
@@ -589,7 +589,7 @@ const App: React.FC = () => {
                 </button>
               </Card3D>
               </div>
-              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 0.95s forwards' }}>
+              <div style={{ opacity: 0, animation: 'fadeIn 0.5s ease-out 0.95s forwards' }}>
               <Card3D intensity={10} className="rounded-2xl">
                 <button 
                   onClick={() => setView(ViewMode.CONTRACTS)}
@@ -603,7 +603,7 @@ const App: React.FC = () => {
                 </button>
               </Card3D>
               </div>
-              <div style={{ opacity: 0, animation: 'fade-in 0.5s ease-out 1.05s forwards' }}>
+              <div style={{ opacity: 0, animation: 'fadeIn 0.5s ease-out 1.05s forwards' }}>
               <Card3D intensity={10} className="rounded-2xl">
                 <button 
                   onClick={handleRender}
