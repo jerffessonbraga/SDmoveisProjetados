@@ -404,7 +404,37 @@ const App: React.FC = () => {
         <ViewTransition viewKey={view}>
         {/* DASHBOARD ADMIN */}
         {view === ViewMode.DASHBOARD && authState === 'ADMIN' && (
-          <div className="p-8 space-y-6 overflow-auto h-full bg-orbs relative" style={{ background: 'linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)))' }}>
+          <div 
+            className="p-8 space-y-6 overflow-auto h-full relative"
+            style={{ background: 'linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)))' }}
+            onScroll={(e) => {
+              const target = e.currentTarget;
+              const bg = target.querySelector('[data-parallax-bg]') as HTMLElement;
+              if (bg) bg.style.transform = `translateY(${target.scrollTop * 0.4}px)`;
+              const orb1 = target.querySelector('[data-parallax-orb1]') as HTMLElement;
+              if (orb1) orb1.style.transform = `translate(${-target.scrollTop * 0.15}px, ${target.scrollTop * 0.25}px) scale(1.1)`;
+              const orb2 = target.querySelector('[data-parallax-orb2]') as HTMLElement;
+              if (orb2) orb2.style.transform = `translate(${target.scrollTop * 0.1}px, ${target.scrollTop * 0.2}px)`;
+            }}
+          >
+            {/* Parallax Background Layer */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden" data-parallax-bg style={{ willChange: 'transform' }}>
+              <div 
+                data-parallax-orb1
+                className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full opacity-20"
+                style={{ background: 'radial-gradient(circle, hsl(var(--primary) / 0.4) 0%, transparent 70%)', filter: 'blur(60px)', animation: 'orbFloat1 12s ease-in-out infinite', willChange: 'transform' }}
+              />
+              <div 
+                data-parallax-orb2
+                className="absolute -bottom-48 -left-32 w-[400px] h-[400px] rounded-full opacity-15"
+                style={{ background: 'radial-gradient(circle, hsl(var(--accent) / 0.3) 0%, transparent 70%)', filter: 'blur(80px)', animation: 'orbFloat2 15s ease-in-out infinite', willChange: 'transform' }}
+              />
+              <div 
+                className="absolute top-1/2 left-1/3 w-[300px] h-[300px] rounded-full opacity-10"
+                style={{ background: 'radial-gradient(circle, hsl(var(--gold) / 0.3) 0%, transparent 70%)', filter: 'blur(100px)', animation: 'orbFloat1 18s ease-in-out infinite reverse' }}
+              />
+              <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(hsl(var(--primary) / 0.03) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+            </div>
             <header className="flex justify-between items-start" style={{ opacity: 0, animation: 'fadeIn 0.5s ease-out 0.05s forwards' }}>
               <div>
                 <h1 className="text-4xl font-black text-gray-900 flex items-center gap-3">
