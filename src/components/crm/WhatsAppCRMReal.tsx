@@ -160,7 +160,7 @@ export function WhatsAppCRMReal() {
           <div className="flex items-center gap-2 mb-3">
             <Badge variant="outline" className="text-xs flex items-center gap-1">
               <WifiOff className="w-3 h-3" />
-              Modo Simulação
+              Aguardando Evolution API
             </Badge>
           </div>
 

@@ -111,28 +111,24 @@ export function useWhatsApp() {
   const sendMessage = useCallback(async (conversationId: string, message: string) => {
     setSendingMessage(true);
     try {
-      const { data, error } = await db
-        .from('whatsapp_messages')
-        .insert({
-          conversation_id: conversationId,
-          direction: 'outbound',
-          content: message,
-          status: 'delivered',
-        })
-        .select()
-        .single();
+      const { data, error } = await supabase.functions.invoke('whatsapp-send', {
+        body: { conversationId, message },
+      });
 
       if (error) throw error;
 
+      const isReal = data?.mode === 'real';
       toast({
-        title: 'Modo Simulação',
-        description: 'Mensagem salva com sucesso.',
+        title: isReal ? '✅ Mensagem Enviada' : '📋 Modo Simulação',
+        description: isReal
+          ? 'Mensagem enviada via WhatsApp com sucesso!'
+          : 'Evolution API não configurada. Mensagem salva localmente.',
       });
 
       await fetchMessages(conversationId);
       await fetchConversations();
 
-      return { success: true, message: data, mode: 'simulation' };
+      return { success: true, message: data?.message, mode: data?.mode };
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
