@@ -487,16 +487,16 @@ const App: React.FC = () => {
                     <div className="flex gap-4">
                       <button 
                         onClick={() => setView(ViewMode.PROMOB)} 
-                        className="bg-amber-600 px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-amber-500 transition-all hover:scale-105 flex items-center gap-2 shadow-lg"
+                        className="bg-amber-600 px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-amber-500 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2 shadow-lg hover:shadow-amber-500/30 hover:shadow-xl group/btn"
                       >
-                        <Layers className="w-4 h-4" />
+                        <Layers className="w-4 h-4 group-hover/btn:rotate-12 transition-transform duration-300" />
                         Novo Projeto 3D
                       </button>
                       <button 
                         onClick={() => setView(ViewMode.CONTRACTS)} 
-                        className="bg-white/10 px-8 py-4 rounded-2xl font-bold uppercase text-xs tracking-widest hover:bg-white/20 transition-all flex items-center gap-2"
+                        className="bg-white/10 px-8 py-4 rounded-2xl font-bold uppercase text-xs tracking-widest hover:bg-white/20 transition-all duration-300 flex items-center gap-2 active:scale-95 hover:scale-105 backdrop-blur-sm group/btn"
                       >
-                        <FileText className="w-4 h-4" />
+                        <FileText className="w-4 h-4 group-hover/btn:rotate-6 transition-transform duration-300" />
                         Ver Contratos
                       </button>
                     </div>
@@ -512,8 +512,8 @@ const App: React.FC = () => {
                       <TrendingUp className="w-5 h-5 text-amber-500" />
                       Últimos Contratos
                     </h3>
-                    <button onClick={() => setView(ViewMode.CONTRACTS)} className="text-xs text-amber-600 font-bold hover:underline flex items-center gap-1">
-                      Ver todos <ChevronRight className="w-3 h-3" />
+                    <button onClick={() => setView(ViewMode.CONTRACTS)} className="text-xs text-amber-600 font-bold hover:underline flex items-center gap-1 hover:gap-2 transition-all duration-300 active:scale-95">
+                      Ver todos <ChevronRight className="w-3 h-3 hover:translate-x-0.5 transition-transform duration-300" />
                     </button>
                   </div>
                   <div className="space-y-3">
@@ -521,7 +521,7 @@ const App: React.FC = () => {
                       <div 
                         key={c.id} 
                         onClick={() => setView(ViewMode.CONTRACTS)}
-                        className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors cursor-pointer"
+                        className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-all duration-200 cursor-pointer hover:translate-x-1 hover:shadow-md active:scale-[0.98]"
                       >
                         <div>
                           <p className="font-bold text-gray-900">{c.clients?.name || 'Cliente'}</p>
@@ -552,48 +552,48 @@ const App: React.FC = () => {
               <Card3D intensity={10} className="rounded-2xl">
                 <button 
                   onClick={() => setView(ViewMode.PROMOB)}
-                  className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all text-left group w-full"
+                  className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-left group w-full active:scale-[0.96] hover:border-blue-200 border border-transparent"
                 >
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 group-active:scale-90 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-blue-200/50">
                     <Layers className="w-6 h-6 text-blue-600" />
                   </div>
-                  <h4 className="font-bold text-gray-900">Editor 3D</h4>
-                  <p className="text-xs text-gray-500 mt-1">Criar projetos profissionais</p>
+                  <h4 className="font-bold text-gray-900 group-hover:text-blue-700 transition-colors duration-200">Editor 3D</h4>
+                  <p className="text-xs text-gray-500 mt-1 group-hover:text-gray-600 transition-colors">Criar projetos profissionais</p>
                 </button>
               </Card3D>
               <Card3D intensity={10} className="rounded-2xl">
                 <button 
                   onClick={() => setView(ViewMode.CRM)}
-                  className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all text-left group w-full"
+                  className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-left group w-full active:scale-[0.96] hover:border-green-200 border border-transparent"
                 >
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 group-active:scale-90 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-green-200/50">
                     <MessageCircle className="w-6 h-6 text-green-600" />
                   </div>
-                  <h4 className="font-bold text-gray-900">CRM WhatsApp</h4>
-                  <p className="text-xs text-gray-500 mt-1">Atender clientes</p>
+                  <h4 className="font-bold text-gray-900 group-hover:text-green-700 transition-colors duration-200">CRM WhatsApp</h4>
+                  <p className="text-xs text-gray-500 mt-1 group-hover:text-gray-600 transition-colors">Atender clientes</p>
                 </button>
               </Card3D>
               <Card3D intensity={10} className="rounded-2xl">
                 <button 
                   onClick={() => setView(ViewMode.CONTRACTS)}
-                  className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all text-left group w-full"
+                  className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-left group w-full active:scale-[0.96] hover:border-amber-200 border border-transparent"
                 >
-                  <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 group-active:scale-90 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-amber-200/50">
                     <FileText className="w-6 h-6 text-amber-600" />
                   </div>
-                  <h4 className="font-bold text-gray-900">Contratos</h4>
-                  <p className="text-xs text-gray-500 mt-1">Gerenciar vendas</p>
+                  <h4 className="font-bold text-gray-900 group-hover:text-amber-700 transition-colors duration-200">Contratos</h4>
+                  <p className="text-xs text-gray-500 mt-1 group-hover:text-gray-600 transition-colors">Gerenciar vendas</p>
                 </button>
               </Card3D>
               <Card3D intensity={10} className="rounded-2xl">
                 <button 
                   onClick={handleRender}
-                  className="bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all text-left group text-white w-full"
+                  className="bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-amber-500/30 transition-all duration-300 text-left group text-white w-full active:scale-[0.96] hover:from-amber-400 hover:to-orange-500"
                 >
-                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <Sparkles className="w-6 h-6 text-white" />
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-12 group-active:scale-90 transition-all duration-300 group-hover:bg-white/30">
+                    <Sparkles className="w-6 h-6 text-white group-hover:animate-pulse" />
                   </div>
-                  <h4 className="font-bold">Render IA</h4>
+                  <h4 className="font-bold group-hover:tracking-wide transition-all duration-300">Render IA</h4>
                   <p className="text-xs text-white/80 mt-1">Imagens fotorrealistas</p>
                 </button>
               </Card3D>
