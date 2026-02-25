@@ -1,74 +1,111 @@
 import React, { useState } from "react";
-import { Monitor, ExternalLink, AlertTriangle, RefreshCw, HelpCircle } from "lucide-react";
+import { Monitor, ExternalLink, Settings, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
+const HELLOMOB_URL_KEY = "sd-hellomob-url";
 
 const PromobEditor: React.FC = () => {
-  const { toast } = useToast();
-  const [attempted, setAttempted] = useState(false);
+  const [savedUrl, setSavedUrl] = useState(() => localStorage.getItem(HELLOMOB_URL_KEY) || "");
+  const [showConfig, setShowConfig] = useState(false);
+  const [urlInput, setUrlInput] = useState(savedUrl);
+  const [fullscreen, setFullscreen] = useState(false);
 
-  const handleOpenPromob = () => {
-    setAttempted(true);
-
-    // Try custom protocol
-    const link = document.createElement("a");
-    link.href = "promob://open";
-    link.click();
-
-    toast({
-      title: "Tentando abrir o Promob Plus…",
-      description: "Se nada acontecer em alguns segundos, siga as instruções abaixo.",
-    });
+  const handleSaveUrl = () => {
+    localStorage.setItem(HELLOMOB_URL_KEY, urlInput);
+    setSavedUrl(urlInput);
+    setShowConfig(false);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-8 text-center space-y-6 max-w-lg mx-auto">
-      <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center">
-        <Monitor className="w-10 h-10 text-primary" />
-      </div>
-
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-foreground">Promob Plus</h2>
-        <p className="text-muted-foreground text-sm">
-          Clique no botão para tentar abrir o Promob Plus instalado neste computador.
-        </p>
-      </div>
-
-      <Button size="lg" onClick={handleOpenPromob} className="gap-2 text-base px-8">
-        <ExternalLink className="w-5 h-5" />
-        Abrir Promob Plus
-      </Button>
-
-      {attempted && (
-        <div className="w-full space-y-4 animate-in fade-in slide-in-from-bottom-2">
-          <div className="flex items-start gap-3 text-left bg-destructive/10 border border-destructive/20 rounded-xl p-4">
-            <AlertTriangle className="w-5 h-5 text-destructive mt-0.5 shrink-0" />
-            <div className="space-y-2 text-sm">
-              <p className="font-semibold text-foreground">Não abriu?</p>
-              <p className="text-muted-foreground">
-                Se o Promob Plus não abriu automaticamente, siga os passos:
-              </p>
-              <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
-                <li>Verifique se o <strong>Promob Plus</strong> está instalado neste computador.</li>
-                <li>Abra o Promob manualmente pelo menu Iniciar ou atalho na área de trabalho.</li>
-                <li>Se o problema persistir, reinstale o Promob ou entre em contato com o suporte.</li>
-              </ol>
-            </div>
-          </div>
-
-          <Button variant="outline" size="sm" onClick={handleOpenPromob} className="gap-2">
-            <RefreshCw className="w-4 h-4" />
-            Tentar novamente
+    <div className={`flex flex-col ${fullscreen ? "fixed inset-0 z-50 bg-background" : "h-[calc(100vh-12rem)]"} gap-3`}>
+      {/* Header */}
+      <div className="flex items-center justify-between shrink-0 px-1">
+        <div>
+          <h2 className="text-xl font-bold text-foreground">Editor de Projetos</h2>
+          <p className="text-xs text-muted-foreground">
+            Configurador de móveis planejados — powered by HelloMob
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {savedUrl && (
+            <Button variant="ghost" size="icon" onClick={() => setFullscreen(!fullscreen)}>
+              {fullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={() => { setUrlInput(savedUrl); setShowConfig(true); }}>
+            <Settings className="w-4 h-4 mr-2" />
+            Configurar URL
           </Button>
         </div>
-      )}
-
-      <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 rounded-xl p-4">
-        <HelpCircle className="w-4 h-4 mt-0.5 shrink-0" />
-        <span>
-          O redirecionamento automático depende do Promob Plus estar instalado e configurado neste computador. Em alguns navegadores, pode ser necessário permitir a abertura de links externos.
-        </span>
       </div>
+
+      {/* Content */}
+      <div className="flex-1 rounded-xl border border-border overflow-hidden bg-muted/30">
+        {savedUrl ? (
+          <iframe
+            src={savedUrl}
+            className="w-full h-full border-0"
+            allow="clipboard-read; clipboard-write; fullscreen"
+            title="HelloMob Configurador"
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full gap-6 p-8 text-center">
+            <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <Monitor className="w-10 h-10 text-primary" />
+            </div>
+            <div className="max-w-md space-y-2">
+              <h2 className="text-xl font-bold text-foreground">Conecte o HelloMob</h2>
+              <p className="text-sm text-muted-foreground">
+                O HelloMob é um configurador profissional de móveis que roda no navegador.
+                Cadastre-se em{" "}
+                <a
+                  href="https://www.hellomob.com.br"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary font-medium hover:underline"
+                >
+                  hellomob.com.br
+                </a>
+                , copie a URL do seu configurador e cole aqui.
+              </p>
+            </div>
+            <Button onClick={() => setShowConfig(true)}>
+              <Settings className="w-4 h-4 mr-2" />
+              Configurar URL do HelloMob
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Config Dialog */}
+      <Dialog open={showConfig} onOpenChange={setShowConfig}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>URL do HelloMob</DialogTitle>
+            <DialogDescription>
+              Cole a URL do seu configurador HelloMob. Exemplo: https://app.hellomob.com.br/seu-projeto
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            placeholder="https://app.hellomob.com.br/..."
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfig(false)}>Cancelar</Button>
+            <Button onClick={handleSaveUrl} disabled={!urlInput.trim()}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
