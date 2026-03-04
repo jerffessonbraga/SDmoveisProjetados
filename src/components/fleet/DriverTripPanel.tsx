@@ -283,7 +283,10 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
 
     const { error } = await db
       .from('trips')
-      .update({ status: 'completed', ended_at: new Date().toISOString() })
+      .update({ 
+        status: 'completed', 
+        ended_at: new Date().toISOString() 
+      } as any)
       .eq('id', activeTrip.id);
 
     if (error) {
