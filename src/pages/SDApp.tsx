@@ -251,7 +251,7 @@ const App: React.FC = () => {
     setCurrentLouvor(LOUVORES[nextIndex]);
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (selectedRole === 'ADMIN') {
       setAuthState('ADMIN');
       setView(ViewMode.DASHBOARD_3D);
