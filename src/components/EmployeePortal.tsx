@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Clock, Play, Square, DollarSign, Calendar, User, Send, CheckCircle, XCircle, Loader2, Download } from 'lucide-react';
+import { Clock, Play, Square, DollarSign, Calendar, User, Send, CheckCircle, XCircle, Loader2, Download, Lock, Eye, EyeOff } from 'lucide-react';
 import jsPDF from 'jspdf';
 
 interface Employee {
@@ -48,6 +48,28 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
   const [valeSending, setValeSending] = useState(false);
   const [valeRequests, setValeRequests] = useState<any[]>([]);
   const [adjustments, setAdjustments] = useState<Adjustment[]>([]);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [showPassFields, setShowPassFields] = useState(false);
+  const [showCurrentPass, setShowCurrentPass] = useState(false);
+  const [showNewPass, setShowNewPass] = useState(false);
+
+  const changePassword = async () => {
+    if (!employee || !currentPassword.trim() || !newPassword.trim()) return;
+    // Verify current password
+    const { data } = await (supabase as any).from('employees').select('password').eq('id', employee.id).single();
+    if (!data || data.password !== currentPassword.trim()) {
+      toast({ title: '⚠️ Senha atual incorreta', variant: 'destructive' });
+      return;
+    }
+    const { error } = await (supabase as any).from('employees').update({ password: newPassword.trim() }).eq('id', employee.id);
+    if (error) {
+      toast({ title: '❌ Erro', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: '✅ Senha alterada com sucesso!' });
+      setCurrentPassword(''); setNewPassword(''); setShowPassFields(false);
+    }
+  };
 
   useEffect(() => {
     fetchEmployee();
@@ -555,6 +577,51 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
             <p className="text-center text-gray-400 py-4 text-sm">Nenhuma solicitação ainda</p>
           )}
         </div>
+      </div>
+
+      {/* Alterar Senha */}
+      <div className="bg-white rounded-2xl p-6 shadow-lg">
+        <button 
+          onClick={() => setShowPassFields(!showPassFields)}
+          className="flex items-center gap-2 font-bold text-gray-900 hover:text-amber-600 transition-colors"
+        >
+          <Lock className="w-5 h-5 text-amber-500" /> Alterar Minha Senha
+        </button>
+        {showPassFields && (
+          <div className="mt-4 space-y-3">
+            <div className="relative">
+              <input
+                type={showCurrentPass ? 'text' : 'password'}
+                placeholder="Senha atual"
+                value={currentPassword}
+                onChange={e => setCurrentPassword(e.target.value)}
+                className="w-full border rounded-xl px-4 py-3 text-sm pr-10 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              />
+              <button onClick={() => setShowCurrentPass(!showCurrentPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                {showCurrentPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            <div className="relative">
+              <input
+                type={showNewPass ? 'text' : 'password'}
+                placeholder="Nova senha"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                className="w-full border rounded-xl px-4 py-3 text-sm pr-10 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              />
+              <button onClick={() => setShowNewPass(!showNewPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                {showNewPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            <button
+              onClick={changePassword}
+              disabled={!currentPassword.trim() || !newPassword.trim()}
+              className="bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all"
+            >
+              Salvar Nova Senha
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

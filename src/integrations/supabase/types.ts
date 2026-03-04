@@ -395,6 +395,7 @@ export type Database = {
           hourly_rate: number
           id: string
           name: string
+          password: string | null
           phone: string | null
           role: string | null
         }
@@ -404,6 +405,7 @@ export type Database = {
           hourly_rate?: number
           id?: string
           name: string
+          password?: string | null
           phone?: string | null
           role?: string | null
         }
@@ -413,6 +415,7 @@ export type Database = {
           hourly_rate?: number
           id?: string
           name?: string
+          password?: string | null
           phone?: string | null
           role?: string | null
         }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import {
-  Clock, UserPlus, Play, Square, Calendar, DollarSign, Users, Trash2, Edit2, Save, X, Plus, Minus, MessageCircle, Mail
+  Clock, UserPlus, Play, Square, Calendar, DollarSign, Users, Trash2, Edit2, Save, X, Plus, Minus, MessageCircle, Mail, Lock, Eye, EyeOff
 } from 'lucide-react';
 
 interface Employee {
@@ -12,6 +12,7 @@ interface Employee {
   phone: string | null;
   hourly_rate: number;
   active: boolean;
+  password: string | null;
 }
 
 interface TimeEntry {
@@ -44,8 +45,12 @@ export default function TimeTrackingPanel() {
   const [newName, setNewName] = useState('');
   const [newRole, setNewRole] = useState('');
   const [newPhone, setNewPhone] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [hourlyRate, setHourlyRate] = useState('15.00');
   const [period, setPeriod] = useState<Period>('month');
+  const [editingPasswordId, setEditingPasswordId] = useState<string | null>(null);
+  const [editPassword, setEditPassword] = useState('');
+  const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
 
   // Adjustment form
@@ -75,17 +80,38 @@ export default function TimeTrackingPanel() {
 
   const addEmployee = async () => {
     if (!newName.trim()) return;
-    const { error } = await supabase.from('employees').insert({
+    if (!newPassword.trim()) {
+      toast({ title: '⚠️ Senha obrigatória', description: 'Crie uma senha de acesso para o funcionário', variant: 'destructive' });
+      return;
+    }
+    const { error } = await (supabase as any).from('employees').insert({
       name: newName.trim(),
       role: newRole.trim() || null,
       phone: newPhone.trim() || null,
       hourly_rate: parseFloat(hourlyRate) || 15,
+      password: newPassword.trim(),
     });
     if (error) {
       toast({ title: '❌ Erro', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: '✅ Funcionário adicionado' });
-      setNewName(''); setNewRole(''); setNewPhone('');
+      toast({ title: '✅ Funcionário adicionado com senha' });
+      setNewName(''); setNewRole(''); setNewPhone(''); setNewPassword('');
+      fetchData();
+    }
+  };
+
+  const updateEmployeePassword = async (id: string, password: string) => {
+    if (!password.trim()) {
+      toast({ title: '⚠️ Senha vazia', variant: 'destructive' });
+      return;
+    }
+    const { error } = await (supabase as any).from('employees').update({ password: password.trim() }).eq('id', id);
+    if (error) {
+      toast({ title: '❌ Erro', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: '✅ Senha atualizada' });
+      setEditingPasswordId(null);
+      setEditPassword('');
       fetchData();
     }
   };
@@ -349,7 +375,7 @@ export default function TimeTrackingPanel() {
             <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
               <UserPlus className="w-5 h-5 text-amber-500" /> Adicionar Funcionário
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
               <input
                 placeholder="Nome *"
                 value={newName}
@@ -368,9 +394,16 @@ export default function TimeTrackingPanel() {
                 onChange={e => setNewPhone(e.target.value)}
                 className="border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
               />
+              <input
+                type="password"
+                placeholder="Senha de acesso *"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                className="border rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              />
               <button
                 onClick={addEmployee}
-                disabled={!newName.trim()}
+                disabled={!newName.trim() || !newPassword.trim()}
                 className="bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2"
               >
                 <UserPlus className="w-4 h-4" /> Adicionar
@@ -411,17 +444,59 @@ export default function TimeTrackingPanel() {
             <h3 className="font-bold text-gray-900 mb-4">Funcionários Ativos</h3>
             <div className="space-y-3">
               {employees.map(emp => (
-                <div key={emp.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                  <div>
-                    <p className="font-bold text-gray-900">{emp.name}</p>
-                    <p className="text-xs text-gray-500">{emp.role || 'Sem cargo'} • {emp.phone || 'Sem telefone'}</p>
+                <div key={emp.id} className="p-4 bg-gray-50 rounded-xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-bold text-gray-900">{emp.name}</p>
+                      <p className="text-xs text-gray-500">{emp.role || 'Sem cargo'} • {emp.phone || 'Sem telefone'}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-bold text-green-600">R$ {emp.hourly_rate}/h</span>
+                      <span className={`text-xs px-2 py-1 rounded-lg font-bold ${emp.password ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {emp.password ? '🔐 Com senha' : '⚠️ Sem senha'}
+                      </span>
+                      <button 
+                        onClick={() => { setEditingPasswordId(editingPasswordId === emp.id ? null : emp.id); setEditPassword(''); }}
+                        className="text-amber-500 hover:text-amber-700 transition-colors"
+                        title="Alterar senha"
+                      >
+                        <Lock className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => removeEmployee(emp.id)} className="text-red-400 hover:text-red-600 transition-colors">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-bold text-green-600">R$ {emp.hourly_rate}/h</span>
-                    <button onClick={() => removeEmployee(emp.id)} className="text-red-400 hover:text-red-600 transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  {editingPasswordId === emp.id && (
+                    <div className="flex items-center gap-2 pt-2 border-t">
+                      <Lock className="w-4 h-4 text-gray-400" />
+                      <div className="relative flex-1">
+                        <input
+                          type={showPassword[emp.id] ? 'text' : 'password'}
+                          placeholder="Nova senha"
+                          value={editPassword}
+                          onChange={e => setEditPassword(e.target.value)}
+                          className="w-full border rounded-lg px-3 py-2 text-sm pr-10 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                        />
+                        <button 
+                          onClick={() => setShowPassword(p => ({ ...p, [emp.id]: !p[emp.id] }))}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
+                        >
+                          {showPassword[emp.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => updateEmployeePassword(emp.id, editPassword)}
+                        disabled={!editPassword.trim()}
+                        className="bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-bold"
+                      >
+                        Salvar
+                      </button>
+                      <button onClick={() => setEditingPasswordId(null)} className="text-gray-400 hover:text-gray-600">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
               {employees.length === 0 && (

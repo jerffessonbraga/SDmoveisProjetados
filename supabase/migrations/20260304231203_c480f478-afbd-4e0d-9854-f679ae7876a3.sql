@@ -1,0 +1,1 @@
+ALTER TABLE public.employees ADD COLUMN IF NOT EXISTS password TEXT DEFAULT NULL;

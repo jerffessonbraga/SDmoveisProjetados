@@ -30,6 +30,7 @@ import { AnimatedBackground } from '@/components/animations/AnimatedBackground';
 import { ViewTransition } from '@/components/animations/ViewTransition';
 import { Card3D } from '@/components/animations/Card3D';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 import logoSD from '@/assets/logo-sd.jpeg';
 import { WorshipPlayer } from '@/components/WorshipPlayer';
 import { supabase } from '@/integrations/supabase/client';
@@ -118,6 +119,7 @@ const LOUVORES = [
 
 const App: React.FC = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [authState, setAuthState] = useState<'SELECT' | 'LOGIN' | 'ADMIN' | 'CLIENT' | 'EMPLOYEE'>('SELECT');
   const [selectedRole, setSelectedRole] = useState<'ADMIN' | 'CLIENT' | 'EMPLOYEE'>('ADMIN');
   const [employeeName, setEmployeeName] = useState('');
@@ -277,10 +279,14 @@ const App: React.FC = () => {
         toast({ title: "⚠️ Informe seu nome", description: "Digite seu nome cadastrado pelo administrador", variant: "destructive" });
         return;
       }
+      if (!password.trim()) {
+        toast({ title: "⚠️ Informe sua senha", description: "Digite a senha fornecida pelo administrador", variant: "destructive" });
+        return;
+      }
       // Resolve employee ID from name before entering
       const { data: empData } = await db
         .from('employees')
-        .select('id, name')
+        .select('id, name, password')
         .eq('active', true);
       
       const searchName = employeeName.trim().toLowerCase();
@@ -290,16 +296,26 @@ const App: React.FC = () => {
         searchName.includes(e.name.toLowerCase())
       );
       
-      if (matchedEmp) {
-        setEmployeeId(matchedEmp.id);
-        setEmployeeName(matchedEmp.name);
-      } else {
+      if (!matchedEmp) {
         toast({ title: "⚠️ Funcionário não encontrado", description: "Verifique se o nome está cadastrado corretamente", variant: "destructive" });
         return;
       }
+
+      // Verify password
+      if (!matchedEmp.password) {
+        toast({ title: "⚠️ Senha não configurada", description: "Peça ao administrador para criar sua senha de acesso", variant: "destructive" });
+        return;
+      }
+      if (matchedEmp.password !== password.trim()) {
+        toast({ title: "⚠️ Senha incorreta", description: "Verifique sua senha e tente novamente", variant: "destructive" });
+        return;
+      }
+
+      setEmployeeId(matchedEmp.id);
+      setEmployeeName(matchedEmp.name);
       setAuthState('EMPLOYEE');
       setView(ViewMode.TIME_TRACKING);
-      toast({ title: "✅ Bem-vindo!", description: `Área do funcionário - ${matchedEmp?.name || employeeName}` });
+      toast({ title: "✅ Bem-vindo!", description: `Área do funcionário - ${matchedEmp.name}` });
     } else {
       setAuthState('CLIENT');
       setView(ViewMode.CLIENT_PORTAL);
@@ -350,8 +366,8 @@ const App: React.FC = () => {
             {authState === 'ADMIN' ? (
               <>
                 <NavIcon icon="layout-dashboard" label="Início" active={view === ViewMode.DASHBOARD} onClick={() => setView(ViewMode.DASHBOARD)} />
-                <NavIcon icon="cube" label="3D" active={view === ViewMode.DASHBOARD_3D} onClick={() => setView(ViewMode.DASHBOARD_3D)} />
-                <NavIcon icon="box" label="Promob SD" active={view === ViewMode.PROMOB} onClick={() => setView(ViewMode.PROMOB)} />
+                {!isMobile && <NavIcon icon="cube" label="3D" active={view === ViewMode.DASHBOARD_3D} onClick={() => setView(ViewMode.DASHBOARD_3D)} />}
+                {!isMobile && <NavIcon icon="box" label="Promob SD" active={view === ViewMode.PROMOB} onClick={() => setView(ViewMode.PROMOB)} />}
                 <NavIcon icon="file-text" label="Vendas" active={view === ViewMode.CONTRACTS} onClick={() => setView(ViewMode.CONTRACTS)} />
                 <NavIcon icon="building" label="Fornecedores" active={view === ViewMode.SUPPLIERS} onClick={() => setView(ViewMode.SUPPLIERS)} />
                 <NavIcon icon="package" label="Estoque" active={view === ViewMode.PRODUCTS} onClick={() => setView(ViewMode.PRODUCTS)} />
@@ -1288,7 +1304,7 @@ const App: React.FC = () => {
                 SD Móveis <span className="text-amber-400">Projetados</span>
               </h2>
               <p className="text-gray-400 text-sm mb-8">
-                {selectedRole === 'EMPLOYEE' ? 'Digite seu nome cadastrado' : 'Digite sua senha para continuar'}
+                {selectedRole === 'EMPLOYEE' ? 'Digite seu nome e senha' : 'Digite sua senha para continuar'}
               </p>
               
               <div className="space-y-4">
