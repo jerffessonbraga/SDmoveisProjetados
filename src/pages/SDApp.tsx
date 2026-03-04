@@ -33,6 +33,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import logoSD from '@/assets/logo-sd.jpeg';
 import { WorshipPlayer } from '@/components/WorshipPlayer';
+import InternalChat from '@/components/chat/InternalChat';
 import { supabase } from '@/integrations/supabase/client';
 const db = supabase as any;
 import { 
@@ -379,18 +380,20 @@ const App: React.FC = () => {
                 <NavIcon icon="clock" label="Ponto" active={view === ViewMode.TIME_TRACKING} onClick={() => setView(ViewMode.TIME_TRACKING)} />
                 <NavIcon icon="navigation" label="Frota" active={view === ViewMode.FLEET} onClick={() => setView(ViewMode.FLEET)} />
                 <NavIcon icon="message-square" label="CRM" active={view === ViewMode.CRM} onClick={() => setView(ViewMode.CRM)} isFab />
+                <NavIcon icon="message-circle" label="Chat" active={view === ViewMode.INTERNAL_CHAT} onClick={() => setView(ViewMode.INTERNAL_CHAT)} />
               </>
             ) : authState === 'EMPLOYEE' ? (
               <>
                 <NavIcon icon="clock" label="Meu Ponto" active={view === ViewMode.TIME_TRACKING} onClick={() => setView(ViewMode.TIME_TRACKING)} />
                 <NavIcon icon="navigation" label="Viagens" active={view === ViewMode.FLEET} onClick={() => setView(ViewMode.FLEET)} />
+                <NavIcon icon="message-circle" label="Chat" active={view === ViewMode.INTERNAL_CHAT} onClick={() => setView(ViewMode.INTERNAL_CHAT)} />
               </>
             ) : (
               <>
                 <NavIcon icon="home" label="Painel" active={view === ViewMode.CLIENT_PORTAL} onClick={() => setView(ViewMode.CLIENT_PORTAL)} />
                 <NavIcon icon="image" label="Galeria" active={view === ViewMode.PORTFOLIO} onClick={() => setView(ViewMode.PORTFOLIO)} />
                 <NavIcon icon="shield" label="Garantia" active={view === ViewMode.WARRANTY} onClick={() => setView(ViewMode.WARRANTY)} />
-                <NavIcon icon="message-square" label="Chat" active={view === ViewMode.CRM} onClick={() => setView(ViewMode.CRM)} />
+                <NavIcon icon="message-circle" label="Chat" active={view === ViewMode.INTERNAL_CHAT} onClick={() => setView(ViewMode.INTERNAL_CHAT)} />
                 <NavIcon icon="book-open" label="Pós-Venda" active={view === ViewMode.AFTER_SALES} onClick={() => setView(ViewMode.AFTER_SALES)} />
                 <button 
                   type="button"
@@ -753,6 +756,14 @@ const App: React.FC = () => {
               </TabsContent>
             </Tabs>
           </div>
+        )}
+
+        {/* INTERNAL CHAT */}
+        {view === ViewMode.INTERNAL_CHAT && (
+          <InternalChat
+            currentUserName={authState === 'ADMIN' ? 'Administrador' : authState === 'EMPLOYEE' ? employeeName : clientName || 'Cliente'}
+            currentUserRole={authState === 'ADMIN' ? 'admin' : authState === 'EMPLOYEE' ? 'employee' : 'client'}
+          />
         )}
 
         {/* CONTRACTS */}

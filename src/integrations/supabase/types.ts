@@ -192,6 +192,33 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_messages: {
+        Row: {
+          channel: string
+          content: string
+          created_at: string
+          id: string
+          sender_name: string
+          sender_role: string
+        }
+        Insert: {
+          channel?: string
+          content: string
+          created_at?: string
+          id?: string
+          sender_name: string
+          sender_role?: string
+        }
+        Update: {
+          channel?: string
+          content?: string
+          created_at?: string
+          id?: string
+          sender_name?: string
+          sender_role?: string
+        }
+        Relationships: []
+      }
       client_projects: {
         Row: {
           client_id: string
