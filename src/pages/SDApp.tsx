@@ -208,53 +208,63 @@ const App: React.FC = () => {
   }, [authState, password]);
 
   // Função para tocar o louvor
-  const playLouvor = () => {
-    // Parar áudio anterior se existir
+  const playAudio = (louvor: typeof LOUVORES[0]) => {
+    // Parar áudio anterior
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+      audioRef.current = null;
     }
 
-    const audio = new Audio();
+    const audio = new Audio(louvor.audioUrl);
     audio.preload = "auto";
     audio.volume = 0.3;
-    audio.src = currentLouvor.audioUrl;
     audioRef.current = audio;
-    
-    audio.play().then(() => {
-      setIsPlaying(true);
-      toast({ 
-        title: "🎵 Tocando Louvor", 
-        description: `${currentLouvor.title} - ${currentLouvor.artist}` 
+
+    const playPromise = audio.play();
+    if (playPromise) {
+      playPromise.then(() => {
+        setIsPlaying(true);
+        toast({ 
+          title: "🎵 Tocando Louvor", 
+          description: `${louvor.title} - ${louvor.artist}` 
+        });
+      }).catch((err) => {
+        if (err.name !== 'AbortError') {
+          console.error("Erro ao tocar:", err);
+          toast({ 
+            title: "⚠️ Clique para tocar", 
+            description: "Clique no botão ▶ para iniciar o louvor",
+            variant: "destructive"
+          });
+        }
       });
-    }).catch((err) => {
-      console.error("Erro ao tocar:", err);
-      toast({ 
-        title: "⚠️ Clique para tocar", 
-        description: "Clique no botão ▶ para iniciar o louvor",
-        variant: "destructive"
-      });
-    });
+    }
 
     audio.onended = () => {
-      setIsPlaying(false);
-      const nextIndex = (LOUVORES.findIndex(l => l.title === currentLouvor.title) + 1) % LOUVORES.length;
-      setCurrentLouvor(LOUVORES[nextIndex]);
+      const nextIndex = (LOUVORES.findIndex(l => l.title === louvor.title) + 1) % LOUVORES.length;
+      const next = LOUVORES[nextIndex];
+      setCurrentLouvor(next);
+      playAudio(next);
     };
+  };
+
+  const playLouvor = () => {
+    playAudio(currentLouvor);
   };
 
   const stopLouvor = () => {
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsPlaying(false);
+      audioRef.current = null;
     }
+    setIsPlaying(false);
   };
 
   const nextLouvor = () => {
-    stopLouvor();
     const nextIndex = (LOUVORES.findIndex(l => l.title === currentLouvor.title) + 1) % LOUVORES.length;
-    setCurrentLouvor(LOUVORES[nextIndex]);
+    const next = LOUVORES[nextIndex];
+    setCurrentLouvor(next);
+    playAudio(next);
   };
 
   const handleLogin = async () => {
