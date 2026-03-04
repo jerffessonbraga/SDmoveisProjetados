@@ -115,6 +115,7 @@ const App: React.FC = () => {
   const [authState, setAuthState] = useState<'SELECT' | 'LOGIN' | 'ADMIN' | 'CLIENT' | 'EMPLOYEE'>('SELECT');
   const [selectedRole, setSelectedRole] = useState<'ADMIN' | 'CLIENT' | 'EMPLOYEE'>('ADMIN');
   const [employeeName, setEmployeeName] = useState('');
+  const [employeeId, setEmployeeId] = useState('');
   const [password, setPassword] = useState("");
   const [view, setView] = useState(ViewMode.DASHBOARD);
   const [contracts, setContracts] = useState<any[]>([]);
@@ -250,7 +251,7 @@ const App: React.FC = () => {
     setCurrentLouvor(LOUVORES[nextIndex]);
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (selectedRole === 'ADMIN') {
       setAuthState('ADMIN');
       setView(ViewMode.DASHBOARD_3D);
@@ -260,9 +261,29 @@ const App: React.FC = () => {
         toast({ title: "⚠️ Informe seu nome", description: "Digite seu nome cadastrado pelo administrador", variant: "destructive" });
         return;
       }
+      // Resolve employee ID from name before entering
+      const { data: empData } = await db
+        .from('employees')
+        .select('id, name')
+        .eq('active', true);
+      
+      const searchName = employeeName.trim().toLowerCase();
+      const matchedEmp = empData?.find((e: any) => 
+        e.name.toLowerCase() === searchName || 
+        e.name.toLowerCase().includes(searchName) ||
+        searchName.includes(e.name.toLowerCase())
+      );
+      
+      if (matchedEmp) {
+        setEmployeeId(matchedEmp.id);
+        setEmployeeName(matchedEmp.name);
+      } else {
+        toast({ title: "⚠️ Funcionário não encontrado", description: "Verifique se o nome está cadastrado corretamente", variant: "destructive" });
+        return;
+      }
       setAuthState('EMPLOYEE');
       setView(ViewMode.TIME_TRACKING);
-      toast({ title: "✅ Bem-vindo!", description: `Área do funcionário - ${employeeName}` });
+      toast({ title: "✅ Bem-vindo!", description: `Área do funcionário - ${matchedEmp?.name || employeeName}` });
     } else {
       setAuthState('CLIENT');
       setView(ViewMode.CLIENT_PORTAL);
@@ -1533,7 +1554,7 @@ const App: React.FC = () => {
         {/* FLEET - EMPLOYEE */}
         {view === ViewMode.FLEET && authState === 'EMPLOYEE' && (
           <div className="p-8 space-y-6 overflow-auto h-full bg-gradient-to-br from-gray-50 to-gray-100">
-            <DriverTripPanel employeeId="" employeeName={employeeName} />
+            <DriverTripPanel employeeId={employeeId} employeeName={employeeName} />
           </div>
         )}
 
