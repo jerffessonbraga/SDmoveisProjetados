@@ -108,6 +108,12 @@ const LOUVORES = [
     audioUrl: "/audio/deus-esta-te-ensinando.mp3",
     verse: "Provérbios 3:5 - Confia no Senhor de todo o teu coração e não te estribes no teu próprio entendimento."
   },
+  { 
+    title: "Meu Sonho Ganha Forma", 
+    artist: "SD Móveis Projetados", 
+    audioUrl: "/audio/meu-sonho-ganha-forma.mp3",
+    verse: "Jeremias 29:11 - Porque eu bem sei os pensamentos que tenho a vosso respeito, diz o Senhor; pensamentos de paz e não de mal."
+  },
 ];
 
 const App: React.FC = () => {
