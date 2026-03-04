@@ -58,7 +58,7 @@ export const NavIcon: React.FC<NavIconProps> = ({ icon, label, active, onClick, 
     <button 
       onClick={onClick} 
       className={cn(
-        "group flex flex-col items-center gap-1 py-3 px-2 rounded-xl transition-all duration-300",
+        "group flex flex-col items-center gap-0.5 sm:gap-1 py-1.5 sm:py-3 px-1.5 sm:px-2 rounded-xl transition-all duration-300 flex-shrink-0",
         active 
           ? "text-primary" 
           : "text-sidebar-foreground/50 hover:text-sidebar-foreground"
@@ -67,7 +67,7 @@ export const NavIcon: React.FC<NavIconProps> = ({ icon, label, active, onClick, 
     >
       <div 
         className={cn(
-          "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ease-out",
+          "w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-300 ease-out",
           active 
             ? "bg-primary text-primary-foreground shadow-glow" 
             : "bg-sidebar-accent/40 backdrop-blur-sm border border-sidebar-border/30 group-hover:bg-sidebar-accent/70 group-hover:border-primary/30 group-hover:shadow-[0_0_15px_hsl(var(--primary)/0.2)]"
@@ -79,7 +79,7 @@ export const NavIcon: React.FC<NavIconProps> = ({ icon, label, active, onClick, 
       >
         <IconComponent 
           className={cn(
-            "w-5 h-5 transition-all duration-300 ease-out",
+            "w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300 ease-out",
             "group-hover:scale-110",
             active && "drop-shadow-[0_0_6px_hsl(var(--primary-foreground)/0.5)]"
           )}
@@ -89,7 +89,7 @@ export const NavIcon: React.FC<NavIconProps> = ({ icon, label, active, onClick, 
         />
       </div>
       <span className={cn(
-        "text-[9px] font-bold uppercase tracking-wider transition-all duration-300",
+        "text-[8px] sm:text-[9px] font-bold uppercase tracking-wider transition-all duration-300",
         active ? "text-primary" : "group-hover:text-sidebar-foreground"
       )}>
         {label}
@@ -97,7 +97,7 @@ export const NavIcon: React.FC<NavIconProps> = ({ icon, label, active, onClick, 
 
       {/* Active indicator line */}
       {active && (
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-8 rounded-r-full bg-primary shadow-glow" />
+        <div className="hidden sm:block absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-8 rounded-r-full bg-primary shadow-glow" />
       )}
     </button>
   );
