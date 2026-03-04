@@ -352,18 +352,18 @@ const App: React.FC = () => {
   const inProduction = contracts.filter(c => c.status === 'producao').length;
 
   return (
-    <div className="h-screen w-screen flex bg-background overflow-hidden relative">
+    <div className="h-screen w-screen flex flex-col sm:flex-row bg-background overflow-hidden relative">
       {/* SIDEBAR */}
       {(authState === 'ADMIN' || authState === 'CLIENT' || authState === 'EMPLOYEE') && (
-        <aside className="w-24 flex flex-col items-center py-4 gap-2 min-h-0 overflow-y-auto relative z-10 backdrop-blur-xl border-r border-sidebar-border/30" style={{ background: 'linear-gradient(180deg, hsl(var(--sidebar-background) / 0.92) 0%, hsl(var(--sidebar-background) / 0.98) 100%)', boxShadow: '4px 0 30px hsl(var(--primary) / 0.08), inset -1px 0 0 hsl(var(--primary) / 0.06)' }}>
+        <aside className="order-2 sm:order-none w-full sm:w-24 h-16 sm:h-auto flex sm:flex-col items-center sm:py-4 gap-1 sm:gap-2 sm:min-h-0 overflow-x-auto sm:overflow-y-auto sm:overflow-x-hidden relative z-10 backdrop-blur-xl border-t sm:border-t-0 sm:border-r border-sidebar-border/30" style={{ background: 'linear-gradient(180deg, hsl(var(--sidebar-background) / 0.92) 0%, hsl(var(--sidebar-background) / 0.98) 100%)', boxShadow: '4px 0 30px hsl(var(--primary) / 0.08), inset -1px 0 0 hsl(var(--primary) / 0.06)' }}>
           <button 
             onClick={() => setView(authState === 'ADMIN' ? ViewMode.DASHBOARD : authState === 'EMPLOYEE' ? ViewMode.TIME_TRACKING : ViewMode.CLIENT_PORTAL)}
-            className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary shadow-glow hover:scale-110 transition-all duration-300"
+            className="hidden sm:block w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary shadow-glow hover:scale-110 transition-all duration-300 flex-shrink-0"
           >
             <img src={logoSD} alt="SD" className="w-full h-full object-cover" />
           </button>
 
-          <nav className="flex-1 flex flex-col items-center gap-2 mt-6">
+          <nav className="flex-1 flex sm:flex-col items-center gap-1 sm:gap-2 sm:mt-6 px-2 sm:px-0">
             {authState === 'ADMIN' ? (
               <>
                 <NavIcon icon="layout-dashboard" label="Início" active={view === ViewMode.DASHBOARD} onClick={() => setView(ViewMode.DASHBOARD)} />
@@ -418,7 +418,7 @@ const App: React.FC = () => {
             )}
           </nav>
 
-          <div className="mt-auto space-y-2 flex flex-col items-center">
+          <div className="hidden sm:flex mt-auto space-y-2 flex-col items-center">
             <button className="p-3 text-sidebar-foreground/50 hover:text-primary transition-all duration-300 hover:scale-110">
               <Bell className="w-5 h-5" />
             </button>
@@ -438,6 +438,10 @@ const App: React.FC = () => {
               <span className="text-[10px] font-bold">Sair</span>
             </button>
           </div>
+          {/* Mobile: logout button */}
+          <button onClick={() => setAuthState('SELECT')} className="sm:hidden p-2 text-sidebar-foreground/50 hover:text-destructive flex-shrink-0" title="Sair">
+            <LogOut className="w-5 h-5" />
+          </button>
         </aside>
       )}
 
@@ -452,7 +456,7 @@ const App: React.FC = () => {
         />
       )}
 
-      <main className="flex-1 overflow-hidden relative">
+      <main className="flex-1 overflow-hidden relative order-1 sm:order-none min-h-0">
         {/* Animated particle background */}
         {(authState === 'ADMIN' || authState === 'CLIENT' || authState === 'EMPLOYEE') && (
           <AnimatedBackground />
@@ -1089,7 +1093,7 @@ const App: React.FC = () => {
 
       {/* LOGIN SCREENS */}
       {authState === 'SELECT' && (
-        <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center justify-center overflow-hidden">
+        <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center justify-center overflow-auto">
           {/* Animated particle background */}
           <AnimatedBackground />
           {/* Efeitos de fundo - Dark Premium */}
@@ -1108,10 +1112,10 @@ const App: React.FC = () => {
           </div>
 
           {/* Versículo no topo */}
-          <div className="absolute top-8 text-center px-4 z-10">
-            <div className="inline-flex items-center gap-3 bg-black/50 backdrop-blur-xl px-6 py-3 rounded-2xl border border-amber-500/20 shadow-xl">
+          <div className="absolute top-4 sm:top-8 text-center px-4 z-10">
+            <div className="inline-flex items-center gap-2 sm:gap-3 bg-black/50 backdrop-blur-xl px-4 sm:px-6 py-2 sm:py-3 rounded-2xl border border-amber-500/20 shadow-xl max-w-[90vw]">
               <Star className="w-4 h-4 text-amber-400" />
-              <p className="text-gray-300 text-sm italic font-light">
+              <p className="text-gray-300 text-xs sm:text-sm italic font-light">
                 "Tudo o que fizerem, façam de todo o coração, como para o Senhor"
               </p>
               <span className="text-amber-400 text-xs font-medium">— Colossenses 3:23</span>
@@ -1119,21 +1123,21 @@ const App: React.FC = () => {
           </div>
 
           {/* Conteúdo Central */}
-          <div className="relative z-10 flex flex-col items-center mt-16">
+          <div className="relative z-10 flex flex-col items-center mt-8 sm:mt-16 px-4">
 
             {/* Título */}
-            <h1 className="text-4xl font-black text-white mb-2 tracking-tight">
+            <h1 className="text-2xl sm:text-4xl font-black text-white mb-2 tracking-tight text-center">
               SD Móveis <span className="text-amber-400">Projetados</span>
             </h1>
-            <p className="text-gray-400 text-sm mb-12">Selecione seu tipo de acesso</p>
+            <p className="text-gray-400 text-sm mb-6 sm:mb-12">Selecione seu tipo de acesso</p>
 
             {/* Cards de seleção */}
-            <div className="flex gap-8 relative">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 relative w-full items-center">
               <Card3D intensity={10}>
               {/* Card Administrador - Preto com borda dourada */}
               <button 
                 onClick={() => { setSelectedRole('ADMIN'); setAuthState('LOGIN'); }}
-                className="group relative w-72 h-72 rounded-[32px] p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden"
+                className="group relative w-full sm:w-72 h-40 sm:h-72 rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden"
               >
                 {/* Fundo preto elegante */}
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-950 to-black rounded-[32px]" />
@@ -1150,15 +1154,15 @@ const App: React.FC = () => {
                 
                 {/* Conteúdo */}
                 <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-20 h-20 rounded-2xl border-2 border-amber-400/60 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform bg-amber-500/10 backdrop-blur-sm shadow-xl overflow-hidden">
+                  <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl border-2 border-amber-400/60 flex items-center justify-center mb-3 sm:mb-5 group-hover:scale-110 transition-transform bg-amber-500/10 backdrop-blur-sm shadow-xl overflow-hidden">
                     <img src={logoSD} alt="SD" className="w-full h-full object-cover" />
                   </div>
                   <div className="flex items-center gap-2 mb-2">
                     <Shield className="w-5 h-5 text-amber-400" />
-                    <h3 className="text-white text-xl font-black tracking-wide uppercase">Administrador</h3>
+                    <h3 className="text-white text-base sm:text-xl font-black tracking-wide uppercase">Administrador</h3>
                   </div>
                   <p className="text-gray-400 text-sm">Acesso completo ao sistema</p>
-                  <div className="mt-4 flex items-center gap-2 text-amber-400/70 text-xs">
+                  <div className="mt-2 sm:mt-4 flex items-center gap-2 text-amber-400/70 text-xs hidden sm:flex">
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Dashboard • Projetos • CRM</span>
                   </div>
@@ -1170,7 +1174,7 @@ const App: React.FC = () => {
               {/* Card Cliente - Dourado/Branco Elegante */}
               <button
                 onClick={() => { setSelectedRole('CLIENT'); setAuthState('LOGIN'); }}
-                className="group relative w-72 h-72 rounded-[32px] p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden"
+                className="group relative w-full sm:w-72 h-40 sm:h-72 rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden"
               >
                 {/* Fundo com gradiente dourado sutil */}
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950 rounded-[32px]" />
@@ -1189,15 +1193,15 @@ const App: React.FC = () => {
                 
                 {/* Conteúdo */}
                 <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-20 h-20 rounded-2xl border-2 border-white/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform bg-white/10 backdrop-blur-sm shadow-xl overflow-hidden group-hover:border-amber-400/60">
+                  <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl border-2 border-white/30 flex items-center justify-center mb-3 sm:mb-5 group-hover:scale-110 transition-transform bg-white/10 backdrop-blur-sm shadow-xl overflow-hidden group-hover:border-amber-400/60">
                     <img src={logoSD} alt="SD" className="w-full h-full object-cover" />
                   </div>
                   <div className="flex items-center gap-2 mb-2">
                     <User className="w-5 h-5 text-white/80 group-hover:text-amber-400 transition-colors" />
-                    <h3 className="text-white text-xl font-black tracking-wide uppercase">Cliente</h3>
+                    <h3 className="text-white text-base sm:text-xl font-black tracking-wide uppercase">Cliente</h3>
                   </div>
                   <p className="text-gray-400 text-sm">Acompanhe seu projeto</p>
-                  <div className="mt-4 flex items-center gap-2 text-white/50 text-xs group-hover:text-amber-400/70 transition-colors">
+                  <div className="mt-2 sm:mt-4 flex items-center gap-2 text-white/50 text-xs group-hover:text-amber-400/70 transition-colors hidden sm:flex">
                     <Home className="w-3.5 h-3.5" />
                     <span>Galeria • Status • Chat</span>
                   </div>
@@ -1209,7 +1213,7 @@ const App: React.FC = () => {
               {/* Card Funcionário */}
               <button 
                 onClick={() => { setSelectedRole('EMPLOYEE'); setAuthState('LOGIN'); }}
-                className="group relative w-72 h-72 rounded-[32px] p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden"
+                className="group relative w-full sm:w-72 h-40 sm:h-72 rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950 rounded-[32px]" />
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-green-600/5 rounded-[32px]" />
@@ -1218,15 +1222,15 @@ const App: React.FC = () => {
                 <div className="absolute -top-20 -right-20 w-40 h-40 bg-green-500/5 rounded-full blur-3xl group-hover:bg-green-400/20 transition-all" />
                 
                 <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-20 h-20 rounded-2xl border-2 border-green-500/40 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform bg-green-500/10 backdrop-blur-sm shadow-xl overflow-hidden group-hover:border-green-400/60">
+                  <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl border-2 border-green-500/40 flex items-center justify-center mb-3 sm:mb-5 group-hover:scale-110 transition-transform bg-green-500/10 backdrop-blur-sm shadow-xl overflow-hidden group-hover:border-green-400/60">
                     <img src={logoSD} alt="SD" className="w-full h-full object-cover" />
                   </div>
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="w-5 h-5 text-green-400/80 group-hover:text-green-400 transition-colors" />
-                    <h3 className="text-white text-xl font-black tracking-wide uppercase">Funcionário</h3>
+                    <h3 className="text-white text-base sm:text-xl font-black tracking-wide uppercase">Funcionário</h3>
                   </div>
                   <p className="text-gray-400 text-sm">Registre seu ponto</p>
-                  <div className="mt-4 flex items-center gap-2 text-green-400/50 text-xs group-hover:text-green-400/70 transition-colors">
+                  <div className="mt-2 sm:mt-4 flex items-center gap-2 text-green-400/50 text-xs group-hover:text-green-400/70 transition-colors hidden sm:flex">
                     <Clock className="w-3.5 h-3.5" />
                     <span>Ponto • Horas • Pagamento</span>
                   </div>
@@ -1276,11 +1280,11 @@ const App: React.FC = () => {
           </div>
 
           {/* Card de Login - Design Premium Dark */}
-          <div className="relative z-10 w-[420px]">
+          <div className="relative z-10 w-[90vw] sm:w-[420px] max-w-[420px]">
             {/* Glow atrás do card */}
             <div className="absolute -inset-4 bg-gradient-to-b from-amber-500/20 via-amber-600/10 to-transparent rounded-[50px] blur-xl" />
             
-            <div className="relative bg-gradient-to-b from-gray-900/95 to-gray-950/98 backdrop-blur-xl rounded-[36px] p-10 text-center border border-amber-500/20 shadow-2xl">
+            <div className="relative bg-gradient-to-b from-gray-900/95 to-gray-950/98 backdrop-blur-xl rounded-[28px] sm:rounded-[36px] p-6 sm:p-10 text-center border border-amber-500/20 shadow-2xl">
               {/* Linha dourada no topo */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent rounded-full" />
               

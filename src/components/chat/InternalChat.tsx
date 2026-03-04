@@ -146,9 +146,9 @@ export default function InternalChat({ currentUserName, currentUserRole }: Inter
   });
 
   return (
-    <div className="h-full flex bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Channels Sidebar */}
-      <div className="w-56 bg-white border-r border-gray-200 flex flex-col">
+    <div className="h-full flex flex-col sm:flex-row bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Channels Sidebar - hidden on mobile, show as horizontal tabs */}
+      <div className="hidden sm:flex w-56 bg-white border-r border-gray-200 flex-col">
         <div className="p-4 border-b border-gray-100">
           <h2 className="font-black text-gray-900 flex items-center gap-2">
             <MessageCircle className="w-5 h-5 text-amber-500" />
@@ -188,6 +188,24 @@ export default function InternalChat({ currentUserName, currentUserRole }: Inter
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Mobile channel tabs */}
+      <div className="sm:hidden flex items-center gap-1 px-3 py-2 bg-white border-b border-gray-200 overflow-x-auto">
+        {visibleChannels.map(ch => (
+          <button
+            key={ch.id}
+            onClick={() => setActiveChannel(ch.id)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 ${
+              activeChannel === ch.id
+                ? 'bg-amber-500 text-white'
+                : 'bg-gray-100 text-gray-600'
+            }`}
+          >
+            <ch.icon className="w-3.5 h-3.5" />
+            {ch.label}
+          </button>
+        ))}
       </div>
 
       {/* Messages Area */}
