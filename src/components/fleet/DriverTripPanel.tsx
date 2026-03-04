@@ -231,9 +231,15 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
       return;
     }
 
+    const finalEmployeeId = resolvedEmployeeId || employeeId;
+    if (!finalEmployeeId) {
+      toast({ title: '❌ Erro ao iniciar viagem', description: 'Funcionário não identificado. Faça login novamente.', variant: 'destructive' });
+      return;
+    }
+
     const { data, error } = await db
       .from('trips')
-      .insert({ employee_id: resolvedEmployeeId || employeeId, description: description || null, vehicle_id: selectedVehicleId })
+      .insert({ employee_id: finalEmployeeId, description: description || null, vehicle_id: selectedVehicleId })
       .select()
       .single();
 
