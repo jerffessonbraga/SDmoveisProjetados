@@ -348,13 +348,19 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const formatTime = (iso: string) =>
-    new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const formatTime = (iso: string) => {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return 'Data indisponível';
+    return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  };
 
   const calcDuration = (start: string, end: string | null) => {
     const s = new Date(start).getTime();
+    if (isNaN(s)) return '0min';
     const e = end ? new Date(end).getTime() : Date.now();
+    if (isNaN(e)) return '0min';
     const mins = Math.round((e - s) / 60000);
+    if (mins < 0) return '0min';
     if (mins < 60) return `${mins}min`;
     return `${Math.floor(mins / 60)}h ${mins % 60}min`;
   };
