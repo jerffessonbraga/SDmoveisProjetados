@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { 
-  LayoutDashboard, Box, FileText, MessageSquare, Home, Image, Plus, Clock, 
+  LayoutDashboard, Box, FileText, MessageSquare, MessageCircle, Home, Image, Plus, Clock, 
   Navigation, BookOpen, Shield, Fuel, Wrench, Building, Package, ClipboardList, 
   Banknote, TrendingDown, TrendingUp, FileSignature,
 } from "lucide-react";
@@ -20,6 +20,7 @@ const iconMap: Record<string, React.ElementType> = {
   "box": Box,
   "file-text": FileText,
   "message-square": MessageSquare,
+  "message-circle": MessageCircle,
   "home": Home,
   "image": Image,
   "plus": Plus,
