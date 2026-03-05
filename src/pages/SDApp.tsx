@@ -1290,7 +1290,7 @@ const App: React.FC = () => {
       )}
 
       {authState === 'LOGIN' && (
-        <div className="fixed inset-0 z-50 isolate pointer-events-none bg-gradient-to-br from-gray-950 via-gray-900 to-black flex items-center justify-center overflow-y-auto overflow-x-hidden">
+        <div className="fixed inset-0 z-50 isolate bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center justify-center overflow-y-auto overflow-x-hidden">
           {/* Efeitos de fundo premium escuro */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-amber-500/8 rounded-full blur-[120px]" />
