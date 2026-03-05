@@ -1402,36 +1402,30 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Player de Louvor na tela de Login - só desktop */}
-          {!isMobile && (
-            <WorshipPlayer
-              currentLouvor={currentLouvor}
-              isPlaying={isPlaying}
-              onPlay={playLouvor}
-              onStop={stopLouvor}
-              onNext={nextLouvor}
-            />
-          )}
-
-          {/* Mini player mobile na tela de login */}
-          {isMobile && (
-            <div className="w-full px-4 mt-4 pb-4">
+          {/* Player de Louvor inline na tela de Login */}
+          <div className="w-[90vw] sm:w-[420px] max-w-[420px] mt-4 pb-4">
+            <button
+              type="button"
+              onClick={isPlaying ? stopLouvor : playLouvor}
+              className="flex items-center gap-3 w-full bg-black/80 border border-amber-500/20 rounded-2xl px-3 py-2 touch-manipulation select-none"
+            >
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center text-black shrink-0 shadow-lg shadow-amber-500/30">
+                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+              </div>
+              <div className="text-left flex-1 min-w-0">
+                <p className="text-amber-400 text-[10px] font-bold uppercase tracking-wider">Tocando</p>
+                <p className="text-white text-sm font-medium truncate">{currentLouvor.title}</p>
+                <p className="text-gray-500 text-xs truncate">{currentLouvor.artist}</p>
+              </div>
               <button
                 type="button"
-                onClick={isPlaying ? stopLouvor : playLouvor}
-                className="flex items-center gap-3 w-full bg-black/80 border border-amber-500/20 rounded-2xl px-3 py-2 touch-manipulation select-none"
+                onClick={(e) => { e.stopPropagation(); nextLouvor(); }}
+                className="text-gray-500 active:text-amber-400 p-2 rounded-lg touch-manipulation select-none shrink-0"
               >
-                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center text-black shrink-0 shadow-lg shadow-amber-500/30">
-                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
-                </div>
-                <div className="text-left flex-1 min-w-0">
-                  <p className="text-amber-400 text-[10px] font-bold uppercase tracking-wider">Tocando</p>
-                  <p className="text-white text-sm font-medium truncate">{currentLouvor.title}</p>
-                  <p className="text-gray-500 text-xs truncate">{currentLouvor.artist}</p>
-                </div>
+                <SkipForward className="w-4 h-4" />
               </button>
-            </div>
-          )}
+            </button>
+          </div>
 
           {/* Footer */}
           <div className="absolute bottom-6 left-6 pointer-events-none">
