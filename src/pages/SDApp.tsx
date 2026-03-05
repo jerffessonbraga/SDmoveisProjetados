@@ -1250,7 +1250,7 @@ const App: React.FC = () => {
           />
 
           {/* Footer - Canto inferior esquerdo */}
-          <div className="absolute bottom-8 left-8 z-10">
+          <div className="absolute bottom-8 left-8 z-10 hidden md:block">
             <div className="flex items-center gap-3 bg-black/50 backdrop-blur-xl px-4 py-2.5 rounded-xl border border-white/10">
               <div className="w-8 h-8 rounded-lg overflow-hidden border border-amber-500/50 shadow">
                 <img src={logoSD} alt="SD" className="w-full h-full object-cover" />
@@ -1265,7 +1265,7 @@ const App: React.FC = () => {
       )}
 
       {authState === 'LOGIN' && (
-        <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black flex items-center justify-center overflow-hidden">
+        <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black flex items-center justify-center overflow-y-auto overflow-x-hidden">
           {/* Efeitos de fundo premium escuro */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-amber-500/8 rounded-full blur-[120px]" />
@@ -1280,7 +1280,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Card de Login - Design Premium Dark */}
-          <div className="relative z-10 w-[90vw] sm:w-[420px] max-w-[420px]">
+          <div className="relative z-10 w-[90vw] sm:w-[420px] max-w-[420px] my-auto py-8">
             {/* Glow atrás do card */}
             <div className="absolute -inset-4 bg-gradient-to-b from-amber-500/20 via-amber-600/10 to-transparent rounded-[50px] blur-xl" />
             
@@ -1387,7 +1387,7 @@ const App: React.FC = () => {
           />
 
           {/* Footer */}
-          <div className="absolute bottom-6 left-6">
+          <div className="absolute bottom-6 left-6 pointer-events-none">
             <p className="text-gray-600 text-xs">SD Móveis © 2024</p>
           </div>
         </div>
