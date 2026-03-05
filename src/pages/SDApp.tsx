@@ -1093,7 +1093,7 @@ const App: React.FC = () => {
 
       {/* LOGIN SCREENS */}
       {authState === 'SELECT' && (
-        <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center justify-center overflow-auto">
+        <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center sm:justify-center overflow-y-auto overflow-x-hidden">
           {/* Animated particle background */}
           <AnimatedBackground />
           {/* Efeitos de fundo - Dark Premium */}
@@ -1123,7 +1123,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Conteúdo Central */}
-          <div className="relative z-10 flex flex-col items-center mt-8 sm:mt-16 px-4">
+          <div className="relative z-10 flex flex-col items-center mt-20 sm:mt-16 px-4 pb-32 sm:pb-8 w-full">
 
             {/* Título */}
             <h1 className="text-2xl sm:text-4xl font-black text-white mb-2 tracking-tight text-center">
@@ -1132,7 +1132,7 @@ const App: React.FC = () => {
             <p className="text-gray-400 text-sm mb-6 sm:mb-12">Selecione seu tipo de acesso</p>
 
             {/* Cards de seleção */}
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 relative w-full items-center">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 relative w-full items-center max-w-sm sm:max-w-none mx-auto">
               <Card3D intensity={10}>
               {/* Card Administrador - Preto com borda dourada */}
               <button 
