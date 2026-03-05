@@ -461,7 +461,6 @@ const App: React.FC = () => {
       <main
         className="flex-1 overflow-hidden relative order-1 sm:order-none min-h-0"
       >
-      >
         {/* Animated particle background */}
         {(authState === 'ADMIN' || authState === 'CLIENT' || authState === 'EMPLOYEE') && (
           <AnimatedBackground />
