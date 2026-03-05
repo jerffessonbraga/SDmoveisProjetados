@@ -34,6 +34,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import logoSD from '@/assets/logo-sd.jpeg';
 import { WorshipPlayer } from '@/components/WorshipPlayer';
 import InternalChat from '@/components/chat/InternalChat';
+import AppointmentsPanel from '@/components/client/AppointmentsPanel';
 import { supabase } from '@/integrations/supabase/client';
 const db = supabase as any;
 import { 
