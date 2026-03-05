@@ -1099,7 +1099,7 @@ const App: React.FC = () => {
 
       {/* LOGIN SCREENS */}
       {authState === 'SELECT' && (
-        <div className="fixed inset-0 z-50 isolate pointer-events-none bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center md:justify-center overflow-y-auto overflow-x-hidden">
+        <div className="fixed inset-0 z-50 isolate bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center justify-start md:justify-center overflow-y-auto overflow-x-hidden">
           {/* Animated particle background */}
           <AnimatedBackground />
           {/* Efeitos de fundo - Dark Premium */}
