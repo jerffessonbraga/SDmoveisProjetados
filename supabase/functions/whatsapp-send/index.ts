@@ -20,18 +20,18 @@ serve(async (req) => {
     const EVOLUTION_API_URL = Deno.env.get("EVOLUTION_API_URL");
     const EVOLUTION_API_KEY = Deno.env.get("EVOLUTION_API_KEY");
 
-    const { conversationId, message, phoneNumber } = await req.json();
+    const { conversationId, message, phoneNumber, phone } = await req.json();
 
-    if (!conversationId || !message) {
+    if (!message) {
       return new Response(
-        JSON.stringify({ error: "conversationId and message are required" }),
+        JSON.stringify({ error: "message is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Get conversation phone number if not provided
-    let targetPhone = phoneNumber;
-    if (!targetPhone) {
+    // Get target phone number from params or conversation
+    let targetPhone = phoneNumber || phone;
+    if (!targetPhone && conversationId) {
       const { data: conv } = await supabase
         .from("whatsapp_conversations")
         .select("phone_number")
@@ -42,7 +42,7 @@ serve(async (req) => {
 
     if (!targetPhone) {
       return new Response(
-        JSON.stringify({ error: "Could not determine phone number" }),
+        JSON.stringify({ error: "Could not determine phone number. Provide conversationId, phoneNumber, or phone." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -83,29 +83,33 @@ serve(async (req) => {
       console.log("Evolution API not configured, running in simulation mode");
     }
 
-    // Save message to database regardless of send mode
-    const { data: savedMsg, error: msgError } = await supabase
-      .from("whatsapp_messages")
-      .insert({
-        conversation_id: conversationId,
-        direction: "outbound",
-        content: message,
-        status: sendResult.sent ? "delivered" : "pending",
-        message_type: "text",
-      })
-      .select()
-      .single();
+    // Save message to database only if we have a conversationId
+    let savedMsg = null;
+    if (conversationId) {
+      const { data, error: msgError } = await supabase
+        .from("whatsapp_messages")
+        .insert({
+          conversation_id: conversationId,
+          direction: "outbound",
+          content: message,
+          status: sendResult.sent ? "delivered" : "pending",
+          message_type: "text",
+        })
+        .select()
+        .single();
 
-    if (msgError) {
-      console.error("Error saving message:", msgError);
-      throw msgError;
+      if (msgError) {
+        console.error("Error saving message:", msgError);
+        throw msgError;
+      }
+      savedMsg = data;
+
+      // Update last_message_at
+      await supabase
+        .from("whatsapp_conversations")
+        .update({ last_message_at: new Date().toISOString() })
+        .eq("id", conversationId);
     }
-
-    // Update last_message_at
-    await supabase
-      .from("whatsapp_conversations")
-      .update({ last_message_at: new Date().toISOString() })
-      .eq("id", conversationId);
 
     return new Response(
       JSON.stringify({
