@@ -1305,7 +1305,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Card de Login - Design Premium Dark */}
-          <div className="relative z-10 w-[90vw] sm:w-[420px] max-w-[420px] my-auto py-8 pointer-events-auto">
+          <div className="relative z-10 w-[90vw] sm:w-[420px] max-w-[420px] my-auto py-8">
             {/* Glow atrás do card */}
             <div className="absolute -inset-4 bg-gradient-to-b from-amber-500/20 via-amber-600/10 to-transparent rounded-[50px] blur-xl" />
             
