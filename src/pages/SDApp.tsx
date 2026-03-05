@@ -366,7 +366,7 @@ const App: React.FC = () => {
             <img src={logoSD} alt="SD" className="w-full h-full object-cover" />
           </button>
 
-          <nav className="flex-1 flex sm:flex-col items-center gap-1 sm:gap-2 sm:mt-6 px-2 sm:px-0">
+          <nav className="flex-1 flex sm:flex-col items-center gap-1 sm:gap-2 sm:mt-6 px-2 sm:px-0 min-w-0 overflow-x-auto sm:overflow-x-hidden sm:overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
             {authState === 'ADMIN' ? (
               <>
                 <NavIcon icon="layout-dashboard" label="Início" active={view === ViewMode.DASHBOARD} onClick={() => setView(ViewMode.DASHBOARD)} />
