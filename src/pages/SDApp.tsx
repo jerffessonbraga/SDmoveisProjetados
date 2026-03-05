@@ -1129,7 +1129,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Conteúdo Central */}
-          <div className="relative z-10 flex flex-col items-center mt-20 md:mt-16 px-4 pb-32 md:pb-8 w-full pointer-events-auto">
+          <div className="relative z-10 flex flex-col items-center mt-20 md:mt-16 px-4 pb-8 w-full">
 
             {/* Título */}
             <h1 className="text-2xl md:text-4xl font-black text-white mb-2 tracking-tight text-center">
