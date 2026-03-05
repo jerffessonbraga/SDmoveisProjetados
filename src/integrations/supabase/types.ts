@@ -153,6 +153,66 @@ export type Database = {
           },
         ]
       }
+      appointments: {
+        Row: {
+          admin_notes: string | null
+          client_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          preferred_date: string
+          preferred_time: string
+          project_id: string | null
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          client_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          preferred_date: string
+          preferred_time?: string
+          project_id?: string | null
+          status?: string
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          client_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          preferred_date?: string
+          preferred_time?: string
+          project_id?: string | null
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "client_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cash_register: {
         Row: {
           amount: number

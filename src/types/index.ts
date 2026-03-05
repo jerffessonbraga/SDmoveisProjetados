@@ -22,6 +22,7 @@ export enum ViewMode {
   CONTRACTS_MGMT = 'CONTRACTS_MGMT',
   DASHBOARD_3D = 'DASHBOARD_3D',
   INTERNAL_CHAT = 'INTERNAL_CHAT',
+  APPOINTMENTS = 'APPOINTMENTS',
 }
 
 export enum ToolMode {
