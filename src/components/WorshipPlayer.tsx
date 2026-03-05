@@ -26,7 +26,16 @@ export const WorshipPlayer: React.FC<WorshipPlayerProps> = ({
   onNext,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const isMobile = useIsMobile();
+  const isMobileBreakpoint = useIsMobile();
+  
+  // Detect actual mobile/touch devices (not just screen width)
+  // This prevents landscape mode on phones from triggering desktop layout
+  const isTouchDevice = typeof navigator !== 'undefined' && (
+    'ontouchstart' in window || 
+    navigator.maxTouchPoints > 0 ||
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+  );
+  const isMobile = isMobileBreakpoint || isTouchDevice;
 
   // No mobile: renderiza inline (não fixed), sem z-index alto
   // No desktop: fixed bottom-right com hover expand
