@@ -1136,13 +1136,13 @@ const App: React.FC = () => {
             <p className="text-gray-400 text-sm mb-6 md:mb-12">Selecione seu tipo de acesso</p>
 
             {/* Cards de seleção */}
-            <div className="flex flex-col md:flex-row gap-4 md:gap-8 relative w-full items-center max-w-sm md:max-w-none mx-auto">
+            <div className="flex flex-col lg:flex-row gap-4 md:gap-8 relative w-full items-center max-w-sm lg:max-w-none mx-auto">
               <Card3D intensity={10}>
               {/* Card Administrador - Preto com borda dourada */}
               <button 
                 type="button"
                 onClick={() => { setSelectedRole('ADMIN'); setAuthState('LOGIN'); }}
-                className="group relative w-full md:w-72 h-40 md:h-72 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden touch-manipulation select-none"
+                className="group relative w-full lg:w-72 h-40 md:h-72 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden touch-manipulation select-none"
               >
                 {/* Fundo preto elegante */}
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-950 to-black rounded-[32px]" />
@@ -1180,7 +1180,7 @@ const App: React.FC = () => {
               <button
                 type="button"
                 onClick={() => { setSelectedRole('CLIENT'); setAuthState('LOGIN'); }}
-                className="group relative w-full md:w-72 h-40 md:h-72 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden touch-manipulation select-none"
+                className="group relative w-full lg:w-72 h-40 md:h-72 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden touch-manipulation select-none"
               >
                 {/* Fundo com gradiente dourado sutil */}
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950 rounded-[32px]" />
@@ -1220,7 +1220,7 @@ const App: React.FC = () => {
               <button 
                 type="button"
                 onClick={() => { setSelectedRole('EMPLOYEE'); setAuthState('LOGIN'); }}
-                className="group relative w-full md:w-72 h-40 md:h-72 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden touch-manipulation select-none"
+                className="group relative w-full lg:w-72 h-40 md:h-72 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden touch-manipulation select-none"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950 rounded-[32px]" />
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-green-600/5 rounded-[32px]" />
