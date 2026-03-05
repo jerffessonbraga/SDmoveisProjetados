@@ -20,11 +20,11 @@ serve(async (req) => {
     const EVOLUTION_API_URL = Deno.env.get("EVOLUTION_API_URL");
     const EVOLUTION_API_KEY = Deno.env.get("EVOLUTION_API_KEY");
 
-    const { conversationId, message, phoneNumber } = await req.json();
+    const { conversationId, message, phoneNumber, phone } = await req.json();
 
-    if (!conversationId || !message) {
+    if (!message) {
       return new Response(
-        JSON.stringify({ error: "conversationId and message are required" }),
+        JSON.stringify({ error: "message is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
