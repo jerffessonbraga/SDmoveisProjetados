@@ -27,12 +27,12 @@ export const WorshipPlayer: React.FC<WorshipPlayerProps> = ({
 
   return (
     <div
-      className="fixed bottom-6 right-6 z-10 pointer-events-auto"
+      className="fixed bottom-6 right-6 z-10 pointer-events-none"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className={`flex items-center gap-3 backdrop-blur-xl px-4 py-3 rounded-2xl shadow-2xl border transition-all duration-300 ${
+        className={`flex items-center gap-3 backdrop-blur-xl px-4 py-3 rounded-2xl shadow-2xl border transition-all duration-300 pointer-events-auto w-fit ml-auto ${
           isHovered
             ? 'bg-black/90 border-amber-500/20 opacity-100 scale-100'
             : 'bg-black/10 border-transparent opacity-30 scale-95'
