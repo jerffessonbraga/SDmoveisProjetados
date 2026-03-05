@@ -140,7 +140,7 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
       .select('*')
       .eq('employee_id', empId)
       .eq('status', 'completed')
-      .order('ended_at', { ascending: false })
+      .order('started_at', { ascending: false })
       .limit(10);
 
     if (recent) setRecentTrips(recent as Trip[]);
@@ -281,13 +281,24 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
     stopTracking();
     await sendLocation(activeTrip.id);
 
-    const { error } = await db
+    const endedAt = new Date().toISOString();
+
+    let { error } = await db
       .from('trips')
       .update({ 
         status: 'completed', 
-        ended_at: new Date().toISOString() 
+        ended_at: endedAt
       } as any)
       .eq('id', activeTrip.id);
+
+    // Fallback para ambientes com cache de schema desatualizado (coluna ended_at indisponível)
+    if (error?.message?.includes("ended_at")) {
+      const fallback = await db
+        .from('trips')
+        .update({ status: 'completed' } as any)
+        .eq('id', activeTrip.id);
+      error = fallback.error;
+    }
 
     if (error) {
       toast({ title: '❌ Erro ao finalizar', description: error.message, variant: 'destructive' });
@@ -631,7 +642,7 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
                 </span>
                 <span className="font-bold text-foreground">
                   <Clock className="w-3 h-3 inline mr-1" />
-                  {calcDuration(trip.started_at, trip.ended_at)}
+                  {calcDuration(trip.started_at, trip.ended_at ?? trip.started_at)}
                 </span>
               </div>
             </div>
