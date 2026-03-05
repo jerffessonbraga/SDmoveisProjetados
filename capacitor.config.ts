@@ -3,7 +3,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const isLiveReload = process.env.CAP_LIVE_RELOAD === 'true';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.6022537e682148b5a0683f599516f310',
+  appId: 'app.lovable.sdmoveis',
   appName: 'SD Móveis Projetados',
   webDir: 'dist',
   android: {
