@@ -456,7 +456,11 @@ const App: React.FC = () => {
         />
       )}
 
-      <main className="flex-1 overflow-hidden relative order-1 sm:order-none min-h-0">
+      <main
+        className={`flex-1 overflow-hidden relative order-1 sm:order-none min-h-0 ${
+          authState === 'SELECT' || authState === 'LOGIN' ? 'pointer-events-none' : 'pointer-events-auto'
+        }`}
+      >
         {/* Animated particle background */}
         {(authState === 'ADMIN' || authState === 'CLIENT' || authState === 'EMPLOYEE') && (
           <AnimatedBackground />
@@ -1093,7 +1097,7 @@ const App: React.FC = () => {
 
       {/* LOGIN SCREENS */}
       {authState === 'SELECT' && (
-        <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center md:justify-center overflow-y-auto overflow-x-hidden">
+        <div className="fixed inset-0 z-50 isolate pointer-events-auto bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center md:justify-center overflow-y-auto overflow-x-hidden">
           {/* Animated particle background */}
           <AnimatedBackground />
           {/* Efeitos de fundo - Dark Premium */}
@@ -1136,8 +1140,9 @@ const App: React.FC = () => {
               <Card3D intensity={10}>
               {/* Card Administrador - Preto com borda dourada */}
               <button 
+                type="button"
                 onClick={() => { setSelectedRole('ADMIN'); setAuthState('LOGIN'); }}
-                className="group relative w-full md:w-72 h-40 md:h-72 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden"
+                className="group relative w-full md:w-72 h-40 md:h-72 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden touch-manipulation select-none"
               >
                 {/* Fundo preto elegante */}
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-950 to-black rounded-[32px]" />
@@ -1173,8 +1178,9 @@ const App: React.FC = () => {
               <Card3D intensity={10}>
               {/* Card Cliente - Dourado/Branco Elegante */}
               <button
+                type="button"
                 onClick={() => { setSelectedRole('CLIENT'); setAuthState('LOGIN'); }}
-                className="group relative w-full md:w-72 h-40 md:h-72 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden"
+                className="group relative w-full md:w-72 h-40 md:h-72 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden touch-manipulation select-none"
               >
                 {/* Fundo com gradiente dourado sutil */}
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950 rounded-[32px]" />
@@ -1212,8 +1218,9 @@ const App: React.FC = () => {
               <Card3D intensity={10}>
               {/* Card Funcionário */}
               <button 
+                type="button"
                 onClick={() => { setSelectedRole('EMPLOYEE'); setAuthState('LOGIN'); }}
-                className="group relative w-full md:w-72 h-40 md:h-72 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden"
+                className="group relative w-full md:w-72 h-40 md:h-72 rounded-[24px] md:rounded-[32px] p-4 md:p-6 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden touch-manipulation select-none"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950 rounded-[32px]" />
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-green-600/5 rounded-[32px]" />
@@ -1265,7 +1272,7 @@ const App: React.FC = () => {
       )}
 
       {authState === 'LOGIN' && (
-        <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black flex items-center justify-center overflow-y-auto overflow-x-hidden">
+        <div className="fixed inset-0 z-50 isolate pointer-events-auto bg-gradient-to-br from-gray-950 via-gray-900 to-black flex items-center justify-center overflow-y-auto overflow-x-hidden">
           {/* Efeitos de fundo premium escuro */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-amber-500/8 rounded-full blur-[120px]" />
