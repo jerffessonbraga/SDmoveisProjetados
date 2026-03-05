@@ -345,3 +345,12 @@
 ::selection {
   @apply bg-primary/20 text-foreground;
 }
+
+/* Hide scrollbar for nav */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
