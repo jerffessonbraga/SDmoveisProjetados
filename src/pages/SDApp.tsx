@@ -358,7 +358,7 @@ const App: React.FC = () => {
     <div className="h-screen w-screen flex flex-col sm:flex-row bg-background overflow-hidden relative">
       {/* SIDEBAR */}
       {(authState === 'ADMIN' || authState === 'CLIENT' || authState === 'EMPLOYEE') && (
-        <aside className="order-2 sm:order-none w-full sm:w-24 h-16 sm:h-auto flex sm:flex-col items-center sm:py-4 gap-0 sm:gap-2 sm:min-h-0 overflow-x-auto sm:overflow-y-auto sm:overflow-x-hidden relative z-10 backdrop-blur-xl border-t sm:border-t-0 sm:border-r border-sidebar-border/30 flex-nowrap" style={{ background: 'linear-gradient(180deg, hsl(var(--sidebar-background) / 0.92) 0%, hsl(var(--sidebar-background) / 0.98) 100%)', boxShadow: '4px 0 30px hsl(var(--primary) / 0.08), inset -1px 0 0 hsl(var(--primary) / 0.06)', WebkitOverflowScrolling: 'touch' }}>
+        <aside className="order-2 sm:order-none w-full sm:w-24 h-16 sm:h-auto flex sm:flex-col items-center sm:py-4 gap-0 sm:gap-2 sm:min-h-0 overflow-hidden sm:overflow-y-auto sm:overflow-x-hidden relative z-10 backdrop-blur-xl border-t sm:border-t-0 sm:border-r border-sidebar-border/30 flex-nowrap" style={{ background: 'linear-gradient(180deg, hsl(var(--sidebar-background) / 0.92) 0%, hsl(var(--sidebar-background) / 0.98) 100%)', boxShadow: '4px 0 30px hsl(var(--primary) / 0.08), inset -1px 0 0 hsl(var(--primary) / 0.06)', WebkitOverflowScrolling: 'touch', paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <button 
             onClick={() => setView(authState === 'ADMIN' ? ViewMode.DASHBOARD : authState === 'EMPLOYEE' ? ViewMode.TIME_TRACKING : ViewMode.CLIENT_PORTAL)}
             className="hidden sm:block w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary shadow-glow hover:scale-110 transition-all duration-300 flex-shrink-0"
@@ -366,7 +366,7 @@ const App: React.FC = () => {
             <img src={logoSD} alt="SD" className="w-full h-full object-cover" />
           </button>
 
-          <nav className="flex-1 flex sm:flex-col items-center gap-0 sm:gap-2 sm:mt-6 px-1 sm:px-0 min-w-0 overflow-x-auto sm:overflow-x-hidden sm:overflow-y-auto flex-nowrap scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <nav className="flex-1 flex sm:flex-col items-center sm:items-center justify-start gap-0 sm:gap-2 sm:mt-6 px-1 sm:px-0 w-full min-w-0 overflow-x-auto sm:overflow-x-hidden sm:overflow-y-auto flex-nowrap scrollbar-hide touch-pan-x" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x', overscrollBehaviorX: 'contain' }}>
             {authState === 'ADMIN' ? (
               <>
                 <NavIcon icon="layout-dashboard" label="Início" active={view === ViewMode.DASHBOARD} onClick={() => setView(ViewMode.DASHBOARD)} />
