@@ -150,6 +150,23 @@ const App: React.FC = () => {
   const [clientTimeline, setClientTimeline] = useState<any[]>([]);
   const [clientName, setClientName] = useState('');
 
+  // ===== MODO TESTE TEMPORÁRIO =====
+  // Acesse com ?teste=admin, ?teste=client ou ?teste=employee
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const teste = params.get('teste');
+    if (teste === 'admin') {
+      setAuthState('ADMIN');
+      setView(ViewMode.DASHBOARD);
+    } else if (teste === 'client') {
+      setAuthState('CLIENT');
+      setView(ViewMode.CLIENT_PORTAL);
+    } else if (teste === 'employee') {
+      setAuthState('EMPLOYEE');
+      setView(ViewMode.TIME_TRACKING);
+    }
+  }, []);
+
   // Fetch dashboard data from DB when admin logs in
   useEffect(() => {
     if (authState === 'ADMIN') {
