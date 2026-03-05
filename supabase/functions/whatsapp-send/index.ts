@@ -29,9 +29,9 @@ serve(async (req) => {
       );
     }
 
-    // Get conversation phone number if not provided
-    let targetPhone = phoneNumber;
-    if (!targetPhone) {
+    // Get target phone number from params or conversation
+    let targetPhone = phoneNumber || phone;
+    if (!targetPhone && conversationId) {
       const { data: conv } = await supabase
         .from("whatsapp_conversations")
         .select("phone_number")
@@ -42,7 +42,7 @@ serve(async (req) => {
 
     if (!targetPhone) {
       return new Response(
-        JSON.stringify({ error: "Could not determine phone number" }),
+        JSON.stringify({ error: "Could not determine phone number. Provide conversationId, phoneNumber, or phone." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
