@@ -1068,8 +1068,8 @@ const App: React.FC = () => {
         )}
 
         {/* APPOINTMENTS */}
-        {view === ViewMode.APPOINTMENTS && authState === 'CLIENT' && (
-          <AppointmentsPanel clientName={clientName} />
+        {view === ViewMode.APPOINTMENTS && authState === 'ADMIN' && (
+          <AppointmentsPanel />
         )}
 
         {/* WARRANTY CERTIFICATE */}
