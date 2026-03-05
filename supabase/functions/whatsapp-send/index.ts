@@ -83,29 +83,33 @@ serve(async (req) => {
       console.log("Evolution API not configured, running in simulation mode");
     }
 
-    // Save message to database regardless of send mode
-    const { data: savedMsg, error: msgError } = await supabase
-      .from("whatsapp_messages")
-      .insert({
-        conversation_id: conversationId,
-        direction: "outbound",
-        content: message,
-        status: sendResult.sent ? "delivered" : "pending",
-        message_type: "text",
-      })
-      .select()
-      .single();
+    // Save message to database only if we have a conversationId
+    let savedMsg = null;
+    if (conversationId) {
+      const { data, error: msgError } = await supabase
+        .from("whatsapp_messages")
+        .insert({
+          conversation_id: conversationId,
+          direction: "outbound",
+          content: message,
+          status: sendResult.sent ? "delivered" : "pending",
+          message_type: "text",
+        })
+        .select()
+        .single();
 
-    if (msgError) {
-      console.error("Error saving message:", msgError);
-      throw msgError;
+      if (msgError) {
+        console.error("Error saving message:", msgError);
+        throw msgError;
+      }
+      savedMsg = data;
+
+      // Update last_message_at
+      await supabase
+        .from("whatsapp_conversations")
+        .update({ last_message_at: new Date().toISOString() })
+        .eq("id", conversationId);
     }
-
-    // Update last_message_at
-    await supabase
-      .from("whatsapp_conversations")
-      .update({ last_message_at: new Date().toISOString() })
-      .eq("id", conversationId);
 
     return new Response(
       JSON.stringify({
