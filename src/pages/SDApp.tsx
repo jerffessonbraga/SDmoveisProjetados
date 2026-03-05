@@ -1097,7 +1097,7 @@ const App: React.FC = () => {
 
       {/* LOGIN SCREENS */}
       {authState === 'SELECT' && (
-        <div className="fixed inset-0 z-50 isolate pointer-events-auto bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center md:justify-center overflow-y-auto overflow-x-hidden">
+        <div className="fixed inset-0 z-50 isolate pointer-events-none bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center md:justify-center overflow-y-auto overflow-x-hidden">
           {/* Animated particle background */}
           <AnimatedBackground />
           {/* Efeitos de fundo - Dark Premium */}
@@ -1127,7 +1127,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Conteúdo Central */}
-          <div className="relative z-10 flex flex-col items-center mt-20 md:mt-16 px-4 pb-32 md:pb-8 w-full">
+          <div className="relative z-10 flex flex-col items-center mt-20 md:mt-16 px-4 pb-32 md:pb-8 w-full pointer-events-auto">
 
             {/* Título */}
             <h1 className="text-2xl md:text-4xl font-black text-white mb-2 tracking-tight text-center">
@@ -1301,7 +1301,7 @@ const App: React.FC = () => {
       )}
 
       {authState === 'LOGIN' && (
-        <div className="fixed inset-0 z-50 isolate pointer-events-auto bg-gradient-to-br from-gray-950 via-gray-900 to-black flex items-center justify-center overflow-y-auto overflow-x-hidden">
+        <div className="fixed inset-0 z-50 isolate pointer-events-none bg-gradient-to-br from-gray-950 via-gray-900 to-black flex items-center justify-center overflow-y-auto overflow-x-hidden">
           {/* Efeitos de fundo premium escuro */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-amber-500/8 rounded-full blur-[120px]" />
@@ -1316,7 +1316,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Card de Login - Design Premium Dark */}
-          <div className="relative z-10 w-[90vw] sm:w-[420px] max-w-[420px] my-auto py-8">
+          <div className="relative z-10 w-[90vw] sm:w-[420px] max-w-[420px] my-auto py-8 pointer-events-auto">
             {/* Glow atrás do card */}
             <div className="absolute -inset-4 bg-gradient-to-b from-amber-500/20 via-amber-600/10 to-transparent rounded-[50px] blur-xl" />
             
