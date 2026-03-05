@@ -55,6 +55,8 @@ import {
   MapPin,
   Camera,
   Play,
+  Pause,
+  SkipForward,
   ChevronRight,
   Settings,
   Bell,
