@@ -8,6 +8,10 @@ const config: CapacitorConfig = {
     url: 'https://6022537e-6821-48b5-a068-3f599516f310.lovableproject.com?forceHideBadge=true',
     cleartext: true,
   },
+  android: {
+    allowMixedContent: true,
+    overrideUserAgent: 'SD Moveis App Android',
+  },
 };
 
 export default config;
