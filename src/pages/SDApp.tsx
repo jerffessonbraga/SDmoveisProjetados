@@ -459,9 +459,7 @@ const App: React.FC = () => {
       )}
 
       <main
-        className={`flex-1 overflow-hidden relative order-1 sm:order-none min-h-0 ${
-          authState === 'SELECT' || authState === 'LOGIN' ? 'pointer-events-none' : 'pointer-events-auto'
-        }`}
+        className="flex-1 overflow-hidden relative order-1 sm:order-none min-h-0"
       >
         {/* Animated particle background */}
         {(authState === 'ADMIN' || authState === 'CLIENT' || authState === 'EMPLOYEE') && (
@@ -1099,7 +1097,7 @@ const App: React.FC = () => {
 
       {/* LOGIN SCREENS */}
       {authState === 'SELECT' && (
-        <div className="fixed inset-0 z-50 isolate pointer-events-none bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center md:justify-center overflow-y-auto overflow-x-hidden">
+        <div className="fixed inset-0 z-50 isolate bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center justify-start md:justify-center overflow-y-auto overflow-x-hidden">
           {/* Animated particle background */}
           <AnimatedBackground />
           {/* Efeitos de fundo - Dark Premium */}
@@ -1129,7 +1127,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Conteúdo Central */}
-          <div className="relative z-10 flex flex-col items-center mt-20 md:mt-16 px-4 pb-32 md:pb-8 w-full pointer-events-auto">
+          <div className="relative z-10 flex flex-col items-center mt-20 md:mt-16 px-4 pb-8 w-full">
 
             {/* Título */}
             <h1 className="text-2xl md:text-4xl font-black text-white mb-2 tracking-tight text-center">
@@ -1249,43 +1247,30 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Player de Louvor na tela de seleção - só desktop */}
-          {!isMobile && (
-            <WorshipPlayer
-              currentLouvor={currentLouvor}
-              isPlaying={isPlaying}
-              onPlay={playLouvor}
-              onStop={stopLouvor}
-              onNext={nextLouvor}
-            />
-          )}
-
-          {/* Mini player mobile - botão simples que não bloqueia nada */}
-          {isMobile && (
-            <div className="w-full px-4 mt-4 pb-4">
+          {/* Player de Louvor na tela de seleção - inline */}
+          <div className="w-full max-w-sm lg:max-w-md mx-auto px-4 mt-6 pb-4">
+            <button
+              type="button"
+              onClick={isPlaying ? stopLouvor : playLouvor}
+              className="flex items-center gap-3 w-full bg-black/80 border border-amber-500/20 rounded-2xl px-3 py-2 touch-manipulation select-none"
+            >
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center text-black shrink-0 shadow-lg shadow-amber-500/30">
+                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+              </div>
+              <div className="text-left flex-1 min-w-0">
+                <p className="text-amber-400 text-[10px] font-bold uppercase tracking-wider">Tocando</p>
+                <p className="text-white text-sm font-medium truncate">{currentLouvor.title}</p>
+                <p className="text-gray-500 text-xs truncate">{currentLouvor.artist}</p>
+              </div>
               <button
                 type="button"
-                onClick={isPlaying ? stopLouvor : playLouvor}
-                className="flex items-center gap-3 w-full bg-black/80 border border-amber-500/20 rounded-2xl px-3 py-2 touch-manipulation select-none"
+                onClick={(e) => { e.stopPropagation(); nextLouvor(); }}
+                className="text-gray-500 active:text-amber-400 p-2 rounded-lg touch-manipulation select-none shrink-0"
               >
-                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center text-black shrink-0 shadow-lg shadow-amber-500/30">
-                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
-                </div>
-                <div className="text-left flex-1 min-w-0">
-                  <p className="text-amber-400 text-[10px] font-bold uppercase tracking-wider">Tocando</p>
-                  <p className="text-white text-sm font-medium truncate">{currentLouvor.title}</p>
-                  <p className="text-gray-500 text-xs truncate">{currentLouvor.artist}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); nextLouvor(); }}
-                  className="text-gray-500 active:text-amber-400 p-2 rounded-lg touch-manipulation select-none shrink-0"
-                >
-                  <SkipForward className="w-4 h-4" />
-                </button>
+                <SkipForward className="w-4 h-4" />
               </button>
-            </div>
-          )}
+            </button>
+          </div>
 
           {/* Footer - Canto inferior esquerdo */}
           <div className="absolute bottom-8 left-8 z-10 hidden md:block">
@@ -1303,7 +1288,7 @@ const App: React.FC = () => {
       )}
 
       {authState === 'LOGIN' && (
-        <div className="fixed inset-0 z-50 isolate pointer-events-none bg-gradient-to-br from-gray-950 via-gray-900 to-black flex items-center justify-center overflow-y-auto overflow-x-hidden">
+        <div className="fixed inset-0 z-50 isolate bg-gradient-to-br from-gray-950 via-gray-900 to-black flex flex-col items-center justify-center overflow-y-auto overflow-x-hidden">
           {/* Efeitos de fundo premium escuro */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-amber-500/8 rounded-full blur-[120px]" />
@@ -1318,7 +1303,7 @@ const App: React.FC = () => {
           </div>
 
           {/* Card de Login - Design Premium Dark */}
-          <div className="relative z-10 w-[90vw] sm:w-[420px] max-w-[420px] my-auto py-8 pointer-events-auto">
+          <div className="relative z-10 w-[90vw] sm:w-[420px] max-w-[420px] my-auto py-8">
             {/* Glow atrás do card */}
             <div className="absolute -inset-4 bg-gradient-to-b from-amber-500/20 via-amber-600/10 to-transparent rounded-[50px] blur-xl" />
             
@@ -1415,36 +1400,30 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Player de Louvor na tela de Login - só desktop */}
-          {!isMobile && (
-            <WorshipPlayer
-              currentLouvor={currentLouvor}
-              isPlaying={isPlaying}
-              onPlay={playLouvor}
-              onStop={stopLouvor}
-              onNext={nextLouvor}
-            />
-          )}
-
-          {/* Mini player mobile na tela de login */}
-          {isMobile && (
-            <div className="w-full px-4 mt-4 pb-4">
+          {/* Player de Louvor inline na tela de Login */}
+          <div className="w-[90vw] sm:w-[420px] max-w-[420px] mt-4 pb-4">
+            <button
+              type="button"
+              onClick={isPlaying ? stopLouvor : playLouvor}
+              className="flex items-center gap-3 w-full bg-black/80 border border-amber-500/20 rounded-2xl px-3 py-2 touch-manipulation select-none"
+            >
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center text-black shrink-0 shadow-lg shadow-amber-500/30">
+                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+              </div>
+              <div className="text-left flex-1 min-w-0">
+                <p className="text-amber-400 text-[10px] font-bold uppercase tracking-wider">Tocando</p>
+                <p className="text-white text-sm font-medium truncate">{currentLouvor.title}</p>
+                <p className="text-gray-500 text-xs truncate">{currentLouvor.artist}</p>
+              </div>
               <button
                 type="button"
-                onClick={isPlaying ? stopLouvor : playLouvor}
-                className="flex items-center gap-3 w-full bg-black/80 border border-amber-500/20 rounded-2xl px-3 py-2 touch-manipulation select-none"
+                onClick={(e) => { e.stopPropagation(); nextLouvor(); }}
+                className="text-gray-500 active:text-amber-400 p-2 rounded-lg touch-manipulation select-none shrink-0"
               >
-                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center text-black shrink-0 shadow-lg shadow-amber-500/30">
-                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
-                </div>
-                <div className="text-left flex-1 min-w-0">
-                  <p className="text-amber-400 text-[10px] font-bold uppercase tracking-wider">Tocando</p>
-                  <p className="text-white text-sm font-medium truncate">{currentLouvor.title}</p>
-                  <p className="text-gray-500 text-xs truncate">{currentLouvor.artist}</p>
-                </div>
+                <SkipForward className="w-4 h-4" />
               </button>
-            </div>
-          )}
+            </button>
+          </div>
 
           {/* Footer */}
           <div className="absolute bottom-6 left-6 pointer-events-none">
