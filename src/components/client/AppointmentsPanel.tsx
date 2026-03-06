@@ -74,7 +74,7 @@ const AppointmentsPanel: React.FC<AppointmentsPanelProps> = ({ clientId, clientN
 
   const fetchAppointments = async () => {
     setLoading(true);
-    let query = db.from('appointments').select('*').order('preferred_date', { ascending: true });
+    let query = supabase.from('appointments').select('*').order('preferred_date', { ascending: true });
     if (clientId) query = query.eq('client_id', clientId);
     const { data, error } = await query;
     if (!error && data) setAppointments(data);
@@ -89,7 +89,7 @@ const AppointmentsPanel: React.FC<AppointmentsPanelProps> = ({ clientId, clientN
 
     setSubmitting(true);
 
-    const { error } = await db.from('appointments').insert({
+    const { error } = await supabase.from('appointments').insert({
       client_id: clientId || null,
       project_id: projectId || null,
       type,
