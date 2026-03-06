@@ -128,6 +128,7 @@ const App: React.FC = () => {
   const isCompactLayout = isMobile || isTouchDevice;
   const [authState, setAuthState] = useState<'SELECT' | 'LOGIN' | 'ADMIN' | 'CLIENT' | 'EMPLOYEE'>('SELECT');
   const [selectedRole, setSelectedRole] = useState<'ADMIN' | 'CLIENT' | 'EMPLOYEE'>('ADMIN');
+  const [employeeName, setEmployeeName] = useState('');
   const [employeeId, setEmployeeId] = useState('');
   const [password, setPassword] = useState("");
   const [view, setView] = useState(ViewMode.DASHBOARD);
