@@ -12,7 +12,7 @@ interface ContractGeneratorProps {
   onSaved?: () => void;
 }
 
-const db = supabase as any;
+
 
 const ContractGenerator: React.FC<ContractGeneratorProps> = ({ templateType, clients, onClose, onSaved }) => {
   const { toast } = useToast();
