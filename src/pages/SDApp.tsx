@@ -152,6 +152,16 @@ const App: React.FC = () => {
   const [clientTimeline, setClientTimeline] = useState<any[]>([]);
   const [clientName, setClientName] = useState('');
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    setIsTouchDevice(
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0 ||
+      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    );
+  }, []);
+
   // ===== MODO TESTE TEMPORÁRIO =====
   // Acesse com ?teste=admin, ?teste=client ou ?teste=employee
   useEffect(() => {
