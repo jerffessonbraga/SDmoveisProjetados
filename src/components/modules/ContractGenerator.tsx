@@ -12,7 +12,7 @@ interface ContractGeneratorProps {
   onSaved?: () => void;
 }
 
-const db = supabase as any;
+
 
 const ContractGenerator: React.FC<ContractGeneratorProps> = ({ templateType, clients, onClose, onSaved }) => {
   const { toast } = useToast();
@@ -126,7 +126,7 @@ const ContractGenerator: React.FC<ContractGeneratorProps> = ({ templateType, cli
       if (!finalClientId && clientName.trim()) {
         // Generate access code (6 chars)
         generatedAccessCode = 'SD' + Math.random().toString(36).substring(2, 6).toUpperCase();
-        const { data: newClient, error: clientErr } = await db.from('clients').insert({
+        const { data: newClient, error: clientErr } = await (supabase as any).from('clients').insert({
           name: clientName.trim(),
           phone: clientPhone || null,
           email: clientEmail || null,
@@ -156,7 +156,7 @@ const ContractGenerator: React.FC<ContractGeneratorProps> = ({ templateType, cli
         ? `OS - ${clientName}`
         : `Contrato - ${clientName}`;
 
-      const { error } = await db.from('contracts').insert({
+      const { error } = await (supabase as any).from('contracts').insert({
         client_id: finalClientId,
         title,
         content: editableContent,
