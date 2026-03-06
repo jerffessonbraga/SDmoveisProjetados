@@ -1646,28 +1646,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-        {/* TIME TRACKING */}
-        {view === ViewMode.TIME_TRACKING && authState === 'ADMIN' && (
-          <TimeTrackingPanel />
-        )}
-
-        {/* EMPLOYEE PORTAL */}
-        {view === ViewMode.TIME_TRACKING && authState === 'EMPLOYEE' && (
-          <EmployeePortal employeeName={employeeName} />
-        )}
-
-        {/* FLEET - ADMIN */}
-        {view === ViewMode.FLEET && authState === 'ADMIN' && (
-          <FleetAdminPanel />
-        )}
-
-        {/* FLEET - EMPLOYEE */}
-        {view === ViewMode.FLEET && authState === 'EMPLOYEE' && (
-          <div className="p-8 space-y-6 overflow-auto h-full bg-gradient-to-br from-gray-50 to-gray-100">
-            <DriverTripPanel employeeId={employeeId} employeeName={employeeName} />
-          </div>
-        )}
-
     </div>
   );
 };
