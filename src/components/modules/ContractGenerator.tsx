@@ -122,15 +122,34 @@ const ContractGenerator: React.FC<ContractGeneratorProps> = ({ templateType, cli
       let finalClientId = clientId || null;
 
       // Create client if needed
+      let generatedAccessCode = '';
       if (!finalClientId && clientName.trim()) {
+        // Generate access code (6 chars)
+        generatedAccessCode = 'SD' + Math.random().toString(36).substring(2, 6).toUpperCase();
         const { data: newClient, error: clientErr } = await db.from('clients').insert({
           name: clientName.trim(),
           phone: clientPhone || null,
           email: clientEmail || null,
           address: clientAddress || null,
+          access_code: generatedAccessCode,
         }).select('id').single();
         if (clientErr) throw clientErr;
         finalClientId = newClient.id;
+
+        // Send WhatsApp with app link and password
+        if (clientPhone) {
+          const phone = clientPhone.replace(/\D/g, '');
+          const fullPhone = phone.startsWith('55') ? phone : `55${phone}`;
+          const appLink = 'https://id-preview--6022537e-6821-48b5-a068-3f599516f310.lovable.app';
+          const message = `🏠 *SD Móveis Projetados*\n\nOlá ${clientName.trim()}! Seu cadastro foi realizado com sucesso.\n\n📱 *Acesse nosso app:*\n${appLink}\n\n🔐 *Sua senha de acesso:*\n${generatedAccessCode}\n\nSelecione "Cliente" na tela inicial e use sua senha para acompanhar seu projeto!\n\n_SD Móveis - Transformando sonhos em realidade_`;
+          try {
+            await supabase.functions.invoke('whatsapp-send', {
+              body: { phone: fullPhone, message },
+            });
+          } catch (whatsErr) {
+            console.error('Erro ao enviar WhatsApp:', whatsErr);
+          }
+        }
       }
 
       const title = templateType === 'ordem_servico'
