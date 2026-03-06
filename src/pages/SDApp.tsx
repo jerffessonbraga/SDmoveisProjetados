@@ -429,8 +429,7 @@ const App: React.FC = () => {
             {authState === 'ADMIN' ? (
               <>
                 <NavIcon icon="layout-dashboard" label="Início" active={view === ViewMode.DASHBOARD} onClick={() => setView(ViewMode.DASHBOARD)} />
-                {!isMobile && <NavIcon icon="cube" label="3D" active={view === ViewMode.DASHBOARD_3D} onClick={() => setView(ViewMode.DASHBOARD_3D)} />}
-                {!isMobile && <NavIcon icon="box" label="Promob SD" active={view === ViewMode.PROMOB} onClick={() => setView(ViewMode.PROMOB)} />}
+                <NavIcon icon="cube" label="3D" active={view === ViewMode.DASHBOARD_3D} onClick={() => setView(ViewMode.DASHBOARD_3D)} />
                 <NavIcon icon="file-text" label="Vendas" active={view === ViewMode.CONTRACTS} onClick={() => setView(ViewMode.CONTRACTS)} />
                 <NavIcon icon="building" label="Fornecedores" active={view === ViewMode.SUPPLIERS} onClick={() => setView(ViewMode.SUPPLIERS)} />
                 <NavIcon icon="package" label="Estoque" active={view === ViewMode.PRODUCTS} onClick={() => setView(ViewMode.PRODUCTS)} />
