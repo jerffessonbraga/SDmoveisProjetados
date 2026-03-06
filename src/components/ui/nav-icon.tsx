@@ -58,7 +58,7 @@ export const NavIcon: React.FC<NavIconProps> = ({ icon, label, active, onClick, 
     <button 
       onClick={onClick} 
       className={cn(
-        "group relative flex flex-col items-center justify-start gap-0.5 sm:gap-1 py-1.5 sm:py-3 px-1.5 sm:px-2 rounded-xl transition-all duration-300 flex-shrink-0 min-w-[3.75rem] snap-start touch-pan-x",
+        "group relative flex flex-col items-center justify-start gap-0.5 sm:gap-1 py-1.5 sm:py-3 px-1.5 sm:px-2 rounded-xl transition-all duration-300 flex-shrink-0 min-w-[3.75rem] snap-start touch-manipulation",
         active 
           ? "text-primary" 
           : "text-sidebar-foreground/50 hover:text-sidebar-foreground"
