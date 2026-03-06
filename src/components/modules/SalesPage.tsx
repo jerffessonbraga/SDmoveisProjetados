@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, Plus, Search, Eye, Phone, Mail, DollarSign, CheckCircle, MessageCircle, Edit, X } from 'lucide-react';
+import { FileText, Search, Eye, Phone, Mail, Edit, X } from 'lucide-react';
 import { format } from 'date-fns';
-
-const db = supabase as any;
+import { Tables } from '@/integrations/supabase/types';
 
 const SalesPage: React.FC = () => {
   const { toast } = useToast();
-  const [projects, setProjects] = useState<any[]>([]);
-  const [clients, setClients] = useState<any[]>([]);
+  const [projects, setProjects] = useState<(Tables<'client_projects'> & { clients: { name: string; phone: string | null; email: string | null } | null })[]>([]);
+  const [clients, setClients] = useState<Tables<'clients'>[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -26,18 +25,18 @@ const SalesPage: React.FC = () => {
     deadline: '',
   });
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const [projRes, cliRes] = await Promise.all([
-      db.from('client_projects').select('*, clients(name, phone, email)').order('created_at', { ascending: false }),
-      db.from('clients').select('id, name, phone, email').order('name'),
+      supabase.from('client_projects').select('*, clients(name, phone, email)').order('created_at', { ascending: false }),
+      supabase.from('clients').select('id, name, phone, email').order('name'),
     ]);
-    setProjects(projRes.data || []);
-    setClients(cliRes.data || []);
+    setProjects((projRes.data as (Tables<'client_projects'> & { clients: { name: string; phone: string | null; email: string | null } | null })[]) || []);
+    setClients((cliRes.data as Tables<'clients'>[]) || []);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleSave = async () => {
     if (!form.name.trim() || !form.client_id) {
@@ -55,10 +54,10 @@ const SalesPage: React.FC = () => {
       deadline: form.deadline || null,
     };
     if (editingId) {
-      await db.from('client_projects').update(payload).eq('id', editingId);
+      await supabase.from('client_projects').update(payload).eq('id', editingId);
       toast({ title: '✅ Projeto atualizado' });
     } else {
-      await db.from('client_projects').insert(payload);
+      await supabase.from('client_projects').insert(payload);
       toast({ title: '✅ Novo projeto/venda criado' });
     }
     setShowForm(false);
@@ -67,7 +66,7 @@ const SalesPage: React.FC = () => {
   };
 
   const updateStatus = async (id: string, status: string) => {
-    await db.from('client_projects').update({ status }).eq('id', id);
+    await supabase.from('client_projects').update({ status }).eq('id', id);
     toast({ title: '✅ Status atualizado' });
     fetchData();
   };

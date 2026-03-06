@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { Tables } from '@/integrations/supabase/types';
 import { useToast } from '@/hooks/use-toast';
 import { Clock, Play, Square, DollarSign, Calendar, User, Send, CheckCircle, XCircle, Loader2, Download, Fuel } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -46,14 +47,10 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
   const [valeAmount, setValeAmount] = useState('');
   const [valeReason, setValeReason] = useState('');
   const [valeSending, setValeSending] = useState(false);
-  const [valeRequests, setValeRequests] = useState<any[]>([]);
+  const [valeRequests, setValeRequests] = useState<Tables<'advance_requests'>[]>([]);
   const [adjustments, setAdjustments] = useState<Adjustment[]>([]);
 
-  useEffect(() => {
-    fetchEmployee();
-  }, [employeeName]);
-
-  const fetchEmployee = async () => {
+  const fetchEmployee = React.useCallback(async () => {
     setLoading(true);
     const { data: empData } = await supabase
       .from('employees')
@@ -75,7 +72,11 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
       if (adjRes.data) setAdjustments(adjRes.data as Adjustment[]);
     }
     setLoading(false);
-  };
+  }, [employeeName]);
+
+  useEffect(() => {
+    fetchEmployee();
+  }, [fetchEmployee]);
 
   const clockIn = async () => {
     if (!employee) return;
