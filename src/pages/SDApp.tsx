@@ -36,7 +36,8 @@ import { WorshipPlayer } from '@/components/WorshipPlayer';
 import InternalChat from '@/components/chat/InternalChat';
 import AppointmentsPanel from '@/components/client/AppointmentsPanel';
 import { supabase } from '@/integrations/supabase/client';
-const db = supabase as any;
+import { Tables } from '@/integrations/supabase/types';
+
 import { 
   LogOut, 
   Download,
@@ -130,12 +131,11 @@ const App: React.FC = () => {
   const [employeeId, setEmployeeId] = useState('');
   const [password, setPassword] = useState("");
   const [view, setView] = useState(ViewMode.DASHBOARD);
-  const [contracts, setContracts] = useState<any[]>([]);
+  const [contracts, setContracts] = useState<(Tables<'client_projects'> & { clients: { name: string; phone: string | null; email: string | null } | null })[]>([]);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiLoadingMessage, setAiLoadingMessage] = useState("");
   const [renderResult, setRenderResult] = useState<string | null>(null);
-  const [selectedContract, setSelectedContract] = useState<any | null>(null);
-  const [showContractModal, setShowContractModal] = useState(false);
+  const [selectedContract, setSelectedContract] = useState<Tables<'client_projects'> | null>(null);
   const [currentLouvor, setCurrentLouvor] = useState(LOUVORES[Math.floor(Math.random() * LOUVORES.length)]);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -144,10 +144,10 @@ const App: React.FC = () => {
   const [galleryFullscreen, setGalleryFullscreen] = useState<{title: string; url: string} | null>(null);
   const [galleryItems, setGalleryItems] = useState<{title: string; desc: string; url: string}[]>([]);
   const [projectApproved, setProjectApproved] = useState(false);
-  const [clientProject, setClientProject] = useState<any>(null);
-  const [clientInstallments, setClientInstallments] = useState<any[]>([]);
-  const [clientProductionSteps, setClientProductionSteps] = useState<any[]>([]);
-  const [clientTimeline, setClientTimeline] = useState<any[]>([]);
+  const [clientProject, setClientProject] = useState<Tables<'client_projects'> | null>(null);
+  const [clientInstallments, setClientInstallments] = useState<Tables<'project_installments'>[]>([]);
+  const [clientProductionSteps, setClientProductionSteps] = useState<Tables<'project_production_steps'>[]>([]);
+  const [clientTimeline, setClientTimeline] = useState<Tables<'project_timeline'>[]>([]);
   const [clientName, setClientName] = useState('');
 
   // ===== MODO TESTE TEMPORÁRIO =====
@@ -171,8 +171,8 @@ const App: React.FC = () => {
   useEffect(() => {
     if (authState === 'ADMIN') {
       const fetchDashboardData = async () => {
-        const { data } = await db.from('client_projects').select('*, clients(name, phone, email)').order('created_at', { ascending: false });
-        if (data) setContracts(data);
+        const { data } = await supabase.from('client_projects').select('*, clients(name, phone, email)').order('created_at', { ascending: false });
+        if (data) setContracts(data as (Tables<'client_projects'> & { clients: { name: string; phone: string | null; email: string | null } | null })[]);
       };
       fetchDashboardData();
     }
@@ -182,7 +182,7 @@ const App: React.FC = () => {
   useEffect(() => {
     if (authState === 'CLIENT') {
       const fetchClientData = async () => {
-        const { data: clients } = await db
+        const { data: clients } = await supabase
           .from('clients')
           .select('id, name')
           .eq('access_code', password.trim() || 'SD2024')
@@ -193,7 +193,7 @@ const App: React.FC = () => {
         const clientId = client?.id;
         
         if (clientId) {
-          const { data: projects } = await db
+          const { data: projects } = await supabase
             .from('client_projects')
             .select('*')
             .eq('client_id', clientId)
@@ -204,10 +204,10 @@ const App: React.FC = () => {
             setClientProject(project);
 
             const [installRes, stepsRes, timelineRes, galleryRes] = await Promise.all([
-              db.from('project_installments').select('*').eq('project_id', project.id).order('installment_number'),
-              db.from('project_production_steps').select('*').eq('project_id', project.id).order('sort_order'),
-              db.from('project_timeline').select('*').eq('project_id', project.id).order('sort_order'),
-              db.from('project_gallery').select('*').eq('project_id', project.id).order('created_at'),
+              supabase.from('project_installments').select('*').eq('project_id', project.id).order('installment_number'),
+              supabase.from('project_production_steps').select('*').eq('project_id', project.id).order('sort_order'),
+              supabase.from('project_timeline').select('*').eq('project_id', project.id).order('sort_order'),
+              supabase.from('project_gallery').select('*').eq('project_id', project.id).order('created_at'),
             ]);
 
             if (installRes.data) setClientInstallments(installRes.data);
@@ -221,7 +221,7 @@ const App: React.FC = () => {
         }
         
         // Fallback gallery
-        const { data: allGallery } = await db.from('project_gallery').select('*').order('created_at');
+        const { data: allGallery } = await supabase.from('project_gallery').select('*').order('created_at');
         if (allGallery && allGallery.length > 0) {
           setGalleryItems(allGallery.map(g => ({ title: g.title, desc: g.description || '', url: g.image_url })));
         }
@@ -305,13 +305,13 @@ const App: React.FC = () => {
         return;
       }
       // Resolve employee ID from name before entering
-      const { data: empData } = await db
+      const { data: empData } = await supabase
         .from('employees')
         .select('id, name, password')
         .eq('active', true);
       
       const searchName = employeeName.trim().toLowerCase();
-      const matchedEmp = empData?.find((e: any) => 
+      const matchedEmp = empData?.find(e =>
         e.name.toLowerCase() === searchName || 
         e.name.toLowerCase().includes(searchName) ||
         searchName.includes(e.name.toLowerCase())
@@ -817,12 +817,13 @@ const App: React.FC = () => {
                     <Calendar className="w-3 h-3" /> Previsão de Instalação
                   </p>
                   <p className="text-amber-700 font-bold text-lg">
-                    {new Date(clientProject.estimated_delivery + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                    {clientProject.estimated_delivery ? new Date(clientProject.estimated_delivery + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : '-'}
                   </p>
                   <div className="flex items-center gap-2 mt-2 bg-amber-100 rounded-xl px-3 py-1.5">
                     <Timer className="w-4 h-4 text-amber-600" />
                     <p className="text-amber-700 font-black text-sm">
                       {(() => {
+                        if (!clientProject.estimated_delivery) return 'Em breve...';
                         const days = Math.max(0, Math.ceil((new Date(clientProject.estimated_delivery + 'T00:00:00').getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
                         return days > 0 ? `Faltam ${days} dias para seu sonho! ✨` : 'O grande dia chegou! 🎉';
                       })()}
@@ -947,8 +948,8 @@ const App: React.FC = () => {
                       <div className="absolute top-5 left-0 right-0 h-1 bg-gray-200 z-0">
                         <div className="h-1 bg-green-500" style={{ width: `${progressPct}%` }} />
                       </div>
-                      {steps.map((step: any, i: number) => (
-                        <div key={step.id || i} className="flex flex-col items-center relative z-10">
+                      {steps.map((step, i) => (
+                        <div key={(step as any).id || i} className="flex flex-col items-center relative z-10">
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xl mb-2 ${
                             step.done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'
                           }`}>
@@ -1106,14 +1107,14 @@ const App: React.FC = () => {
         {/* QUALITY CHECK - Admin */}
         {view === ViewMode.QUALITY_CHECK && authState === 'ADMIN' && selectedContract && (
           <div className="p-8 overflow-auto h-full bg-gradient-to-br from-gray-50 to-gray-100">
-            <QualityCheckPanel projectId={selectedContract.id} projectName={selectedContract.name || selectedContract.projectName} />
+            <QualityCheckPanel projectId={selectedContract.id} projectName={selectedContract.name} />
           </div>
         )}
 
         {/* PROJECT COSTS - Admin */}
         {view === ViewMode.PROJECT_COSTS && authState === 'ADMIN' && selectedContract && (
           <div className="p-8 overflow-auto h-full bg-gradient-to-br from-gray-50 to-gray-100">
-            <ProjectCostPanel projectId={selectedContract.id} projectName={selectedContract.name || selectedContract.projectName} totalValue={selectedContract.value} />
+            <ProjectCostPanel projectId={selectedContract.id} projectName={selectedContract.name} totalValue={selectedContract.value} />
           </div>
         )}
         </ViewTransition>

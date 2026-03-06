@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { Tables } from '@/integrations/supabase/types';
 import { useToast } from '@/hooks/use-toast';
 import { Clock, Play, Square, DollarSign, Calendar, User, Send, CheckCircle, XCircle, Loader2, Download, Lock, Eye, EyeOff } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -46,7 +47,7 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
   const [valeAmount, setValeAmount] = useState('');
   const [valeReason, setValeReason] = useState('');
   const [valeSending, setValeSending] = useState(false);
-  const [valeRequests, setValeRequests] = useState<any[]>([]);
+  const [valeRequests, setValeRequests] = useState<Tables<'advance_requests'>[]>([]);
   const [adjustments, setAdjustments] = useState<Adjustment[]>([]);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -57,12 +58,12 @@ export default function EmployeePortal({ employeeName }: EmployeePortalProps) {
   const changePassword = async () => {
     if (!employee || !currentPassword.trim() || !newPassword.trim()) return;
     // Verify current password
-    const { data } = await (supabase as any).from('employees').select('password').eq('id', employee.id).single();
+    const { data } = await supabase.from('employees').select('password').eq('id', employee.id).single();
     if (!data || data.password !== currentPassword.trim()) {
       toast({ title: '⚠️ Senha atual incorreta', variant: 'destructive' });
       return;
     }
-    const { error } = await (supabase as any).from('employees').update({ password: newPassword.trim() }).eq('id', employee.id);
+    const { error } = await supabase.from('employees').update({ password: newPassword.trim() }).eq('id', employee.id);
     if (error) {
       toast({ title: '❌ Erro', description: error.message, variant: 'destructive' });
     } else {

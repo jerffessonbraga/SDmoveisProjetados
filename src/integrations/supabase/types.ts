@@ -285,6 +285,7 @@ export type Database = {
           created_at: string
           deadline: string | null
           description: string | null
+          estimated_delivery: string | null
           id: string
           material: string | null
           name: string
@@ -300,6 +301,7 @@ export type Database = {
           created_at?: string
           deadline?: string | null
           description?: string | null
+          estimated_delivery?: string | null
           id?: string
           material?: string | null
           name: string
@@ -315,6 +317,7 @@ export type Database = {
           created_at?: string
           deadline?: string | null
           description?: string | null
+          estimated_delivery?: string | null
           id?: string
           material?: string | null
           name?: string
@@ -743,6 +746,7 @@ export type Database = {
           created_at: string
           due_date: string
           id: string
+          installment_number: number | null
           paid: boolean
           paid_at: string | null
           project_id: string
@@ -752,6 +756,7 @@ export type Database = {
           created_at?: string
           due_date: string
           id?: string
+          installment_number?: number | null
           paid?: boolean
           paid_at?: string | null
           project_id: string
@@ -761,6 +766,7 @@ export type Database = {
           created_at?: string
           due_date?: string
           id?: string
+          installment_number?: number | null
           paid?: boolean
           paid_at?: string | null
           project_id?: string
@@ -780,7 +786,9 @@ export type Database = {
           completed_at: string | null
           created_at: string
           id: string
+          label: string | null
           name: string
+          progress: number | null
           project_id: string
           sort_order: number
           status: string
@@ -789,7 +797,9 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           id?: string
+          label?: string | null
           name: string
+          progress?: number | null
           project_id: string
           sort_order?: number
           status?: string
@@ -798,7 +808,9 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           id?: string
+          label?: string | null
           name?: string
+          progress?: number | null
           project_id?: string
           sort_order?: number
           status?: string
@@ -820,6 +832,7 @@ export type Database = {
           event_date: string
           id: string
           project_id: string
+          sort_order: number | null
           title: string
         }
         Insert: {
@@ -828,6 +841,7 @@ export type Database = {
           event_date?: string
           id?: string
           project_id: string
+          sort_order?: number | null
           title: string
         }
         Update: {
@@ -836,6 +850,7 @@ export type Database = {
           event_date?: string
           id?: string
           project_id?: string
+          sort_order?: number | null
           title?: string
         }
         Relationships: [
