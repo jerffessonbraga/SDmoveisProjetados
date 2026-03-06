@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-const db = supabase as any;
+
 
 interface Appointment {
   id: string;
