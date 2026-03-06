@@ -372,18 +372,48 @@ const App: React.FC = () => {
   const inProduction = contracts.filter(c => c.status === 'producao').length;
 
   return (
-    <div className="h-screen w-screen flex flex-col sm:flex-row bg-background overflow-hidden relative">
+    <div className={`h-screen w-screen flex ${isCompactLayout ? 'flex-col' : 'flex-col sm:flex-row'} bg-background overflow-hidden relative`}>
       {/* SIDEBAR */}
       {(authState === 'ADMIN' || authState === 'CLIENT' || authState === 'EMPLOYEE') && (
-        <aside className="order-2 sm:order-none w-full sm:w-24 h-16 sm:h-auto flex sm:flex-col items-center sm:py-4 gap-0 sm:gap-2 sm:min-h-0 overflow-x-auto overflow-y-hidden sm:overflow-y-auto sm:overflow-x-hidden relative z-10 backdrop-blur-xl border-t sm:border-t-0 sm:border-r border-sidebar-border/30 flex-nowrap" style={{ background: 'linear-gradient(180deg, hsl(var(--sidebar-background) / 0.92) 0%, hsl(var(--sidebar-background) / 0.98) 100%)', boxShadow: '4px 0 30px hsl(var(--primary) / 0.08), inset -1px 0 0 hsl(var(--primary) / 0.06)', WebkitOverflowScrolling: 'touch', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-          <button 
+        <aside
+          className={isCompactLayout
+            ? 'order-2 w-full h-16 flex items-center gap-0 overflow-x-auto overflow-y-hidden relative z-10 backdrop-blur-xl border-t border-sidebar-border/30 flex-nowrap'
+            : 'order-none w-24 h-auto flex flex-col items-center py-4 gap-2 min-h-0 overflow-hidden relative z-10 backdrop-blur-xl border-r border-sidebar-border/30'
+          }
+          style={{
+            background: 'linear-gradient(180deg, hsl(var(--sidebar-background) / 0.92) 0%, hsl(var(--sidebar-background) / 0.98) 100%)',
+            boxShadow: '4px 0 30px hsl(var(--primary) / 0.08), inset -1px 0 0 hsl(var(--primary) / 0.06)',
+            ...(isCompactLayout
+              ? {
+                  WebkitOverflowScrolling: 'touch',
+                  paddingBottom: 'env(safe-area-inset-bottom)',
+                }
+              : {}),
+          }}
+        >
+          <button
             onClick={() => setView(authState === 'ADMIN' ? ViewMode.DASHBOARD : authState === 'EMPLOYEE' ? ViewMode.TIME_TRACKING : ViewMode.CLIENT_PORTAL)}
-            className="hidden sm:block w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary shadow-glow hover:scale-110 transition-all duration-300 flex-shrink-0"
+            className={`${isCompactLayout ? 'hidden' : 'block'} w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary shadow-glow hover:scale-110 transition-all duration-300 flex-shrink-0`}
           >
             <img src={logoSD} alt="SD" className="w-full h-full object-cover" />
           </button>
 
-          <nav className="flex-1 flex sm:flex-col items-center sm:items-center justify-start gap-0 sm:gap-2 sm:mt-6 px-1 sm:px-0 w-full min-w-0 overflow-x-auto sm:overflow-x-hidden sm:overflow-y-auto flex-nowrap scrollbar-hide touch-pan-x" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'pan-x', overscrollBehaviorX: 'contain' }}>
+          <nav
+            className={isCompactLayout
+              ? 'flex-1 flex items-center justify-start gap-0 px-1 w-full min-w-0 overflow-x-auto overflow-y-hidden flex-nowrap scrollbar-hide touch-pan-x'
+              : 'flex-1 flex flex-col items-center justify-start gap-2 mt-6 px-0 w-full min-w-0 overflow-x-hidden overflow-y-auto'
+            }
+            style={isCompactLayout
+              ? {
+                  WebkitOverflowScrolling: 'touch',
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  touchAction: 'pan-x',
+                  overscrollBehaviorX: 'contain',
+                }
+              : undefined
+            }
+          >
             {authState === 'ADMIN' ? (
               <>
                 <NavIcon icon="layout-dashboard" label="Início" active={view === ViewMode.DASHBOARD} onClick={() => setView(ViewMode.DASHBOARD)} />
@@ -416,8 +446,8 @@ const App: React.FC = () => {
                 <NavIcon icon="shield" label="Garantia" active={view === ViewMode.WARRANTY} onClick={() => setView(ViewMode.WARRANTY)} />
                 <NavIcon icon="message-circle" label="Chat" active={view === ViewMode.INTERNAL_CHAT} onClick={() => setView(ViewMode.INTERNAL_CHAT)} />
                 <NavIcon icon="book-open" label="Pós-Venda" active={view === ViewMode.AFTER_SALES} onClick={() => setView(ViewMode.AFTER_SALES)} />
-                
-                <button 
+
+                <button
                   type="button"
                   onClick={() => {
                     const username = "sdmoveisprojetados";
@@ -440,15 +470,15 @@ const App: React.FC = () => {
             )}
           </nav>
 
-          <div className="hidden sm:flex mt-auto space-y-2 flex-col items-center">
+          <div className={`${isCompactLayout ? 'hidden' : 'mt-auto space-y-2 flex flex-col items-center'}`}>
             <button className="p-3 text-sidebar-foreground/50 hover:text-primary transition-all duration-300 hover:scale-110">
               <Bell className="w-5 h-5" />
             </button>
             <button className="p-3 text-sidebar-foreground/50 hover:text-primary transition-all duration-300 hover:scale-110">
               <Settings className="w-5 h-5" />
             </button>
-            <button 
-              onClick={() => setAuthState('SELECT')} 
+            <button
+              onClick={() => setAuthState('SELECT')}
               className="p-3 text-sidebar-foreground/50 hover:text-primary transition-all duration-300 flex flex-col items-center gap-1 hover:scale-110"
               title="Voltar à seleção"
             >
@@ -460,8 +490,9 @@ const App: React.FC = () => {
               <span className="text-[10px] font-bold">Sair</span>
             </button>
           </div>
+
           {/* Mobile: logout button */}
-          <button onClick={() => setAuthState('SELECT')} className="sm:hidden p-2 text-sidebar-foreground/50 hover:text-destructive flex-shrink-0" title="Sair">
+          <button onClick={() => setAuthState('SELECT')} className={`${isCompactLayout ? 'p-2 text-sidebar-foreground/50 hover:text-destructive flex-shrink-0' : 'hidden'}`} title="Sair">
             <LogOut className="w-5 h-5" />
           </button>
         </aside>
@@ -479,7 +510,7 @@ const App: React.FC = () => {
       )}
 
       <main
-        className="flex-1 overflow-hidden relative order-1 sm:order-none min-h-0"
+        className={`flex-1 overflow-hidden relative min-h-0 ${isCompactLayout ? 'order-1' : 'order-none'}`}
       >
         {/* Animated particle background */}
         {(authState === 'ADMIN' || authState === 'CLIENT' || authState === 'EMPLOYEE') && (
