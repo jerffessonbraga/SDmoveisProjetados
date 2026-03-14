@@ -329,6 +329,31 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
       return;
     }
 
+    const { data: existingActiveTrip } = await db
+      .from('trips')
+      .select('*')
+      .eq('employee_id', finalEmployeeId)
+      .is('ended_at', null)
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (existingActiveTrip) {
+      setActiveTrip(existingActiveTrip as Trip);
+      const { count } = await db
+        .from('trip_locations')
+        .select('*', { count: 'exact', head: true })
+        .eq('trip_id', existingActiveTrip.id);
+
+      setLocationCount(count || 0);
+      startTracking(existingActiveTrip.id);
+      toast({
+        title: '🔄 Viagem retomada',
+        description: 'Já existe uma viagem ativa para você. Continuando rastreamento automaticamente.',
+      });
+      return;
+    }
+
     console.log('[TRIP] Creating trip:', { finalEmployeeId, selectedVehicleId, gpsAvailable });
 
     const { data, error } = await db
