@@ -258,8 +258,20 @@ export default function FleetAdminPanel() {
       return;
     }
 
-    if (tab === 'history' && selectedTripId) {
-      fetchTripLocationsByTripId(selectedTripId);
+    if (tab === 'history') {
+      if (selectedTripId) {
+        fetchTripLocationsByTripId(selectedTripId);
+        return;
+      }
+
+      if (completedTrips.length > 0) {
+        const latestTrip = completedTrips[0];
+        setSelectedTripId(latestTrip.id);
+        fetchTripLocationsByTripId(latestTrip.id);
+        return;
+      }
+
+      setTripLocations([]);
     }
   }, [activeTrips, completedTrips, selectedTripId, tab]);
 
