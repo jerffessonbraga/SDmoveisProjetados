@@ -341,9 +341,9 @@ const App: React.FC = () => {
 
       const { data: empData, error: empErr } = await db
         .from('employees')
-        .select('id, name, password')
+        .select('id, name, email, password')
         .eq('active', true)
-        .ilike('name', `%${searchInput}%`);
+        .or(`name.ilike.%${searchInput}%,email.eq.${searchInput}`);
 
       if (empErr) {
         toast({ title: "❌ Erro ao buscar", description: empErr.message, variant: "destructive" });
@@ -352,6 +352,7 @@ const App: React.FC = () => {
 
       // Try to find the best match
       const matchedEmp = empData?.find((e: any) =>
+        e.email?.toLowerCase() === searchInput ||
         e.name.toLowerCase() === searchInput
       ) || empData?.[0];
 
