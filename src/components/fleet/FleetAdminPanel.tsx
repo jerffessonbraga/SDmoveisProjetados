@@ -141,7 +141,7 @@ export default function FleetAdminPanel() {
       .from('trip_locations')
       .select('*')
       .in('trip_id', tripIds)
-      .order('created_at', { ascending: true });
+      .order('recorded_at', { ascending: true });
     if (data) setTripLocations(data);
   };
 
