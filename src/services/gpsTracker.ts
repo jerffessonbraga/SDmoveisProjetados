@@ -128,7 +128,7 @@ async function sendLocation(tripId: string) {
     await flushPendingQueue();
 
     addLog('Iniciando captura de posição...');
-    let pos: GeolocationPosition;
+    let pos: Awaited<ReturnType<typeof Geolocation.getCurrentPosition>>;
 
     try {
       pos = await Geolocation.getCurrentPosition({
