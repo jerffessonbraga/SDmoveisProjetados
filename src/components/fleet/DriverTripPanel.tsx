@@ -293,7 +293,7 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
 
   const startTracking = useCallback((tripId: string) => {
     // Delegate to the singleton (no-op if already tracking this trip)
-    gpsTracker.start(tripId, () => setLocationCount(prev => prev + 1));
+    void gpsTracker.start(tripId, () => setLocationCount(prev => prev + 1));
   }, []);
 
   const stopTracking = useCallback(() => {
