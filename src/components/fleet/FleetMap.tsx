@@ -25,7 +25,7 @@ interface Location {
   longitude: number;
   accuracy: number | null;
   speed: number | null;
-  created_at: string;
+  recorded_at: string;
 }
 
 export default function FleetMap({ locations = [] }: { locations?: Location[] }) {
@@ -90,7 +90,7 @@ export default function FleetMap({ locations = [] }: { locations?: Location[] })
       marker.bindPopup(`
         <div style="font-size:13px">
           <p style="font-weight:bold">📍 Última posição</p>
-          <p>${new Date(lastLoc.created_at).toLocaleString('pt-BR')}</p>
+          <p>${new Date(lastLoc.recorded_at).toLocaleString('pt-BR')}</p>
           ${speedText}
           <p style="color:#888;font-size:11px">Pontos: ${locs.length}</p>
         </div>

@@ -38,7 +38,7 @@ interface TripLocation {
   longitude: number;
   accuracy: number | null;
   speed: number | null;
-  created_at: string;
+  recorded_at: string;
 }
 
 const VEHICLE_TYPES = ['Carro', 'Van', 'Caminhão', 'Moto', 'Utilitário', 'Outro'];
@@ -121,7 +121,7 @@ export default function FleetAdminPanel() {
       db.from('employees').select('id, name, role').eq('active', true),
       db.from('trips').select('*').eq('status', 'active').order('started_at', { ascending: false }),
       db.from('trips').select('*').eq('status', 'completed').order('ended_at', { ascending: false }).limit(50),
-      db.from('vehicles').select('id, plate, model, type, year, active').order('model'),
+      db.from('vehicles').select('id, plate, model, year, active').order('model'),
     ]);
     if (empRes.data) setEmployees(empRes.data);
     if (activeRes.data) setActiveTrips(activeRes.data);
@@ -141,7 +141,7 @@ export default function FleetAdminPanel() {
       .from('trip_locations')
       .select('*')
       .in('trip_id', tripIds)
-      .order('created_at', { ascending: true });
+      .order('recorded_at', { ascending: true });
     if (data) setTripLocations(data);
   };
 
@@ -151,7 +151,7 @@ export default function FleetAdminPanel() {
       .from('trip_locations')
       .select('*')
       .eq('trip_id', tripId)
-      .order('created_at', { ascending: true });
+      .order('recorded_at', { ascending: true });
     if (data) setTripLocations(data);
   };
 
@@ -304,7 +304,7 @@ export default function FleetAdminPanel() {
             {activeTrips.map(trip => {
               const lastLoc = tripLocations
                 .filter(l => l.trip_id === trip.id)
-                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+                .sort((a, b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime())[0];
               return (
                 <div key={trip.id} className="flex items-center justify-between p-4 bg-muted rounded-xl">
                   <div className="flex items-center gap-3">
@@ -320,7 +320,7 @@ export default function FleetAdminPanel() {
                   <div className="flex items-center gap-3">
                     {lastLoc && (
                       <span className="text-xs text-muted-foreground">
-                        Último GPS: {formatTime(lastLoc.created_at)}
+                        Último GPS: {formatTime(lastLoc.recorded_at)}
                       </span>
                     )}
                     <button
