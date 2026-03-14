@@ -263,18 +263,20 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
   }, []);
 
   const startTrip = async (description?: string) => {
+    // Request GPS permission but NEVER block trip creation
+    let gpsAvailable = true;
     try {
       const permission = await Geolocation.requestPermissions();
       if (permission.location !== 'granted') {
+        gpsAvailable = false;
         toast({
-          title: '❌ Permissão de GPS negada',
-          description: 'Habilite a localização nas configurações do celular.',
-          variant: 'destructive',
+          title: '⚠️ GPS sem permissão',
+          description: 'A viagem será criada, mas o rastreamento pode não funcionar. Habilite a localização nas configurações.',
         });
-        return;
       }
     } catch (e) {
-      console.log('GPS permission error:', e);
+      gpsAvailable = false;
+      console.log('GPS permission error (non-blocking):', e);
     }
 
     if (!selectedVehicleId) {
@@ -288,6 +290,8 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
       return;
     }
 
+    console.log('[TRIP] Creating trip:', { finalEmployeeId, selectedVehicleId, gpsAvailable });
+
     const { data, error } = await db
       .from('trips')
       .insert({
@@ -300,14 +304,16 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
       .single();
 
     if (error) {
-      toast({ title: '❌ Erro ao iniciar viagem', description: error.message, variant: 'destructive' });
+      console.error('[TRIP] Insert error:', JSON.stringify(error));
+      toast({ title: '❌ Erro ao iniciar viagem', description: `${error.message} (code: ${error.code})`, variant: 'destructive' });
       return;
     }
 
+    console.log('[TRIP] Trip created successfully:', data.id);
     setActiveTrip(data as Trip);
     setLocationCount(0);
     startTracking(data.id);
-    toast({ title: '🚗 Viagem iniciada!', description: 'GPS rastreando a cada 30s' });
+    toast({ title: '🚗 Viagem iniciada!', description: gpsAvailable ? 'GPS rastreando a cada 30s' : 'Viagem salva! GPS pode estar limitado.' });
   };
 
   const setMontagemConcluida = async () => {
