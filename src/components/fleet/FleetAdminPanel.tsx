@@ -320,7 +320,7 @@ export default function FleetAdminPanel() {
                   <div className="flex items-center gap-3">
                     {lastLoc && (
                       <span className="text-xs text-muted-foreground">
-                        Último GPS: {formatTime(lastLoc.created_at)}
+                        Último GPS: {formatTime(lastLoc.recorded_at)}
                       </span>
                     )}
                     <button
