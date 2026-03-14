@@ -638,7 +638,7 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
             )}
           </div>
 
-          <ToolInventory tripId={activeTrip.id} />
+          <ToolInventory employeeId={employeeId} />
 
           <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
             <button
