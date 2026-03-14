@@ -123,21 +123,38 @@ const LOUVORES = [
   },
 ];
 
+type AuthState = 'SELECT' | 'LOGIN' | 'ADMIN' | 'CLIENT' | 'EMPLOYEE';
+type SelectedRole = 'ADMIN' | 'CLIENT' | 'EMPLOYEE';
+
+const VALID_AUTH_STATES: AuthState[] = ['SELECT', 'LOGIN', 'ADMIN', 'CLIENT', 'EMPLOYEE'];
+const VALID_SELECTED_ROLES: SelectedRole[] = ['ADMIN', 'CLIENT', 'EMPLOYEE'];
+
+const getInitialAuthState = (): AuthState => {
+  const saved = localStorage.getItem('sd_authState');
+  return VALID_AUTH_STATES.includes(saved as AuthState) ? (saved as AuthState) : 'SELECT';
+};
+
+const getInitialSelectedRole = (): SelectedRole => {
+  const saved = localStorage.getItem('sd_selectedRole');
+  return VALID_SELECTED_ROLES.includes(saved as SelectedRole) ? (saved as SelectedRole) : 'ADMIN';
+};
+
+const getInitialView = (): ViewMode => {
+  const saved = localStorage.getItem('sd_view') as ViewMode | null;
+  return saved && Object.values(ViewMode).includes(saved) ? saved : ViewMode.DASHBOARD;
+};
+
 const App: React.FC = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const isCompactLayout = isMobile || isTouchDevice;
-  const [authState, setAuthState] = useState<'SELECT' | 'LOGIN' | 'ADMIN' | 'CLIENT' | 'EMPLOYEE'>(() => {
-    return (localStorage.getItem('sd_authState') as any) || 'SELECT';
-  });
-  const [selectedRole, setSelectedRole] = useState<'ADMIN' | 'CLIENT' | 'EMPLOYEE'>(() => {
-    return (localStorage.getItem('sd_selectedRole') as any) || 'ADMIN';
-  });
+  const [authState, setAuthState] = useState<AuthState>(getInitialAuthState);
+  const [selectedRole, setSelectedRole] = useState<SelectedRole>(getInitialSelectedRole);
   const [employeeName, setEmployeeName] = useState(() => localStorage.getItem('sd_employeeName') || '');
   const [employeeId, setEmployeeId] = useState(() => localStorage.getItem('sd_employeeId') || '');
   const [password, setPassword] = useState("");
-  const [view, setView] = useState(() => localStorage.getItem('sd_view') as ViewMode || ViewMode.DASHBOARD);
+  const [view, setView] = useState<ViewMode>(getInitialView);
   const [contracts, setContracts] = useState<any[]>([]);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiLoadingMessage, setAiLoadingMessage] = useState("");
