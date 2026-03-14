@@ -106,7 +106,10 @@ async function flushPendingQueue() {
   addLog(`✅ ${batch.length} ponto(s) pendente(s) reenviado(s)`, 'success');
 }
 
-function buildLocationPayload(tripId: string, position: GeolocationPosition): LocationPayload {
+function buildLocationPayload(
+  tripId: string,
+  position: Awaited<ReturnType<typeof Geolocation.getCurrentPosition>>
+): LocationPayload {
   const accuracy = typeof position.coords.accuracy === 'number' ? position.coords.accuracy : null;
   const speed = typeof position.coords.speed === 'number' ? position.coords.speed : null;
 
