@@ -38,7 +38,7 @@ interface TripLocation {
   longitude: number;
   accuracy: number | null;
   speed: number | null;
-  created_at: string;
+  recorded_at: string;
 }
 
 const VEHICLE_TYPES = ['Carro', 'Van', 'Caminhão', 'Moto', 'Utilitário', 'Outro'];
