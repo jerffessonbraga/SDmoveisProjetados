@@ -147,7 +147,7 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
         .catch(() => { })
         .finally(() => {
           // Start (or reconnect to) GPS tracking via the singleton
-          gpsTracker.start(activeTrip.id, () => setLocationCount(prev => prev + 1));
+          void gpsTracker.start(activeTrip.id, () => setLocationCount(prev => prev + 1));
         });
       fetchChecklists(activeTrip.id);
       fetchPhotos(activeTrip.id);

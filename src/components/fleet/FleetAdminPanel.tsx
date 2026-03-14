@@ -55,6 +55,7 @@ export default function FleetAdminPanel() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [tab, setTab] = useState<'live' | 'history' | 'fuel' | 'vehicles'>('live');
   const [loading, setLoading] = useState(true);
+  const [tripPointCounts, setTripPointCounts] = useState<Record<string, number>>({});
 
   // Refs to avoid stale closures inside realtime callbacks
   const activeTripsRef = useRef<Trip[]>([]);
@@ -248,6 +249,21 @@ export default function FleetAdminPanel() {
     };
   }, []);
 
+  // Fetch GPS point counts for completed trips (for display in history list)
+  const fetchTripPointCounts = async (tripIds: string[]) => {
+    if (tripIds.length === 0) return;
+    const counts: Record<string, number> = {};
+    // Batch query: get counts for each trip
+    for (const id of tripIds) {
+      const { count } = await db
+        .from('trip_locations')
+        .select('*', { count: 'exact', head: true })
+        .eq('trip_id', id);
+      counts[id] = count || 0;
+    }
+    setTripPointCounts(prev => ({ ...prev, ...counts }));
+  };
+
   useEffect(() => {
     if (tab === 'live') {
       if (selectedTripId) {
@@ -258,22 +274,14 @@ export default function FleetAdminPanel() {
       return;
     }
 
-    if (tab === 'history') {
-      if (selectedTripId) {
-        fetchTripLocationsByTripId(selectedTripId);
-        return;
-      }
-
-      if (completedTrips.length > 0) {
-        const latestTrip = completedTrips[0];
-        setSelectedTripId(latestTrip.id);
-        fetchTripLocationsByTripId(latestTrip.id);
-        return;
-      }
-
-      setTripLocations([]);
+    // For history: only auto-select when no trip is selected yet
+    if (tab === 'history' && !selectedTripId && completedTrips.length > 0) {
+      const latestTrip = completedTrips[0];
+      setSelectedTripId(latestTrip.id);
+      fetchTripLocationsByTripId(latestTrip.id);
+      fetchTripPointCounts(completedTrips.map(t => t.id));
     }
-  }, [activeTrips, completedTrips, selectedTripId, tab]);
+  }, [completedTrips, selectedTripId, tab]);
 
   const viewTripRoute = async (tripId: string) => {
     setSelectedTripId(tripId);
@@ -299,10 +307,9 @@ export default function FleetAdminPanel() {
     }
     setSavingVehicle(true);
 
-    const payload = {
+    const payload: any = {
       plate: vehicleForm.plate.trim().toUpperCase(),
       model: vehicleForm.model.trim(),
-      type: vehicleForm.type,
       year: vehicleForm.year ? Number(vehicleForm.year) : null,
     };
 
@@ -398,8 +405,17 @@ export default function FleetAdminPanel() {
           onClick={async () => {
             setTab('history');
             setSelectedTripId(null);
-            setTripLocations([]);
-            await fetchCompletedTrips();
+            // Directly fetch completed trips and auto-load the first one's locations
+            const trips = await fetchCompletedTrips();
+            if (trips.length > 0) {
+              setSelectedTripId(trips[0].id);
+              await Promise.all([
+                fetchTripLocationsByTripId(trips[0].id),
+                fetchTripPointCounts(trips.map((t: Trip) => t.id)),
+              ]);
+            } else {
+              setTripLocations([]);
+            }
           }}
         >
           <Route className="w-4 h-4 inline mr-2" />Histórico
@@ -495,6 +511,10 @@ export default function FleetAdminPanel() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
+                  <span className="text-xs text-muted-foreground">
+                    <MapPin className="w-3 h-3 inline mr-1" />
+                    {tripPointCounts[trip.id] ?? '…'} pts
+                  </span>
                   <span className="text-sm font-bold text-foreground">
                     <Clock className="w-3 h-3 inline mr-1" />
                     {calcDuration(trip.started_at, trip.ended_at)}
