@@ -121,7 +121,7 @@ export default function FleetAdminPanel() {
       db.from('employees').select('id, name, role').eq('active', true),
       db.from('trips').select('*').eq('status', 'active').order('started_at', { ascending: false }),
       db.from('trips').select('*').eq('status', 'completed').order('ended_at', { ascending: false }).limit(50),
-      db.from('vehicles').select('id, plate, model, type, year, active').order('model'),
+      db.from('vehicles').select('id, plate, model, year, active').order('model'),
     ]);
     if (empRes.data) setEmployees(empRes.data);
     if (activeRes.data) setActiveTrips(activeRes.data);
