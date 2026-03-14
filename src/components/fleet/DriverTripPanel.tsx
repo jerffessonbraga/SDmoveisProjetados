@@ -638,7 +638,7 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
             )}
           </div>
 
-          <ToolInventory tripId={activeTrip.id} />
+          <ToolInventory employeeId={employeeId} />
 
           <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
             <button
@@ -856,7 +856,7 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <FuelLogForm tripId={activeTrip.id} onClose={() => setShowFuel(false)} />
+            <FuelLogForm employeeId={employeeId} tripId={activeTrip.id} onClose={() => setShowFuel(false)} />
           </div>
         </div>
       )}
@@ -872,8 +872,7 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
             </div>
             <SignaturePad
               onSave={saveSignature}
-              onCancel={() => setShowSignaturePad(false)}
-              saving={savingSignature}
+              onClear={() => setShowSignaturePad(false)}
             />
           </div>
         </div>
