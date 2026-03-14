@@ -406,8 +406,17 @@ export default function FleetAdminPanel() {
           onClick={async () => {
             setTab('history');
             setSelectedTripId(null);
-            setTripLocations([]);
-            await fetchCompletedTrips();
+            // Directly fetch completed trips and auto-load the first one's locations
+            const trips = await fetchCompletedTrips();
+            if (trips.length > 0) {
+              setSelectedTripId(trips[0].id);
+              await Promise.all([
+                fetchTripLocationsByTripId(trips[0].id),
+                fetchTripPointCounts(trips.map((t: Trip) => t.id)),
+              ]);
+            } else {
+              setTripLocations([]);
+            }
           }}
         >
           <Route className="w-4 h-4 inline mr-2" />Histórico
