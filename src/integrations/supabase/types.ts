@@ -153,6 +153,66 @@ export type Database = {
           },
         ]
       }
+      appointments: {
+        Row: {
+          admin_notes: string | null
+          client_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          preferred_date: string
+          preferred_time: string
+          project_id: string | null
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          client_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          preferred_date: string
+          preferred_time?: string
+          project_id?: string | null
+          status?: string
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          client_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          preferred_date?: string
+          preferred_time?: string
+          project_id?: string | null
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "client_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cash_register: {
         Row: {
           amount: number
@@ -189,6 +249,33 @@ export type Database = {
           reference_id?: string | null
           reference_type?: string | null
           type?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          channel: string
+          content: string
+          created_at: string
+          id: string
+          sender_name: string
+          sender_role: string
+        }
+        Insert: {
+          channel?: string
+          content: string
+          created_at?: string
+          id?: string
+          sender_name: string
+          sender_role?: string
+        }
+        Update: {
+          channel?: string
+          content?: string
+          created_at?: string
+          id?: string
+          sender_name?: string
+          sender_role?: string
         }
         Relationships: []
       }
@@ -250,6 +337,7 @@ export type Database = {
       }
       clients: {
         Row: {
+          access_code: string | null
           address: string | null
           created_at: string
           email: string | null
@@ -261,6 +349,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          access_code?: string | null
           address?: string | null
           created_at?: string
           email?: string | null
@@ -272,6 +361,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          access_code?: string | null
           address?: string | null
           created_at?: string
           email?: string | null
@@ -395,6 +485,7 @@ export type Database = {
           hourly_rate: number
           id: string
           name: string
+          password: string | null
           phone: string | null
           role: string | null
         }
@@ -404,6 +495,7 @@ export type Database = {
           hourly_rate?: number
           id?: string
           name: string
+          password?: string | null
           phone?: string | null
           role?: string | null
         }
@@ -413,6 +505,7 @@ export type Database = {
           hourly_rate?: number
           id?: string
           name?: string
+          password?: string | null
           phone?: string | null
           role?: string | null
         }
