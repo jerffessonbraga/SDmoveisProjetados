@@ -354,29 +354,41 @@ const App: React.FC = () => {
         return;
       }
       // Resolve employee ID from name or email before entering
+      // IMPORTANT: use exact matching (without "%") to avoid logging into the wrong employee
+      // when there are similar names, which can make trip history seem "missing".
       const searchInput = employeeName.trim().toLowerCase();
 
       const { data: empData, error: empErr } = await db
         .from('employees')
         .select('id, name, email, password')
         .eq('active', true)
-        .or(`name.ilike.%${searchInput}%,email.eq.${searchInput}`);
+        .or(`name.ilike.${searchInput},email.ilike.${searchInput}`);
 
       if (empErr) {
         toast({ title: "❌ Erro ao buscar", description: empErr.message, variant: "destructive" });
         return;
       }
 
-      // Try to find the best match
-      const matchedEmp = empData?.find((e: any) =>
-        e.email?.toLowerCase() === searchInput ||
-        e.name.toLowerCase() === searchInput
-      ) || empData?.[0];
-
-      if (!matchedEmp) {
-        toast({ title: "⚠️ Funcionário não encontrado", description: "Verifique se o nome ou e-mail está cadastrado corretamente", variant: "destructive" });
+      if (!empData || empData.length === 0) {
+        toast({ title: "⚠️ Funcionário não encontrado", description: "Digite o nome completo ou e-mail cadastrado", variant: "destructive" });
         return;
       }
+
+      const exactMatches = empData.filter((e: any) =>
+        e.email?.toLowerCase() === searchInput ||
+        e.name.toLowerCase() === searchInput
+      );
+
+      if (exactMatches.length > 1) {
+        toast({
+          title: "⚠️ Nome duplicado",
+          description: "Use o e-mail para entrar e garantir que as viagens salvem no usuário correto.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const matchedEmp = exactMatches[0] || empData[0];
 
       // Verify password
       if (!matchedEmp.password) {
