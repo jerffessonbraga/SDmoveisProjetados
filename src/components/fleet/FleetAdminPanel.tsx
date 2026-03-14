@@ -307,10 +307,9 @@ export default function FleetAdminPanel() {
     }
     setSavingVehicle(true);
 
-    const payload = {
+    const payload: any = {
       plate: vehicleForm.plate.trim().toUpperCase(),
       model: vehicleForm.model.trim(),
-      type: vehicleForm.type,
       year: vehicleForm.year ? Number(vehicleForm.year) : null,
     };
 
