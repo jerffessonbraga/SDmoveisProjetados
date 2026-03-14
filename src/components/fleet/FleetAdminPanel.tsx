@@ -393,7 +393,15 @@ export default function FleetAdminPanel() {
         <button className={tabClass('live')} onClick={() => { setTab('live'); setSelectedTripId(null); fetchActiveLocations(); }}>
           <MapPin className="w-4 h-4 inline mr-2" />Tempo Real
         </button>
-        <button className={tabClass('history')} onClick={() => { setTab('history'); setSelectedTripId(null); setTripLocations([]); }}>
+        <button
+          className={tabClass('history')}
+          onClick={async () => {
+            setTab('history');
+            setSelectedTripId(null);
+            setTripLocations([]);
+            await fetchCompletedTrips();
+          }}
+        >
           <Route className="w-4 h-4 inline mr-2" />Histórico
         </button>
         <button className={tabClass('fuel')} onClick={() => setTab('fuel')}>
