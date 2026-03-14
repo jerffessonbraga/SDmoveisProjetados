@@ -60,6 +60,7 @@ export default function FleetAdminPanel() {
   const activeTripsRef = useRef<Trip[]>([]);
   const selectedTripIdRef = useRef<string | null>(null);
   const tabRef = useRef<string>('live');
+  const liveSyncInProgressRef = useRef(false);
 
   // Keep refs in sync with state
   useEffect(() => { activeTripsRef.current = activeTrips; }, [activeTrips]);
@@ -73,47 +74,13 @@ export default function FleetAdminPanel() {
   const [savingVehicle, setSavingVehicle] = useState(false);
   const [showInactive, setShowInactive] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-
-    const channel = db
-      .channel('fleet-tracking')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'trip_locations' }, (payload: any) => {
-        const newLoc = payload.new as TripLocation;
-        // Use refs so we always have the latest state values (no stale closure)
-        const curSelectedId = selectedTripIdRef.current;
-        const curActiveTrips = activeTripsRef.current;
-        const curTab = tabRef.current;
-        const isRelevant =
-          curSelectedId === newLoc.trip_id ||
-          (curTab === 'live' && curActiveTrips.some(t => t.id === newLoc.trip_id));
-        if (isRelevant) {
-          setTripLocations(prev => [...prev, newLoc]);
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'trips' }, () => {
-        fetchData();
-      })
-      .subscribe();
-
-    // Polling fallback: refresh live locations every 30s in case realtime misses something
-    const pollInterval = setInterval(() => {
-      if (tabRef.current === 'live' && activeTripsRef.current.length > 0) {
-        fetchActiveLocations();
-      }
-    }, 30000);
-
-    return () => {
-      db.removeChannel(channel);
-      clearInterval(pollInterval);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (tab === 'live' && activeTrips.length > 0) {
-      fetchActiveLocations();
-    }
-  }, [activeTrips, tab]);
+  const mergeLocations = (previous: TripLocation[], incoming: TripLocation[]) => {
+    const uniqueById = new Map<string, TripLocation>();
+    [...previous, ...incoming].forEach((loc) => uniqueById.set(loc.id, loc));
+    return Array.from(uniqueById.values()).sort(
+      (a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime()
+    );
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -123,27 +90,111 @@ export default function FleetAdminPanel() {
       db.from('trips').select('*').eq('status', 'completed').order('ended_at', { ascending: false }).limit(50),
       db.from('vehicles').select('id, plate, model, year, active').order('model'),
     ]);
+
     if (empRes.data) setEmployees(empRes.data);
-    if (activeRes.data) setActiveTrips(activeRes.data);
+
+    if (activeRes.data) {
+      setActiveTrips(activeRes.data);
+      activeTripsRef.current = activeRes.data;
+      if (activeRes.data.length === 0) setTripLocations([]);
+    }
+
     if (completedRes.data) setCompletedTrips(completedRes.data);
     if (vehRes.data) setVehicles(vehRes.data);
     setLoading(false);
   };
 
-  const fetchActiveLocations = async () => {
-    const tripIds = activeTripsRef.current.length > 0 
-      ? activeTripsRef.current.map(t => t.id) 
-      : activeTrips.map(t => t.id);
-      
-    if (tripIds.length === 0) return;
-    
+  const fetchActiveTrips = async () => {
+    const { data } = await db
+      .from('trips')
+      .select('*')
+      .eq('status', 'active')
+      .order('started_at', { ascending: false });
+
+    const nextActiveTrips = (data || []) as Trip[];
+    setActiveTrips(nextActiveTrips);
+    activeTripsRef.current = nextActiveTrips;
+
+    if (nextActiveTrips.length === 0) {
+      setTripLocations([]);
+    }
+
+    return nextActiveTrips;
+  };
+
+  const fetchActiveLocations = async (tripIdsParam?: string[]) => {
+    const tripIds = tripIdsParam ?? (
+      activeTripsRef.current.length > 0
+        ? activeTripsRef.current.map((t) => t.id)
+        : activeTrips.map((t) => t.id)
+    );
+
+    if (tripIds.length === 0) {
+      setTripLocations([]);
+      return;
+    }
+
     const { data } = await db
       .from('trip_locations')
       .select('*')
       .in('trip_id', tripIds)
       .order('recorded_at', { ascending: true });
-    if (data) setTripLocations(data);
+
+    if (data) {
+      setTripLocations(data as TripLocation[]);
+    }
   };
+
+  useEffect(() => {
+    fetchData();
+
+    const channel = db
+      .channel('fleet-tracking')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'trip_locations' }, (payload: any) => {
+        const newLoc = payload.new as TripLocation;
+        const curSelectedId = selectedTripIdRef.current;
+        const curActiveTrips = activeTripsRef.current;
+        const curTab = tabRef.current;
+        const isRelevant =
+          curSelectedId === newLoc.trip_id ||
+          (curTab === 'live' && curActiveTrips.some((t) => t.id === newLoc.trip_id));
+
+        if (isRelevant) {
+          setTripLocations((prev) => mergeLocations(prev, [newLoc]));
+        }
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'trips' }, async () => {
+        await fetchData();
+        if (tabRef.current === 'live') {
+          await fetchActiveLocations();
+        }
+      })
+      .subscribe();
+
+    // Polling fallback: refresh active trips + locations in case realtime misses events
+    const pollInterval = setInterval(async () => {
+      if (tabRef.current !== 'live' || liveSyncInProgressRef.current) return;
+
+      liveSyncInProgressRef.current = true;
+      try {
+        const latestTrips = await fetchActiveTrips();
+        await fetchActiveLocations(latestTrips.map((trip) => trip.id));
+      } finally {
+        liveSyncInProgressRef.current = false;
+      }
+    }, 15000);
+
+    return () => {
+      db.removeChannel(channel);
+      clearInterval(pollInterval);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (tab === 'live') {
+      fetchActiveLocations();
+    }
+  }, [activeTrips, tab]);
 
   const viewTripRoute = async (tripId: string) => {
     setSelectedTripId(tripId);
