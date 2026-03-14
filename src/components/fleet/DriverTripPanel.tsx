@@ -263,18 +263,20 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
   }, []);
 
   const startTrip = async (description?: string) => {
+    // Request GPS permission but NEVER block trip creation
+    let gpsAvailable = true;
     try {
       const permission = await Geolocation.requestPermissions();
       if (permission.location !== 'granted') {
+        gpsAvailable = false;
         toast({
-          title: '❌ Permissão de GPS negada',
-          description: 'Habilite a localização nas configurações do celular.',
-          variant: 'destructive',
+          title: '⚠️ GPS sem permissão',
+          description: 'A viagem será criada, mas o rastreamento pode não funcionar. Habilite a localização nas configurações.',
         });
-        return;
       }
     } catch (e) {
-      console.log('GPS permission error:', e);
+      gpsAvailable = false;
+      console.log('GPS permission error (non-blocking):', e);
     }
 
     if (!selectedVehicleId) {
