@@ -872,8 +872,7 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
             </div>
             <SignaturePad
               onSave={saveSignature}
-              onCancel={() => setShowSignaturePad(false)}
-              saving={savingSignature}
+              onClear={() => setShowSignaturePad(false)}
             />
           </div>
         </div>

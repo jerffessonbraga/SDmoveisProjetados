@@ -24,6 +24,9 @@ export enum ViewMode {
   INTERNAL_CHAT = 'INTERNAL_CHAT',
   APPOINTMENTS = 'APPOINTMENTS',
   PROFIT_BI = 'PROFIT_BI',
+  CHAT = 'CHAT',
+  SETTINGS = 'SETTINGS',
+  USER_MANAGEMENT = 'USER_MANAGEMENT',
 }
 
 export enum ToolMode {
