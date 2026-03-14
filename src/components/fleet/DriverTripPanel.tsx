@@ -293,7 +293,7 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
 
   const startTracking = useCallback((tripId: string) => {
     // Delegate to the singleton (no-op if already tracking this trip)
-    gpsTracker.start(tripId, () => setLocationCount(prev => prev + 1));
+    void gpsTracker.start(tripId, () => setLocationCount(prev => prev + 1));
   }, []);
 
   const stopTracking = useCallback(() => {
@@ -815,7 +815,7 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
           </button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4" key="new-trip-form">
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <h3 className="font-semibold mb-3 flex items-center gap-2">
               <Navigation className="w-5 h-5 text-blue-600" />
@@ -824,6 +824,7 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
             <div className="mb-3">
               <label className="block text-sm font-medium text-gray-700 mb-1">Veículo</label>
               <select
+                key={`vehicle-select-${vehicles.length}`}
                 value={selectedVehicleId}
                 onChange={e => setSelectedVehicleId(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
