@@ -304,7 +304,7 @@ export default function FleetAdminPanel() {
             {activeTrips.map(trip => {
               const lastLoc = tripLocations
                 .filter(l => l.trip_id === trip.id)
-                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+                .sort((a, b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime())[0];
               return (
                 <div key={trip.id} className="flex items-center justify-between p-4 bg-muted rounded-xl">
                   <div className="flex items-center gap-3">
