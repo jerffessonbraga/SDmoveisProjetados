@@ -176,6 +176,16 @@ const App: React.FC = () => {
   const [clientName, setClientName] = useState('');
   const [showArModal, setShowArModal] = useState<{ title: string; url: string } | null>(null);
 
+  const goToRoleSelection = () => {
+    const keysToClear = ['sd_authState', 'sd_selectedRole', 'sd_employeeName', 'sd_employeeId', 'sd_view'];
+    keysToClear.forEach((key) => localStorage.removeItem(key));
+
+    setEmployeeName('');
+    setEmployeeId('');
+    setPassword('');
+    setAuthState('SELECT');
+  };
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
