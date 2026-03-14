@@ -132,6 +132,16 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
   }, [employeeId, employeeName]);
 
   useEffect(() => {
+    if (!resolvedEmployeeId) return;
+
+    const syncInterval = setInterval(() => {
+      void fetchTrips(resolvedEmployeeId, false);
+    }, 15000);
+
+    return () => clearInterval(syncInterval);
+  }, [resolvedEmployeeId]);
+
+  useEffect(() => {
     if (activeTrip && activeTrip.id) {
       Geolocation.requestPermissions()
         .catch(() => { })
