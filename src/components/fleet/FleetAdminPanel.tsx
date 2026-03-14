@@ -55,6 +55,7 @@ export default function FleetAdminPanel() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [tab, setTab] = useState<'live' | 'history' | 'fuel' | 'vehicles'>('live');
   const [loading, setLoading] = useState(true);
+  const [tripPointCounts, setTripPointCounts] = useState<Record<string, number>>({});
 
   // Refs to avoid stale closures inside realtime callbacks
   const activeTripsRef = useRef<Trip[]>([]);
