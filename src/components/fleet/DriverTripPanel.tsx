@@ -856,7 +856,7 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <FuelLogForm tripId={activeTrip.id} onClose={() => setShowFuel(false)} />
+            <FuelLogForm employeeId={employeeId} tripId={activeTrip.id} onClose={() => setShowFuel(false)} />
           </div>
         </div>
       )}
