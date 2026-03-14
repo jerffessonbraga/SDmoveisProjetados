@@ -176,6 +176,16 @@ const App: React.FC = () => {
   const [clientName, setClientName] = useState('');
   const [showArModal, setShowArModal] = useState<{ title: string; url: string } | null>(null);
 
+  const goToRoleSelection = () => {
+    const keysToClear = ['sd_authState', 'sd_selectedRole', 'sd_employeeName', 'sd_employeeId', 'sd_view'];
+    keysToClear.forEach((key) => localStorage.removeItem(key));
+
+    setEmployeeName('');
+    setEmployeeId('');
+    setPassword('');
+    setAuthState('SELECT');
+  };
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -545,30 +555,21 @@ const App: React.FC = () => {
               <Settings className="w-5 h-5" />
             </button>
             <button
-              onClick={() => {
-                localStorage.clear();
-                setAuthState('SELECT');
-              }}
+              onClick={goToRoleSelection}
               className="p-3 text-sidebar-foreground/50 hover:text-primary transition-all duration-300 flex flex-col items-center gap-1 hover:scale-110"
               title="Voltar à seleção"
             >
               <ArrowRight className="w-5 h-5 rotate-180" />
               <span className="text-[10px] font-bold">Voltar</span>
             </button>
-            <button onClick={() => {
-              localStorage.clear();
-              setAuthState('SELECT');
-            }} className="p-3 text-sidebar-foreground/50 hover:text-destructive transition-all duration-300 flex flex-col items-center gap-1 hover:scale-110" title="Sair">
+            <button onClick={goToRoleSelection} className="p-3 text-sidebar-foreground/50 hover:text-destructive transition-all duration-300 flex flex-col items-center gap-1 hover:scale-110" title="Sair">
               <LogOut className="w-5 h-5" />
               <span className="text-[10px] font-bold">Sair</span>
             </button>
           </div>
 
           {/* Mobile: logout button */}
-          <button onClick={() => {
-            localStorage.clear();
-            setAuthState('SELECT');
-          }} className={`${isCompactLayout ? 'p-2 text-sidebar-foreground/50 hover:text-destructive flex-shrink-0' : 'hidden'}`} title="Sair">
+          <button onClick={goToRoleSelection} className={`${isCompactLayout ? 'p-2 text-sidebar-foreground/50 hover:text-destructive flex-shrink-0' : 'hidden'}`} title="Sair">
             <LogOut className="w-5 h-5" />
           </button>
         </aside>
