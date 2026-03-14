@@ -352,7 +352,6 @@ const App: React.FC = () => {
 
       // Try to find the best match
       const matchedEmp = empData?.find((e: any) =>
-        e.email?.toLowerCase() === searchInput ||
         e.name.toLowerCase() === searchInput
       ) || empData?.[0];
 
