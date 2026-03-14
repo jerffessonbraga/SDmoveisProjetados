@@ -156,52 +156,81 @@ export default function DriverTripPanel({ employeeId, employeeName }: DriverTrip
     }
   };
 
-  const fetchEmployeeAndTrips = async () => {
-    setLoading(true);
+  const fetchEmployeeAndTrips = async (showLoader = true) => {
+    if (showLoader) setLoading(true);
+
     let resolvedId = employeeId;
     if (!resolvedId) {
+      const search = employeeName.trim().toLowerCase();
+      if (!search) {
+        if (showLoader) setLoading(false);
+        return;
+      }
+
       const { data: empData } = await db
         .from('employees')
-        .select('id')
-        .eq('name', employeeName)
+        .select('id, name, email')
         .eq('active', true)
-        .maybeSingle();
-      if (empData) resolvedId = empData.id;
-      else { setLoading(false); return; }
+        .or(`name.ilike.${search},email.ilike.${search}`);
+
+      const exactMatch = (empData || []).find(
+        (employee: any) => employee?.name?.toLowerCase() === search || employee?.email?.toLowerCase() === search
+      );
+
+      if (exactMatch?.id) {
+        resolvedId = exactMatch.id;
+      } else if (empData?.[0]?.id) {
+        resolvedId = empData[0].id;
+      } else {
+        if (showLoader) setLoading(false);
+        return;
+      }
     }
-    await fetchTrips(resolvedId);
+
+    await fetchTrips(resolvedId, showLoader);
   };
 
-  const fetchTrips = async (empId: string) => {
-    const { data: active } = await db
+  const fetchTrips = async (empId: string, finishLoading = true) => {
+    const { data: activeTripsData } = await db
       .from('trips')
       .select('*')
       .eq('employee_id', empId)
-      .eq('status', 'active') // Strictly check for active status
-      .maybeSingle();
+      .is('ended_at', null)
+      .order('started_at', { ascending: false })
+      .limit(5);
 
-    if (active) {
-      setActiveTrip(active as Trip);
+    if ((activeTripsData?.length || 0) > 1) {
+      console.warn('[TRIP] Mais de uma viagem ativa encontrada para o funcionário. Retomando a mais recente.');
+    }
+
+    const latestActive = (activeTripsData?.[0] as Trip | undefined) || null;
+
+    if (latestActive) {
+      setActiveTrip(latestActive);
       const { count } = await db
         .from('trip_locations')
         .select('*', { count: 'exact', head: true })
-        .eq('trip_id', active.id);
+        .eq('trip_id', latestActive.id);
       setLocationCount(count || 0);
     } else {
       setActiveTrip(null);
+      setLocationCount(0);
     }
 
     const { data: recent } = await db
       .from('trips')
       .select('*')
       .eq('employee_id', empId)
-      .eq('status', 'completed')
+      .or('status.eq.completed,ended_at.not.is.null')
       .order('started_at', { ascending: false })
       .limit(10);
 
     if (recent) setRecentTrips(recent as Trip[]);
     setResolvedEmployeeId(empId);
-    setLoading(false);
+
+    if (finishLoading) {
+      setLoading(false);
+    }
   };
 
   const fetchChecklists = async (tripId: string) => {
