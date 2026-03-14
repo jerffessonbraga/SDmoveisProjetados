@@ -249,6 +249,21 @@ export default function FleetAdminPanel() {
     };
   }, []);
 
+  // Fetch GPS point counts for completed trips (for display in history list)
+  const fetchTripPointCounts = async (tripIds: string[]) => {
+    if (tripIds.length === 0) return;
+    const counts: Record<string, number> = {};
+    // Batch query: get counts for each trip
+    for (const id of tripIds) {
+      const { count } = await db
+        .from('trip_locations')
+        .select('*', { count: 'exact', head: true })
+        .eq('trip_id', id);
+      counts[id] = count || 0;
+    }
+    setTripPointCounts(prev => ({ ...prev, ...counts }));
+  };
+
   useEffect(() => {
     if (tab === 'live') {
       if (selectedTripId) {
@@ -259,22 +274,14 @@ export default function FleetAdminPanel() {
       return;
     }
 
-    if (tab === 'history') {
-      if (selectedTripId) {
-        fetchTripLocationsByTripId(selectedTripId);
-        return;
-      }
-
-      if (completedTrips.length > 0) {
-        const latestTrip = completedTrips[0];
-        setSelectedTripId(latestTrip.id);
-        fetchTripLocationsByTripId(latestTrip.id);
-        return;
-      }
-
-      setTripLocations([]);
+    // For history: only auto-select when no trip is selected yet
+    if (tab === 'history' && !selectedTripId && completedTrips.length > 0) {
+      const latestTrip = completedTrips[0];
+      setSelectedTripId(latestTrip.id);
+      fetchTripLocationsByTripId(latestTrip.id);
+      fetchTripPointCounts(completedTrips.map(t => t.id));
     }
-  }, [activeTrips, completedTrips, selectedTripId, tab]);
+  }, [completedTrips, selectedTripId, tab]);
 
   const viewTripRoute = async (tripId: string) => {
     setSelectedTripId(tripId);
