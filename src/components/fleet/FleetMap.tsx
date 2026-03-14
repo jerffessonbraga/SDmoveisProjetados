@@ -25,7 +25,7 @@ interface Location {
   longitude: number;
   accuracy: number | null;
   speed: number | null;
-  recorded_at: string;
+  created_at: string;
 }
 
 export default function FleetMap({ locations = [] }: { locations?: Location[] }) {
