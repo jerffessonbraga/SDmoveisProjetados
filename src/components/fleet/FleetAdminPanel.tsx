@@ -58,12 +58,14 @@ export default function FleetAdminPanel() {
 
   // Refs to avoid stale closures inside realtime callbacks
   const activeTripsRef = useRef<Trip[]>([]);
+  const completedTripsRef = useRef<Trip[]>([]);
   const selectedTripIdRef = useRef<string | null>(null);
   const tabRef = useRef<string>('live');
   const liveSyncInProgressRef = useRef(false);
 
   // Keep refs in sync with state
   useEffect(() => { activeTripsRef.current = activeTrips; }, [activeTrips]);
+  useEffect(() => { completedTripsRef.current = completedTrips; }, [completedTrips]);
   useEffect(() => { selectedTripIdRef.current = selectedTripId; }, [selectedTripId]);
   useEffect(() => { tabRef.current = tab; }, [tab]);
 
