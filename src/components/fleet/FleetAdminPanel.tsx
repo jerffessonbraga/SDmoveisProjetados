@@ -512,6 +512,10 @@ export default function FleetAdminPanel() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
+                  <span className="text-xs text-muted-foreground">
+                    <MapPin className="w-3 h-3 inline mr-1" />
+                    {tripPointCounts[trip.id] ?? '…'} pts
+                  </span>
                   <span className="text-sm font-bold text-foreground">
                     <Clock className="w-3 h-3 inline mr-1" />
                     {calcDuration(trip.started_at, trip.ended_at)}
