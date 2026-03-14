@@ -88,8 +88,8 @@ export default function FleetAdminPanel() {
     setLoading(true);
     const [empRes, activeRes, completedRes, vehRes] = await Promise.all([
       db.from('employees').select('id, name, role').eq('active', true),
-      db.from('trips').select('*').eq('status', 'active').order('started_at', { ascending: false }),
-      db.from('trips').select('*').eq('status', 'completed').order('ended_at', { ascending: false }).limit(50),
+      db.from('trips').select('*').or('status.eq.active,ended_at.is.null').order('started_at', { ascending: false }),
+      db.from('trips').select('*').or('status.eq.completed,ended_at.not.is.null').order('ended_at', { ascending: false }).limit(50),
       db.from('vehicles').select('id, plate, model, year, active').order('model'),
     ]);
 
@@ -116,7 +116,7 @@ export default function FleetAdminPanel() {
     const { data } = await db
       .from('trips')
       .select('*')
-      .eq('status', 'active')
+      .or('status.eq.active,ended_at.is.null')
       .order('started_at', { ascending: false });
 
     const nextActiveTrips = (data || []) as Trip[];
@@ -134,7 +134,7 @@ export default function FleetAdminPanel() {
     const { data } = await db
       .from('trips')
       .select('*')
-      .eq('status', 'completed')
+      .or('status.eq.completed,ended_at.not.is.null')
       .order('ended_at', { ascending: false })
       .limit(50);
 
